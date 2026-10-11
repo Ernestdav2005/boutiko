@@ -15,43 +15,68 @@ const PLANS = {
   standard: { label: "Standard", price: 5000, products: 100, photos: 3, storageMb: 60, custom: true },
   pro: { label: "Pro", price: 10000, products: 300, photos: 3, storageMb: 160, custom: true },
 };
-// Modèles de boutique vendus avec chaque formule (le client choisit un modèle, puis renseigne ses infos)
+
+// Catalogue de modèles — extensible : ajouter une entrée ici + style CSS + aperçu /modele/:id
 const TEMPLATES = {
   simple: {
-    id: "simple", plan: "essentiel", label: "Simple & claire",
-    tagline: "Idéal pour démarrer vite depuis chez soi",
-    desc: "Une page découverte nette : nom, slogan, WhatsApp et produits. Sans complication.",
+    id: "simple", plan: "essentiel", label: "Simple",
+    tagline: "Demarrer en 2 minutes",
+    desc: "Page nette : nom, WhatsApp, produits. Ideal pour vendre depuis chez soi.",
+    tags: ["rapide", "debutant"],
   },
   quartier: {
-    id: "quartier", plan: "essentiel", label: "Boutique de quartier",
-    tagline: "L’ambiance du commerce de proximité",
-    desc: "Mise en avant de l’adresse, des horaires et du contact WhatsApp. Parfait pour un petit commerce local.",
+    id: "quartier", plan: "essentiel", label: "Quartier",
+    tagline: "Commerce de proximite",
+    desc: "Adresse, horaires et contact mis en avant. Parfait pour un petit commerce local.",
+    tags: ["local", "contact"],
+  },
+  express: {
+    id: "express", plan: "essentiel", label: "Express",
+    tagline: "Catalogue minimal",
+    desc: "Grille produits pure, sans superflu. Pour qui veut juste montrer et vendre.",
+    tags: ["produits", "rapide"],
   },
   vitrine: {
-    id: "vitrine", plan: "standard", label: "Vitrine pro",
-    tagline: "Une image de marque plus soignée",
-    desc: "Bannière, logo fort, section entreprise et catalogue bien structuré.",
+    id: "vitrine", plan: "standard", label: "Vitrine",
+    tagline: "Image de marque soignee",
+    desc: "Banniere, logo, section entreprise et catalogue structure.",
+    tags: ["marque", "pro"],
   },
   catalogue: {
-    id: "catalogue", plan: "standard", label: "Catalogue produit",
-    tagline: "Les produits d’abord",
-    desc: "Grille produits mise en avant, recherche rapide, style catalogue moderne.",
+    id: "catalogue", plan: "standard", label: "Catalogue",
+    tagline: "Les produits d abord",
+    desc: "Grille moderne, recherche, style catalogue e-commerce.",
+    tags: ["produits", "grille"],
+  },
+  mode: {
+    id: "mode", plan: "standard", label: "Mode",
+    tagline: "Pret-a-porter et accessoires",
+    desc: "Mise en scene textile : lookbook leger, cartes produits elegantes.",
+    tags: ["mode", "lookbook"],
   },
   premium: {
     id: "premium", plan: "pro", label: "Premium",
     tagline: "Niveau boutique haut de gamme",
-    desc: "Grand hero photo, texte élégant, univers de marque et catalogue premium.",
+    desc: "Grand hero photo, typographie fine, univers de marque.",
+    tags: ["luxe", "hero"],
   },
   maison: {
-    id: "maison", plan: "pro", label: "Maison de marque",
-    tagline: "Rivaliser avec une grande enseigne",
-    desc: "Storytelling d’entreprise, galerie d’univers, présentation digne d’une marque établie.",
+    id: "maison", plan: "pro", label: "Maison",
+    tagline: "Maison de marque",
+    desc: "Storytelling d entreprise, galerie d univers, presentation digne d une enseigne.",
+    tags: ["story", "marque"],
+  },
+  flagship: {
+    id: "flagship", plan: "pro", label: "Flagship",
+    tagline: "Vitrine phare",
+    desc: "Experience complete type grande enseigne : hero, univers, catalogue premium.",
+    tags: ["enseigne", "complet"],
   },
 };
 const TEMPLATES_BY_PLAN = {
-  essentiel: ["simple", "quartier"],
-  standard: ["vitrine", "catalogue"],
-  pro: ["premium", "maison"],
+  essentiel: ["simple", "quartier", "express"],
+  standard: ["vitrine", "catalogue", "mode"],
+  pro: ["premium", "maison", "flagship"],
 };
 function templateOf(shop) {
   const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
@@ -349,37 +374,43 @@ async function homePage(request, env) {
     ? `<a class="btn ghost" href="https://wa.me/${esc(admin)}?text=${encodeURIComponent("Bonjour, je veux en savoir plus sur " + (env.PLATFORM_NAME || "Boutiko"))}">Poser une question sur WhatsApp</a>`
     : "";
 
-  const planLabel = { essentiel: "Essentiel · 2 000 F/mois", standard: "Standard · 5 000 F/mois", pro: "Pro · 10 000 F/mois" };
+
+  const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
+  const planPrice = { essentiel: PLANS.essentiel.price, standard: PLANS.standard.price, pro: PLANS.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
-  const modelCards = planOrder.map((pk) => {
-    const p = PLANS[pk];
-    const cards = (TEMPLATES_BY_PLAN[pk] || []).map((tid) => {
+  // Galerie type marketplace : tous les modeles, filtres par formule
+  const allCards = planOrder.flatMap((pk) =>
+    (TEMPLATES_BY_PLAN[pk] || []).map((tid) => {
       const t = TEMPLATES[tid];
-      return `<article class="model-card model-${esc(tid)}" data-plan="${esc(pk)}">
-        <a class="model-preview" href="/modele/${esc(tid)}" aria-label="Voir le modele ${esc(t.label)}">
-          <div class="model-frame model-frame-${esc(tid)}"><div class="model-frame-inner">
-            <div class="mf-cover"></div>
-            <div class="mf-body"><div class="mf-logo"></div><div class="mf-lines"><i></i><i></i><i></i></div>
-            <div class="mf-grid"><span></span><span></span><span></span><span></span></div></div>
-          </div></div>
+      const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
+      return `<article class="tpl-card tpl-${esc(tid)}" data-plan="${esc(pk)}" data-id="${esc(tid)}">
+        <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
+          <div class="tpl-device tpl-device-${esc(tid)}">
+            <div class="tpl-bar"></div>
+            <div class="tpl-hero-block"></div>
+            <div class="tpl-logo-dot"></div>
+            <div class="tpl-lines"><i></i><i></i></div>
+            <div class="tpl-prod-row"><span></span><span></span><span></span></div>
+          </div>
+          <span class="tpl-preview-label">Apercu live</span>
         </a>
-        <div class="model-info">
-          <span class="model-plan-pill">${esc(planLabel[pk])}</span>
+        <div class="tpl-meta">
+          <div class="tpl-meta-top">
+            <span class="tpl-plan" data-plan="${esc(pk)}">${esc(planLabel[pk])} · ${fcfa(planPrice[pk])} F/mois</span>
+            <div class="tpl-tags">${tags}</div>
+          </div>
           <h3>${esc(t.label)}</h3>
-          <p class="model-tag">${esc(t.tagline)}</p>
-          <p class="muted small">${esc(t.desc)}</p>
-          <div class="row model-actions">
-            <a class="btn small" href="/app?modele=${esc(tid)}&formule=${esc(pk)}">Choisir ce modele</a>
-            <a class="btn ghost small" href="/modele/${esc(tid)}">Voir l'exemple</a>
+          <p class="tpl-tagline">${esc(t.tagline)}</p>
+          <p class="tpl-desc muted small">${esc(t.desc)}</p>
+          <div class="tpl-cta">
+            <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(pk)}">Utiliser ce modele</a>
+            <a class="btn ghost small" href="/modele/${esc(tid)}">Voir l exemple</a>
           </div>
         </div>
       </article>`;
-    }).join("");
-    return `<div class="model-plan-block"><h3 class="model-plan-title">${esc(p.label)} <small>${fcfa(p.price)} FCFA / mois</small></h3>
-      <div class="model-grid">${cards}</div></div>`;
-  }).join("");
-
-  const shops = pros.results.length
+    })
+  ).join("");
+    const shops = pros.results.length
     ? `<section class="sec wrap"><h2>Boutiques deja en ligne</h2><div class="chips">${pros.results
         .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`).join("")}</div></section>`
     : "";
@@ -394,13 +425,13 @@ async function homePage(request, env) {
   </div></header>
 
   <section class="sec wrap" id="modeles">
-    <h2>Nos modeles par formule</h2>
-    <p class="muted" style="max-width:40ch;margin-bottom:28px">Comme une collection de vitrines : regardez l'exemple, choisissez le modele qui vous ressemble, puis remplissez uniquement vos informations.</p>
-    ${modelCards}
+    <h2>Galerie de modeles</h2>
+    <p class="muted" style="max-width:40ch;margin-bottom:28px">Comme sur Figma ou Shopify Themes : parcourez, filtrez par formule, ouvrez l'apercu, puis utilisez le modele.</p>
+    <div class="tpl-filters" role="tablist"><button type="button" class="on" data-filter="all">Tous</button><button type="button" data-filter="essentiel">Essentiel</button><button type="button" data-filter="standard">Standard</button><button type="button" data-filter="pro">Pro</button></div><div class="tpl-marketplace">${allCards}</div>
   </section>
 
   <section class="sec wrap">
-    <h2>Comment ca marche</h2>
+    <h2>Comment creer votre boutique</h2>
     <ol class="steps">
       <li><b>Choisissez un modele</b> selon votre formule (Essentiel, Standard ou Pro).</li>
       <li><b>Renseignez vos infos</b> : nom, WhatsApp, produits et photos.</li>
@@ -408,7 +439,7 @@ async function homePage(request, env) {
     </ol>
   </section>
 
-  ${shops}
+  ${shops}<script>(function(){var root=document.querySelector('.tpl-marketplace');if(!root)return;document.querySelectorAll('.tpl-filters button').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.tpl-filters button').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');var f=btn.getAttribute('data-filter');root.querySelectorAll('.tpl-card').forEach(function(card){card.hidden=(f!=='all'&&card.getAttribute('data-plan')!==f);});});});})();</script>
   <footer class="foot"><div class="wrap">© ${name} · Vitrines digitales pour commercants</div></footer>`;
 
   return html(layout({
