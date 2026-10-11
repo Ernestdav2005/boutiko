@@ -1,0 +1,116 @@
+name: Add real visuals homepage
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/add-visuals.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Inject real images
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          import subprocess
+          src = Path("src/index.js").read_text()
+
+          old_card = '''        <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
+          <div class="tpl-device tpl-device-${esc(tid)}">
+            <div class="tpl-bar"></div>
+            <div class="tpl-hero-block"></div>
+            <div class="tpl-logo-dot"></div>
+            <div class="tpl-lines"><i></i><i></i></div>
+            <div class="tpl-prod-row"><span></span><span></span><span></span></div>
+          </div>
+          <span class="tpl-preview-label">Apercu live</span>
+        </a>'''
+
+          new_card = '''        <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
+          <img class="tpl-photo" src="${esc((SHOTS[tid]||SHOTS.simple))}" alt="${esc(t.label)}" loading="lazy" width="640" height="400" />
+          <span class="tpl-preview-label">Apercu live</span>
+        </a>'''
+
+          assert old_card in src, "card template not found"
+          src = src.replace(old_card, new_card, 1)
+
+          if "const SHOTS =" not in src:
+            inject = '''  const SHOTS = {
+    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=80",
+    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=900&q=80",
+    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=900&q=80",
+    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=900&q=80",
+    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900&q=80",
+    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80",
+    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&q=80",
+    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=900&q=80",
+    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?w=900&q=80",
+  };
+'''
+            marker = "  const planLabel"
+            assert marker in src
+            src = src.replace(marker, inject + marker, 1)
+
+          old_hero_end = '''  </div></header>
+
+  <section class="sec wrap" id="modeles">'''
+          new_hero_end = '''  </div></header>
+
+  <section class="vis-strip" aria-hidden="true">
+    <div class="vis-row">
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&q=80" alt="" loading="lazy" />
+    </div>
+  </section>
+
+  <section class="sec wrap" id="modeles">'''
+          if old_hero_end in src:
+            src = src.replace(old_hero_end, new_hero_end, 1)
+            print("hero strip")
+
+          Path("src/index.js").write_text(src)
+
+          css = r'''
+/* VISUELS REELS */
+.vis-strip{padding:0;overflow:hidden;background:#0a0a0b}
+.vis-row{display:flex;gap:8px;padding:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.vis-row img{flex:0 0 auto;width:min(72vw,280px);height:180px;object-fit:cover;border-radius:14px;scroll-snap-align:start}
+@media(min-width:800px){
+  .vis-row{justify-content:center;overflow:hidden}
+  .vis-row img{width:200px;height:160px}
+}
+.tpl-shot{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:#111}
+.tpl-photo{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s}
+.tpl-card:hover .tpl-photo{transform:scale(1.05)}
+.tpl-device{display:none!important}
+.tpl-preview-label{position:absolute;bottom:12px;right:12px;z-index:2;background:rgba(10,10,11,.88);color:#fff;font-size:.7rem;font-weight:700;padding:6px 12px;border-radius:999px}
+.home-models .hero-models{background:#0a0a0b!important;color:#fff!important;padding:48px 0 40px!important}
+.home-models .hero-models h1{color:#fff!important}
+.home-models .hero-models .lead{color:#a1a1aa!important}
+.home-models .hero-models .btn{background:#fff!important;color:#0a0a0b!important;border-radius:12px!important}
+.home-models .hero-models .btn.ghost{background:transparent!important;color:#fff!important;border:1.5px solid #3f3f46!important}
+'''
+          sty = Path("src/client/style.txt").read_text()
+          m = "/* VISUELS REELS */"
+          if m in sty:
+            sty = sty[:sty.find(m)].rstrip()
+          Path("src/client/style.txt").write_text(sty + "\n" + css)
+          r = subprocess.run(["node","--check","src/index.js"],capture_output=True,text=True)
+          print(r.stderr or "OK")
+          raise SystemExit(r.returncode)
+          PY
+      - name: Commit
+        run: |
+          git config user.name boutiko-visuals
+          git config user.email noreply@github.com
+          git add src/index.js src/client/style.txt
+          git commit -m "Visuels reels: photos Unsplash sur modeles + bandeau presentation" || echo no
+          git push
