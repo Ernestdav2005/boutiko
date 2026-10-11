@@ -1,8 +1,8 @@
 {
   "name": "boutiko",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "private": true,
-  "description": "Boutiko — Accueil pro, modeles de boutiques, WhatsApp",
+  "description": "Boutiko — Boutique en ligne WhatsApp, modeles pro, pret clients",
   "main": "src/index.js",
   "scripts": {
     "dev": "wrangler dev",
