@@ -1,0 +1,57 @@
+name: Extract Boutiko Projet 3
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/extract-project-3.yml'
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract and replace project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f boutiko-projet-3.zip
+          mkdir -p /tmp/boutiko-p3
+          unzip -oq boutiko-projet-3.zip -d /tmp/boutiko-p3
+          # Support archives that contain another ZIP or a single enclosing folder.
+          inner_zip="$(find /tmp/boutiko-p3 -type f -iname '*.zip' -print -quit || true)"
+          if [ -n "$inner_zip" ] && ! find /tmp/boutiko-p3 -type f -name 'wrangler.jsonc' | grep -q .; then
+            mkdir -p /tmp/boutiko-p3-inner
+            unzip -oq "$inner_zip" -d /tmp/boutiko-p3-inner
+            cp -a /tmp/boutiko-p3-inner/. /tmp/boutiko-p3/
+          fi
+          config="$(find /tmp/boutiko-p3 -type f -name 'wrangler.jsonc' -print -quit)"
+          test -n "$config"
+          root="$(dirname "$config")"
+          for file in wrangler.jsonc package.json package-lock.json .gitignore README.md INSTRUCTIONS_POUR_CHATGPT.md src/index.js src/client/app.txt src/client/admin.txt src/client/shop.txt src/client/style.txt; do
+            test -f "$root/$file" || { echo "Fichier manquant dans l'archive: $file"; exit 1; }
+          done
+          cp "$root/wrangler.jsonc" wrangler.jsonc
+          cp "$root/package.json" package.json
+          cp "$root/package-lock.json" package-lock.json
+          cp "$root/.gitignore" .gitignore
+          cp "$root/README.md" README.md
+          cp "$root/INSTRUCTIONS_POUR_CHATGPT.md" INSTRUCTIONS_POUR_CHATGPT.md
+          mkdir -p src/client
+          cp "$root/src/index.js" src/index.js
+          cp "$root/src/client/app.txt" src/client/app.txt
+          cp "$root/src/client/admin.txt" src/client/admin.txt
+          cp "$root/src/client/shop.txt" src/client/shop.txt
+          cp "$root/src/client/style.txt" src/client/style.txt
+          rm -f .github/workflows/extract-project-3.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wrangler.jsonc package.json package-lock.json .gitignore README.md INSTRUCTIONS_POUR_CHATGPT.md src/index.js src/client/app.txt src/client/admin.txt src/client/shop.txt src/client/style.txt .github/workflows/extract-project-3.yml
+          if git diff --cached --quiet; then
+            echo "Aucun changement dans les fichiers du projet."
+            exit 0
+          fi
+          git commit -m "Boutiko : design premium et espace propriétaire"
+          git push
