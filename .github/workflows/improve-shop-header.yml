@@ -13,29 +13,61 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Apply premium shop header patch
+      - name: Apply small precise patches
         run: |
           python3 << 'PY'
-          import base64
           with open("src/index.js") as f:
               src = f.read()
           if "cover has-img" in src:
-              print("Already improved, skipping")
+              print("Already improved")
               raise SystemExit(0)
-          old = base64.b64decode("ICBjb25zdCBnYWxsZXJ5SWRzID0gcGFyc2VJZHMoc2hvcC5nYWxsZXJ5KS5zbGljZSgwLCA1KTsKICBjb25zdCBnYWxsZXJ5ID0gZ2FsbGVyeUlkcy5sZW5ndGggPyBgPHNlY3Rpb24gY2xhc3M9InNob3Atc3Rvcnkgd3JhcCI+PGRpdiBjbGFzcz0ic3RvcnktdGl0bGUiPjxzcGFuPkTDqWNvdXZyZXogbm90cmUgdW5pdmVyczwvc3Bhbj48aDI+TGEgYm91dGlxdWUgZW4gaW1hZ2VzPC9oMj48L2Rpdj48ZGl2IGNsYXNzPSJzdG9yeS1nYWxsZXJ5Ij4ke2dhbGxlcnlJZHMubWFwKChpZCwgaSkgPT4gYDxpbWcgc3JjPSIvaW1nLyR7aWR9IiBsb2FkaW5nPSJsYXp5IiBhbHQ9IlBob3RvICR7aSArIDF9IGRlICR7bmFtZX0iPmApLmpvaW4oIiIpfTwvZGl2Pjwvc2VjdGlvbj5gIDogIiI7CiAgY29uc3QgYmFubmVyID0gc2hvcC5iYW5uZXJfaWQgJiYgcGxhbi5jdXN0b20gPyBgPGRpdiBjbGFzcz0iYmFubmVyIiBzdHlsZT0iYmFja2dyb3VuZC1pbWFnZTp1cmwoL2ltZy8ke3Nob3AuYmFubmVyX2lkfSkiPjwvZGl2PmAgOiAiIjsKICBjb25zdCBhdmF0YXIgPQogICAgc2hvcC5sb2dvX2lkCiAgICAgID8gYDxkaXYgY2xhc3M9ImF2YXRhciI+PGltZyBzcmM9Ii9pbWcvJHtzaG9wLmxvZ29faWR9IiBhbHQ9IiI+PC9kaXY+YAogICAgICA6IGA8ZGl2IGNsYXNzPSJhdmF0YXIiIGFyaWEtaGlkZGVuPSJ0cnVlIj4ke2VzYyhBcnJheS5mcm9tKHNob3AubmFtZS50cmltKCkpWzBdIHx8ICJCIikudG9VcHBlckNhc2UoKX08L2Rpdj5gOwogIGNvbnN0IHdhTGluayA9IGBodHRwczovL3dhLm1lLyR7ZXNjKHNob3Aud2hhdHNhcHApfWA7CiAgY29uc3QgaGVhZCA9IGAke2Jhbm5lcn08ZGl2IGNsYXNzPSJhd25pbmciPjwvZGl2PjxoZWFkZXIgY2xhc3M9InNob3BoZWFkIj48ZGl2IGNsYXNzPSJ3cmFwIj4KPGRpdiBjbGFzcz0ic2hvcC1icmFuZGxpbmUiPiR7c2hvcC5icmFuZF9uYW1lIHx8IHNob3AuYnVzaW5lc3NfbmFtZSA/IGA8cCBjbGFzcz0iYnJhbmQtZXllYnJvdyI+JHtlc2Moc2hvcC5icmFuZF9uYW1lIHx8IHNob3AuYnVzaW5lc3NfbmFtZSl9PC9wPmAgOiAiIn08L2Rpdj4KPGRpdiBjbGFzcz0iaWRyb3ciPiR7YXZhdGFyfTxkaXY+PGgxPiR7bmFtZX08L2gxPiR7c3QgPyBgPHNwYW4gY2xhc3M9ImJhZGdlICR7c3Qub3BlbiA/ICJvcGVuIiA6ICJjbG9zZWQifSI+JHtzdC5vcGVuID8gIk91dmVydCIgOiAiRmVybcOpIn0gwrcgJHtlc2Moc3QudGV4dCl9PC9zcGFuPmAgOiAiIn08L2Rpdj48L2Rpdj4KJHtzaG9wLnNsb2dhbiA/IGA8cCBjbGFzcz0ic2hvcC1zbG9nYW4iPiR7ZXNjKHNob3Auc2xvZ2FuKX08L3A+YCA6ICIifQoke3Nob3AuZGVzY3JpcHRpb24gPyBgPHAgY2xhc3M9InNkZXNjIj4ke2VzYyhzaG9wLmRlc2NyaXB0aW9uKX08L3A+YCA6ICIifQo8ZGl2IGNsYXNzPSJpbmZvcyI+JHtzaG9wLmFkZHJlc3MgPyBgPHNwYW4+JHtpY29uKFwicGluXCIpfTxzcGFuPiR7ZXNjKHNob3AuYWRkcmVzcyl9PC9zcGFuPjwvc3Bhbj5gIDogXCJcIn0KICR7c2hvcC5tb21vID8gYDxzcGFuPiR7aWNvbihcImNhcmRcIil9PHNwYW4+JHtlc2Moc2hvcC5tb21vKX08L3NwYW4+PC9zcGFuPmAgOiBcIlwifTwvZGl2Pgo8ZGl2IGNsYXNzPSJyb3ciPiR7c2hvcC5tYXBzX3VybCA/IGA8YSBjbGFzcz1cImJ0biBnaG9zdCBzbWFsbFwiIHRhcmdldD1cIl9ibGFua1wiIHJlbD1cIm5vb3BlbmVyXCIgaHJlZj1cIiR7ZXNjKHNob3AubWFwc191cmwpfVwiPiR7aWNvbihcInJvdXRlXCIpfSBJdGluw6lyYWlyZTwvYT5gIDogXCJcIn0KPGEgY2xhc3M9XCJidG4gZ2hvc3Qgc21hbGxcIiB0YXJnZXQ9XCJfYmxhbmtcIiByZWw9XCJub29wZW5lclwiIGhyZWY9XCIke3dhTGlua31cIj4ke2ljb24oXCJ3YVwiKX0gTm91cyDDqWNyaXJlPC9hPgo8YnV0dG9uIGNsYXNzPVwiYnRuIGdob3N0IHNtYWxsXCIgdHlwZT1cImJ1dHRvblwiIGlkPVwic2hhcmVcIj4ke2ljb24oXCJzaGFyZVwiKX0gUGFydGFnZXI8L2J1dHRvbj48L2Rpdj48L2Rpdj48L2hlYWRlcj5gOwo=").decode()
-          new = base64.b64decode("ICBjb25zdCBnYWxsZXJ5SWRzID0gcGFyc2VJZHMoc2hvcC5nYWxsZXJ5KS5zbGljZSgwLCA1KTsKICBjb25zdCBnYWxsZXJ5ID0gZ2FsbGVyeUlkcy5sZW5ndGgKICAgID8gYDxzZWN0aW9uIGNsYXNzPSJzaG9wLXN0b3J5Ij48ZGl2IGNsYXNzPSJ3cmFwIj48ZGl2IGNsYXNzPSJzdG9yeS10aXRsZSI+PHNwYW4+Tm90cmUgdW5pdmVyczwvc3Bhbj48aDI+TGEgYm91dGlxdWUgZW4gaW1hZ2VzPC9oMj48L2Rpdj48ZGl2IGNsYXNzPSJzdG9yeS1nYWxsZXJ5Ij4ke2dhbGxlcnlJZHMubWFwKChpZCwgaSkgPT4gYDxidXR0b24gdHlwZT0iYnV0dG9uIiBjbGFzcz0ic3Rvcnktc2hvdCIgZGF0YS1saWdodGJveD0iL2ltZy8ke2lkfSIgYXJpYS1sYWJlbD0iVm9pciBsYSBwaG90byAke2kgKyAxfSI+PGltZyBzcmM9Ii9pbWcvJHtpZH0iIGxvYWRpbmc9ImxhenkiIGFsdD0iUGhvdG8gJHtpICsgMX0gZGUgJHtuYW1lfSI+PC9idXR0b24+YCkuam9pbigiIil9PC9kaXY+PC9kaXY+PC9zZWN0aW9uPmAKICAgIDogIiI7CiAgY29uc3QgYmFubmVyID0gc2hvcC5iYW5uZXJfaWQgJiYgcGxhbi5jdXN0b20KICAgID8gYDxkaXYgY2xhc3M9ImNvdmVyIGhhcy1pbWciIHN0eWxlPSJiYWNrZ3JvdW5kLWltYWdlOnVybCgvaW1nLyR7c2hvcC5iYW5uZXJfaWR9KSI+PC9kaXY+YAogICAgOiBgPGRpdiBjbGFzcz0iY292ZXIgbm8taW1nIiBzdHlsZT0iLS1jOiR7Y29sb3J9Ij48L2Rpdj5gOwogIGNvbnN0IGF2YXRhciA9CiAgICBzaG9wLmxvZ29faWQKICAgICAgPyBgPGRpdiBjbGFzcz0iYXZhdGFyIj48aW1nIHNyYz0iL2ltZy8ke3Nob3AubG9nb19pZH0iIGFsdD0iTG9nbyAke25hbWV9Ij48L2Rpdj5gCiAgICAgIDogYDxkaXYgY2xhc3M9ImF2YXRhciIgYXJpYS1oaWRkZW49InRydWUiPiR7ZXNjKEFycmF5LmZyb20oc2hvcC5uYW1lLnRyaW0oKSlbMF0gfHwgIkIiKS50b1VwcGVyQ2FzZSgpfTwvZGl2PmA7CiAgY29uc3Qgd2FMaW5rID0gYGh0dHBzOi8vd2EubWUvJHtlc2Moc2hvcC53aGF0c2FwcCl9YDsKICBjb25zdCBicmFuZExpbmUgPSBzaG9wLmJyYW5kX25hbWUgfHwgc2hvcC5idXNpbmVzc19uYW1lCiAgICA/IGA8cCBjbGFzcz0iYnJhbmQtZXllYnJvdyI+JHtlc2Moc2hvcC5icmFuZF9uYW1lIHx8IHNob3AuYnVzaW5lc3NfbmFtZSl9PC9wPmAKICAgIDogIiI7CiAgY29uc3QgaGVhZCA9IGAke2Jhbm5lcn08aGVhZGVyIGNsYXNzPSJzaG9waGVhZCI+PGRpdiBjbGFzcz0id3JhcCI+CjxkaXYgY2xhc3M9Imlkcm93Ij4ke2F2YXRhcn08ZGl2IGNsYXNzPSJzaG9wLWlkIj4ke2JyYW5kTGluZX08aDE+JHtuYW1lfTwvaDE+JHtzdCA/IGA8c3BhbiBjbGFzcz0iYmFkZ2UgJHtzdC5vcGVuID8gIm9wZW4iIDogImNsb3NlZCJ9Ij4ke3N0Lm9wZW4gPyAiT3V2ZXJ0IiA6ICJGZXJtw6kifSDCtyAke2VzYyhzdC50ZXh0KX08L3NwYW4+YCA6ICIifTwvZGl2PjwvZGl2Pgoke3Nob3Auc2xvZ2FuID8gYDxwIGNsYXNzPSJzaG9wLXNsb2dhbiI+JHtlc2Moc2hvcC5zbG9nYW4pfTwvcD5gIDogIiJ9CiR7c2hvcC5kZXNjcmlwdGlvbiA/IGA8cCBjbGFzcz0ic2Rlc2MiPiR7ZXNjKHNob3AuZGVzY3JpcHRpb24pfTwvcD5gIDogIiJ9CjxkaXYgY2xhc3M9ImluZm9zIj4ke3Nob3AuYWRkcmVzcyA/IGA8c3Bhbj4ke2ljb24oInBpbiIpfTxzcGFuPiR7ZXNjKHNob3AuYWRkcmVzcyl9PC9zcGFuPjwvc3Bhbj5gIDogIiJ9JHtzaG9wLm1vbW8gPyBgPHNwYW4+JHtpY29uKCJjYXJkIil9PHNwYW4+JHtlc2Moc2hvcC5tb21vKX08L3NwYW4+PC9zcGFuPmAgOiAiIn08L2Rpdj4KPGRpdiBjbGFzcz0icm93IHNob3AtYWN0aW9ucyI+JHtzaG9wLm1hcHNfdXJsID8gYDxhIGNsYXNzPSJidG4gZ2hvc3Qgc21hbGwiIHRhcmdldD0iX2JsYW5rIiByZWw9Im5vb3BlbmVyIiBocmVmPSIke2VzYyhzaG9wLm1hcHNfdXJsKX0iPiR7aWNvbigicm91dGUiKX0gSXRpbsOpcmFpcmU8L2E+YCA6ICIifQo8YSBjbGFzcz0iYnRuIGdob3N0IHNtYWxsIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciIgaHJlZj0iJHt3YUxpbmt9Ij4ke2ljb24oIndhIil9IE5vdXMgw6ljcmlyZTwvYT4KPGJ1dHRvbiBjbGFzcz0iYnRuIGdob3N0IHNtYWxsIiB0eXBlPSJidXR0b24iIGlkPSJzaGFyZSI+JHtpY29uKCJzaGFyZSIpfSBQYXJ0YWdlcjwvYnV0dG9uPjwvZGl2Pgo8L2Rpdj48L2hlYWRlcj5gOwo=").decode()
-          if old not in src:
-              print("Old block not found!")
-              idx = src.find("const galleryIds")
-              print("galleryIds at", idx)
-              raise SystemExit(1)
-          src2 = src.replace(old, new, 1)
+
+          replacements = [
+              (
+                  'class="shop-story wrap"',
+                  'class="shop-story"'
+              ),
+              (
+                  "Découvrez notre univers",
+                  "Notre univers"
+              ),
+              (
+                  'const banner = shop.banner_id && plan.custom ? `<div class="banner" style="background-image:url(/img/${shop.banner_id})"></div>` : "";',
+                  'const banner = shop.banner_id && plan.custom\n    ? `<div class="cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`\n    : `<div class="cover no-img" style="--c:${color}"></div>`;'
+              ),
+              (
+                  '${galleryIds.map((id, i) => `<img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}">`).join("")}',
+                  '${galleryIds.map((id, i) => `<button type="button" class="story-shot" data-lightbox="/img/${id}" aria-label="Voir la photo ${i + 1}"><img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}"></button>`).join("")}'
+              ),
+              (
+                  '? `<div class="avatar"><img src="/img/${shop.logo_id}" alt=""></div>`',
+                  '? `<div class="avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`'
+              ),
+              (
+                  '<div class="idrow">${avatar}<div><h1>${name}</h1>',
+                  '<div class="idrow">${avatar}<div class="shop-id"><h1>${name}</h1>'
+              ),
+              (
+                  '<div class="awning"></div><header class="shophead">',
+                  '<header class="shophead">'
+              ),
+          ]
+
+          for i, (old, new) in enumerate(replacements):
+              if old in src:
+                  src = src.replace(old, new, 1)
+                  print(f"Applied patch {i}")
+              else:
+                  print(f"Skip patch {i} (not found)")
+
           with open("src/index.js", "w") as f:
-              f.write(src2)
-          print("Patched successfully, new size:", len(src2))
+              f.write(src)
+          print("Done. cover has-img:", "cover has-img" in src)
+          print("data-lightbox:", "data-lightbox" in src)
           PY
           git config user.name "boutiko-improve"
           git config user.email "noreply@github.com"
           git add src/index.js
-          git commit -m "Header boutique premium: cover, galerie cliquable, nom en grand"
+          git diff --cached --stat
+          git commit -m "Header boutique premium: cover, galerie cliquable, nom en grand" || echo "nothing to commit"
           git push
