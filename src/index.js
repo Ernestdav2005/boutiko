@@ -390,6 +390,17 @@ async function homePage(request, env) {
     : "";
 
 
+  const SHOTS = {
+    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=80",
+    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=900&q=80",
+    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=900&q=80",
+    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=900&q=80",
+    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900&q=80",
+    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80",
+    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&q=80",
+    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=900&q=80",
+    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?w=900&q=80",
+  };
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
   const planPrice = { essentiel: PLANS.essentiel.price, standard: PLANS.standard.price, pro: PLANS.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
@@ -400,13 +411,7 @@ async function homePage(request, env) {
       const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
       return `<article class="tpl-card tpl-${esc(tid)}" data-plan="${esc(pk)}" data-id="${esc(tid)}">
         <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
-          <div class="tpl-device tpl-device-${esc(tid)}">
-            <div class="tpl-bar"></div>
-            <div class="tpl-hero-block"></div>
-            <div class="tpl-logo-dot"></div>
-            <div class="tpl-lines"><i></i><i></i></div>
-            <div class="tpl-prod-row"><span></span><span></span><span></span></div>
-          </div>
+          <img class="tpl-photo" src="${esc((SHOTS[tid]||SHOTS.simple))}" alt="${esc(t.label)}" loading="lazy" width="640" height="400" />
           <span class="tpl-preview-label">Apercu live</span>
         </a>
         <div class="tpl-meta">
@@ -438,6 +443,16 @@ async function homePage(request, env) {
     <div class="row"><a class="btn" href="#modeles">Voir les modeles</a><a class="btn ghost" href="/app">Creer ma boutique</a>${contact}</div>
     <p class="note">${TRIAL_DAYS} jours d'essai · Commandes sur WhatsApp · Sans application a installer pour vos clients</p>
   </div></header>
+
+  <section class="vis-strip" aria-hidden="true">
+    <div class="vis-row">
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80" alt="" loading="lazy" />
+      <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&q=80" alt="" loading="lazy" />
+    </div>
+  </section>
 
   <section class="sec wrap" id="modeles">
     <h2>Galerie de modeles</h2>
