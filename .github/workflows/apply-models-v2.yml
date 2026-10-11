@@ -1,0 +1,87 @@
+name: Apply shop models catalog
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/apply-models-v2.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Apply models system
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          import base64
+          def load(p):
+              return base64.b64decode(Path(p).read_text().strip()).decode()
+          src = Path("src/index.js").read_text()
+          if "const TEMPLATES" not in src:
+              src = src.replace("const TRIAL_DAYS = 7;", load("scripts/block-templates.b64") + "\nconst TRIAL_DAYS = 7;", 1)
+              print("templates")
+          if 'columns.has("template")' not in src:
+              src = src.replace(
+                  'if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT \'grid\'").run();',
+                  'if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT \'grid\'").run();\n      if (!columns.has("template")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN template TEXT DEFAULT \'simple\'").run();',
+                  1)
+              print("mig")
+          if "template TEXT DEFAULT 'simple'" not in src:
+              src = src.replace(
+                  "theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', plan TEXT DEFAULT 'essentiel'",
+                  "theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', template TEXT DEFAULT 'simple', plan TEXT DEFAULT 'essentiel'",
+                  1)
+          if "hero-models" not in src:
+              hs = src.find("async function homePage(request, env) {")
+              he = src.find("\nfunction appPage(", hs)
+              assert hs > 0 and he > hs, (hs, he)
+              src = src[:hs] + load("scripts/block-home.b64").rstrip() + "\n\n" + src[he:]
+              print("home")
+          if "modelDemoPage" not in src:
+              nf = src.find("\nfunction notFound(env) {")
+              src = src[:nf] + "\n" + load("scripts/block-demo.b64") + src[nf:]
+              print("demo")
+          if '"modele"' not in src[src.find("RESERVED"):src.find("RESERVED")+400]:
+              src = src.replace('"aide", "www"', '"aide", "modele", "www"', 1)
+          if 'parts[0] === "modele"' not in src:
+              src = src.replace(
+                  'if (method === "GET" && parts.length === 1 && /^[a-z0-9-]+$/.test(parts[0]) && !RESERVED.has(parts[0])) {\n    return shopPage(request, env, ctx, parts[0]);\n  }',
+                  'if (method === "GET" && parts[0] === "modele" && parts[1] && /^[a-z0-9-]+$/.test(parts[1])) {\n    return modelDemoPage(request, env, parts[1]);\n  }\n  if (method === "GET" && parts.length === 1 && /^[a-z0-9-]+$/.test(parts[0]) && !RESERVED.has(parts[0])) {\n    return shopPage(request, env, ctx, parts[0]);\n  }',
+                  1)
+              print("route")
+          if "b.template" not in src and "b.modele" not in src:
+              old = '  const slug = await uniqueSlug(env, name);\n  const plan = isAdmin ? "pro" : "essentiel";\n  const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + TRIAL_DAYS * 86400;\n  await env.DB.prepare(\n    "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?)"\n  )\n    .bind(userId, slug, name, str(b.description, 300), phone, plan, paidUntil, now())\n    .run();'
+              new = '  const slug = await uniqueSlug(env, name);\n  let plan = isAdmin ? "pro" : (["essentiel", "standard", "pro"].includes(b.plan) ? b.plan : "essentiel");\n  let template = str(b.template || b.modele, 30) || "simple";\n  if (!TEMPLATES[template]) template = plan === "pro" ? "premium" : plan === "standard" ? "vitrine" : "simple";\n  if (!isAdmin && TEMPLATES[template] && TEMPLATES[template].plan !== plan) plan = TEMPLATES[template].plan;\n  const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + TRIAL_DAYS * 86400;\n  await env.DB.prepare(\n    "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, template, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?,?)"\n  )\n    .bind(userId, slug, name, str(b.description, 300), phone, plan, template, paidUntil, now())\n    .run();'
+              if old in src:
+                  src = src.replace(old, new, 1)
+                  print("reg")
+              else:
+                  print("reg skip")
+          if "data-template=" not in src:
+              src = src.replace(
+                  'bodyAttrs: `class="sf-page sf-${planKey}" data-plan="${planKey}"',
+                  'bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${templateOf(shop).id}" data-plan="${planKey}" data-template="${templateOf(shop).id}"',
+                  1)
+          if "template: shop.template" not in src:
+              src = src.replace('layout: shop.layout || "grid", plan: shop.plan,', 'layout: shop.layout || "grid", plan: shop.plan, template: shop.template || "simple",', 1)
+          Path("src/index.js").write_text(src)
+          css = Path("src/client/style.txt").read_text()
+          if "CATALOGUE DE" not in css:
+              Path("src/client/style.txt").write_text(css.rstrip() + "\n" + load("scripts/block-css.b64"))
+              print("css")
+          PY
+          node --check src/index.js
+          grep -c TEMPLATES src/index.js
+          grep -c hero-models src/index.js || true
+          grep -c modelDemoPage src/index.js || true
+      - name: Commit
+        run: |
+          git config user.name boutiko-models
+          git config user.email noreply@github.com
+          git add src/index.js src/client/style.txt
+          git commit -m "Catalogue modeles de boutiques par formule + page d'accueil" || echo no
+          git push
