@@ -525,7 +525,7 @@
         return '<label class="theme-option theme-' + t[0] + '"><input type="radio" name="theme" value="' + t[0] + '" ' + ((s.theme || "editorial") === t[0] ? "checked" : "") + '><span class="theme-preview"></span><b>' + t[1] + '</b><small>' + t[2] + '</small></label>';
       }).join("") + '</div></div>' +
       '<label class="field"><span>Présentation des produits</span><select name="layout"><option value="grid" ' + ((s.layout || "grid") === "grid" ? "selected" : "") + '>Grille classique</option><option value="list" ' + (s.layout === "list" ? "selected" : "") + '>Liste avec grandes photos</option><option value="large" ' + (s.layout === "large" ? "selected" : "") + '>Grandes cartes visuelles</option></select></label>' +
-      '<div class="field"><span>Logo</span><div id="logo"></div></div>' +
+      '<div class="field"><span>Logo ou photo du commerçant</span><p class="muted small">Votre visage ou votre logo aide les clients à reconnaître votre boutique.</p><div id="logo"></div></div>' +
       '<div class="field"><span>Bannière</span><div id="banner"></div></div>' +
       '<div class="field"><span>Photos pour présenter votre boutique (5 maximum)</span><p class="muted small">Montrez votre local, votre équipe, votre atelier ou l’ambiance de votre commerce. Ce sont des photos différentes de celles des produits.</p><div id="gallery"></div></div>' +
       '<label class="field"><span>Adresse</span><input name="address" maxlength="200" value="' + esc(s.address) + '" placeholder="Ex : Marché Dantokpa, allée B"></label>' +
@@ -556,7 +556,7 @@
     };
     function mediaField(id, kind, current, maxSide, maxBytes) {
       var box = $("#" + id);
-      if (!lim.custom) { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
+      if (!lim.custom && kind !== "logo") { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
       function draw() {
         box.innerHTML = (current ? '<div class="thumb" style="width:' + (kind === "logo" ? 80 : 160) + 'px"><img src="/img/' + current + '" style="width:100%;height:80px" alt=""><button type="button" id="' + id + 'x">×</button></div>' : "") +
           '<input type="file" accept="image/*" id="' + id + 'f" style="margin-top:6px"><small id="' + id + 'm"></small>';
