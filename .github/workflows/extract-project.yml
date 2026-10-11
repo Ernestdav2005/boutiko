@@ -23,7 +23,7 @@ jobs:
           mkdir -p /tmp/boutiko-project
           unzip -oq boutiko-projet.zip -d /tmp/boutiko-project
           cp -a /tmp/boutiko-project/. .
-          rm -rf src/.git .git
+          rm -rf src/.git
           git status --short
 
       - name: Commit extracted files
