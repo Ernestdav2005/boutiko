@@ -13,65 +13,67 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Apply discovery storefront
+      - name: Patch discovery base
         run: |
           python3 << 'PY'
           from pathlib import Path
           src = Path("src/index.js").read_text()
           if "discover-cover" in src:
-              print("Already discovery")
-              raise SystemExit(0)
-
-          reps = [
-              ('class="cover has-img"', 'class="discover-cover has-img"'),
-              ('class="cover no-img"', 'class="discover-cover no-img"'),
-              ('class="avatar"', 'class="discover-avatar"'),
-              ('class="brand-eyebrow"', 'class="discover-brand"'),
-              ('class="idrow"', 'class="discover-identity"'),
-              ('class="shop-id"', 'class="discover-id-text"'),
-              ('class="shop-slogan"', 'class="discover-slogan"'),
-              ('class="sdesc"', 'class="discover-desc"'),
-              ('class="shophead"', 'class="discover-hero"'),
-              ('class="shop-story"', 'class="discover-gallery"'),
-              ('bodyAttrs: `data-slug=', 'bodyAttrs: `class="discover-page" data-slug='),
-              ('<h1>${name}</h1>', '<h1 class="discover-name">${name}</h1>'),
-          ]
-          for old, new in reps:
-              c = src.count(old)
-              if c:
-                  src = src.replace(old, new)
-                  print("ok", old[:28], c)
-              else:
-                  print("skip", old[:28])
-
-          if "discover-section-title" not in src:
-              src2 = src.replace(
-                  '<main class="wrap">${many',
-                  '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div>${many',
-                  1,
+              print("already")
+          else:
+              pairs = [
+                ('class="cover has-img"', 'class="discover-cover has-img"'),
+                ('class="cover no-img"', 'class="discover-cover no-img"'),
+                ('class="avatar"', 'class="discover-avatar"'),
+                ('class="brand-eyebrow"', 'class="discover-brand"'),
+                ('class="idrow"', 'class="discover-identity"'),
+                ('class="shop-id"', 'class="discover-id-text"'),
+                ('class="shop-slogan"', 'class="discover-slogan"'),
+                ('class="sdesc"', 'class="discover-desc"'),
+                ('class="shophead"', 'class="discover-hero"'),
+                ('class="shop-story"', 'class="discover-gallery"'),
+                ('<h1>${name}</h1>', '<h1 class="discover-name">${name}</h1>'),
+              ]
+              for o,n in pairs:
+                  if o in src:
+                      src = src.replace(o, n)
+                      print("ok", o[:40])
+              # body class for base + pro marker
+              old_ba = 'bodyAttrs: `data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"'
+              new_ba = 'bodyAttrs: `class="discover-page" data-plan="${esc(shop.plan||"essentiel")}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"'
+              if old_ba in src:
+                  src = src.replace(old_ba, new_ba, 1)
+                  print("bodyAttrs")
+              # section title products
+              if "Nos produits" not in src or "discover-section-title" not in src:
+                  src = src.replace(
+                      '<main class="wrap">${many',
+                      '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div>${many',
+                      1)
+                  src = src.replace(
+                      '<main class="wrap"><div class="empty">',
+                      '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div><div class="empty">',
+                      1)
+                  print("sections")
+              Path("src/index.js").write_text(src)
+              print("discover-cover", "discover-cover" in src)
+          # PLANS: mark pro as premium storefront
+          src = Path("src/index.js").read_text()
+          if "premiumStorefront" not in src:
+              src = src.replace(
+                  'pro: { label: "Pro", price: 10000, products: 300, photos: 3, storageMb: 160, custom: true },',
+                  'pro: { label: "Pro", price: 10000, products: 300, photos: 3, storageMb: 160, custom: true, premiumStorefront: true },',
               )
-              if src2 != src:
-                  src = src2
-                  print("section products")
-              src3 = src.replace(
-                  '<main class="wrap"><div class="empty">',
-                  '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div><div class="empty">',
-                  1,
-              )
-              if src3 != src:
-                  src = src3
-                  print("section empty")
-
-          Path("src/index.js").write_text(src)
-          print("done", "discover-cover" in src)
+              Path("src/index.js").write_text(src)
+              print("pro flag")
           PY
           node --check src/index.js
-      - name: CSS discovery
+      - name: CSS base discovery
         run: |
-          if grep -q discover-cover src/client/style.txt; then echo present; else
+          if grep -q 'PAGE DECOUVERTE' src/client/style.txt; then echo css-ok; else
           cat >> src/client/style.txt << 'EOF'
 
-/* ===== PAGE DECOUVERTE ===== */
+/* ===== PAGE DECOUVERTE (base + pro) ===== */
 .discover-page{background:var(--bg)}
 .discover-hero{position:relative;background:#fff;border-bottom:1px solid var(--bd)}
 .discover-cover{height:200px;background-size:cover;background-position:center;position:relative}
@@ -93,17 +95,23 @@ jobs:
 .discover-gallery{padding:16px;background:#fff;border-bottom:1px solid var(--bd)}
 .discover-page .prod{border-radius:20px}
 .discover-page .prod:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+/* Pro premium polish (data-plan=pro) */
+body[data-plan="pro"].discover-page .discover-cover{height:240px}
+body[data-plan="pro"].discover-page .discover-name{font-size:1.95rem;letter-spacing:-.04em}
+body[data-plan="pro"].discover-page .discover-avatar{width:104px;height:104px;border-radius:26px}
+body[data-plan="pro"].discover-page .discover-products .prod{border:1px solid transparent;box-shadow:var(--shadow-md)}
+body[data-plan="pro"].discover-page .discover-section-title h2{font-size:1.5rem}
 @media(max-width:480px){
   .discover-avatar{width:76px;height:76px;border-radius:18px;font-size:1.8rem}
   .discover-name{font-size:1.4rem}
   .discover-identity{margin-top:-40px}
 }
 EOF
-          echo appended; fi
+          echo css-appended; fi
       - name: Commit
         run: |
           git config user.name boutiko-improve
           git config user.email noreply@github.com
           git add src/index.js src/client/style.txt
-          git commit -m "Vitrine découverte: identité entreprise + catalogue" || echo no
+          git commit -m "Vitrine découverte base + polish Pro (10k)" || echo no
           git push
