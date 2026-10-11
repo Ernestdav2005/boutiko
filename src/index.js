@@ -452,16 +452,18 @@ async function shopPage(request, env, ctx, slug) {
   const theme = ["editorial", "minimal", "elegant", "bold"].includes(shop.theme) ? shop.theme : "editorial";
   const productLayout = ["grid", "list", "large"].includes(shop.layout) ? shop.layout : "grid";
   const galleryIds = parseIds(shop.gallery).slice(0, 5);
-  const gallery = galleryIds.length ? `<section class="shop-story wrap"><div class="story-title"><span>Découvrez notre univers</span><h2>La boutique en images</h2></div><div class="story-gallery">${galleryIds.map((id, i) => `<img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}">`).join("")}</div></section>` : "";
-  const banner = shop.banner_id && plan.custom ? `<div class="banner" style="background-image:url(/img/${shop.banner_id})"></div>` : "";
+  const gallery = galleryIds.length ? `<section class="shop-story"><div class="story-title"><span>Notre univers</span><h2>La boutique en images</h2></div><div class="story-gallery">${galleryIds.map((id, i) => `<button type="button" class="story-shot" data-lightbox="/img/${id}" aria-label="Voir la photo ${i + 1}"><img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}"></button>`).join("")}</div></section>` : "";
+  const banner = shop.banner_id && plan.custom
+    ? `<div class="cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
+    : `<div class="cover no-img" style="--c:${color}"></div>`;
   const avatar =
     shop.logo_id
-      ? `<div class="avatar"><img src="/img/${shop.logo_id}" alt=""></div>`
+      ? `<div class="avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
       : `<div class="avatar" aria-hidden="true">${esc(Array.from(shop.name.trim())[0] || "B").toUpperCase()}</div>`;
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
-  const head = `${banner}<div class="awning"></div><header class="shophead"><div class="wrap">
+  const head = `${banner}<header class="shophead"><div class="wrap">
 <div class="shop-brandline">${shop.brand_name || shop.business_name ? `<p class="brand-eyebrow">${esc(shop.brand_name || shop.business_name)}</p>` : ""}</div>
-<div class="idrow">${avatar}<div><h1>${name}</h1>${st ? `<span class="badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span>` : ""}</div></div>
+<div class="idrow">${avatar}<div class="shop-id"><h1>${name}</h1>${st ? `<span class="badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span>` : ""}</div></div>
 ${shop.slogan ? `<p class="shop-slogan">${esc(shop.slogan)}</p>` : ""}
 ${shop.description ? `<p class="sdesc">${esc(shop.description)}</p>` : ""}
 <div class="infos">${shop.address ? `<span>${icon("pin")}<span>${esc(shop.address)}</span></span>` : ""}
