@@ -506,3 +506,105 @@ body[data-layout="large"] .prod .pprice b{font-size:1.18rem}
 #galleryMsg{display:block;color:var(--mut);margin-top:6px}
 .app-actions{justify-content:flex-end;margin:0}
 @media(max-width:520px){.appbar .in{align-items:flex-start;flex-direction:column}.app-actions{width:100%;justify-content:stretch}.app-actions .btn{flex:1}.story-gallery img{height:190px}}
+
+
+/* Boutiko refresh — identité visuelle chaleureuse et vitrine moderne */
+:root{--ink:#17243a;--mut:#66738a;--bg:#f6f7fb;--bd:#e4e8f0;--sun:#ffd166;--r:20px}
+body{background:linear-gradient(180deg,#f8f9fc 0%,#f1f4f9 100%);color:#17243a}
+.wrap{max-width:1120px}
+.btn{border-radius:14px;box-shadow:0 5px 14px rgba(23,36,58,.08)}
+.btn.ghost{box-shadow:none}
+.card,.plan,.steps li{border-radius:20px;box-shadow:0 8px 28px rgba(23,36,58,.045)}
+.hero{position:relative;overflow:hidden;background:radial-gradient(ellipse at 88% 12%,rgba(50,196,155,.2),transparent 34%),linear-gradient(125deg,#14243b 0%,#202c50 56%,#273d62 100%)}
+.hero:before{content:"";position:absolute;width:360px;height:360px;right:-160px;top:-180px;border:1px solid rgba(255,255,255,.14);border-radius:50%;box-shadow:0 0 0 34px rgba(255,255,255,.025),0 0 0 70px rgba(255,255,255,.02)}
+.hero .wrap{position:relative;padding-top:22px;padding-bottom:62px}
+.brand{font-size:1.35rem;gap:11px;margin:12px 0 38px}
+.brand .mark{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#ffd166,#ffad66);box-shadow:0 7px 18px rgba(255,173,102,.2)}
+.hero h1{font-size:clamp(2.35rem,5vw,4.1rem);line-height:1.03;letter-spacing:-.055em;max-width:12em}
+.hero h1 em{font-style:normal;color:#ffd166}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;color:#8fe2cb;font-weight:800;font-size:.75rem;letter-spacing:.14em}
+.hero-kicker:before{content:"";width:24px;height:2px;background:#8fe2cb}
+.hero p.lead{font-size:1.12rem;line-height:1.7;color:#d9e3f3;max-width:34em;margin:20px 0}
+.hero .row{gap:10px;margin:24px 0 12px}
+.hero .btn{min-height:52px;background:#ffd166;border-color:#ffd166;color:#17243a}
+.hero .btn.ghost{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.24);color:#fff}
+.hero .note{color:#b8c6dc;margin-top:14px}
+.heroGrid{gap:32px}
+.phone{width:310px;border-radius:30px;border:7px solid #101b2d;box-shadow:0 30px 75px rgba(0,0,0,.32);transform:rotate(2deg);transition:transform .25s}
+.phone:hover{transform:rotate(0) translateY(-4px)}
+.phone .pn{font-size:1rem;padding-top:10px}
+.phone .ps{font-size:.76rem}
+.phone .pg{gap:10px;padding:0 12px 12px}
+.phone .pc{border-radius:14px}
+.phone .pc i{height:92px;border-radius:0}
+.phone .pc:first-child i{background:linear-gradient(135deg,#f5b44e 0 25%,#7c3c78 25% 48%,#e96e55 48% 70%,#eacb76 70%)!important;position:relative}
+.phone .pc:first-child i:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,255,255,.25) 8px 11px)}
+.phone .pc:nth-child(2) i{background:linear-gradient(135deg,#d6c1a2,#f0e4d1)!important;position:relative}
+.phone .pc:nth-child(2) i:after{content:"";position:absolute;width:46px;height:48px;border:5px solid #946e50;border-radius:8px 8px 13px 13px;left:calc(50% - 28px);top:22px}
+.phone .pc span{color:#c56d45}
+.sec{padding:42px 0 8px}
+.sec h2{font-size:clamp(1.45rem,2.5vw,2rem);letter-spacing:-.035em}
+.steps li{padding-top:20px;padding-bottom:20px;transition:transform .18s,box-shadow .18s}
+.steps li:hover{transform:translateY(-3px);box-shadow:0 15px 34px rgba(23,36,58,.09)}
+.feat{padding:12px 0}
+.feat .ic{width:46px;height:46px;flex-basis:46px;border-radius:15px;background:#e5f5ef;color:#168363}
+.feat b{margin-bottom:3px}
+.plan{padding:22px;border-color:#e5e9f1;transition:transform .18s,box-shadow .18s}
+.plan:hover{transform:translateY(-3px);box-shadow:0 16px 38px rgba(23,36,58,.1)}
+.plan .price{color:#147b62}
+.chip{box-shadow:0 4px 12px rgba(23,36,58,.04)}
+.proof-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:-25px auto 18px;position:relative;z-index:2}
+.proof-strip>div{background:#fff;border:1px solid #e8ebf2;border-radius:17px;padding:17px 18px;box-shadow:0 12px 30px rgba(23,36,58,.07)}
+.proof-strip b,.proof-strip span{display:block}
+.proof-strip b{font-size:.96rem}
+.proof-strip span{font-size:.83rem;color:#68758b;margin-top:4px}
+.banner{height:220px}
+.shophead{background:linear-gradient(180deg,#fff 0%,#fbfcff 100%)}
+.shophead .wrap{padding-top:18px;padding-bottom:24px}
+.idrow{gap:16px;margin:8px 0 10px}
+.avatar{width:82px;height:82px;flex-basis:82px;border-radius:24px;border:4px solid #fff;box-shadow:0 7px 22px rgba(23,36,58,.12)}
+.shophead h1{font-size:clamp(1.65rem,4vw,2.3rem);letter-spacing:-.04em}
+.brand-eyebrow{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em;color:var(--c);margin:0 0 4px}
+.shop-slogan{font-size:1.05rem;font-weight:750;color:#3d4a60;margin:0 0 5px}
+.sdesc{max-width:720px;line-height:1.65}
+.pgrid{gap:16px}
+.prod{border-radius:20px;box-shadow:0 8px 22px rgba(23,36,58,.055);transition:transform .18s,box-shadow .18s}
+.prod:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(23,36,58,.11)}
+.photos{background:#f0f2f7}
+.pbody{padding:13px 13px 15px}
+.pprice b{color:var(--c)}
+.fab{border-radius:18px;box-shadow:0 12px 28px rgba(22,123,87,.28)}
+.app{max-width:980px;padding:0 16px 110px}
+.appbar{margin:0 -16px 20px;border:0;background:linear-gradient(115deg,#17243a,#293e5d);color:#fff;box-shadow:0 12px 32px rgba(23,36,58,.15);border-radius:0 0 26px 26px;overflow:hidden}
+.appbar .awning{opacity:.9;--a1:#ffd166;--a2:#293e5d}
+.appbar .in{padding:16px 20px 22px;align-items:flex-end}
+.appbar h1{font-size:1.45rem;color:#fff;white-space:normal}
+.appbar small{color:#b9c8dc}
+.appbar .btn.ghost{background:rgba(255,255,255,.09);color:#fff;border-color:rgba(255,255,255,.23)}
+.tabs{background:rgba(255,255,255,.96);backdrop-filter:blur(16px);border-top:1px solid #e6e9f0;box-shadow:0 -8px 28px rgba(23,36,58,.07)}
+.tabs button{color:#778399}
+.tabs button.on{color:#167b62}
+.tabs button.on:before{background:#167b62}
+#view>h2{font-size:1.55rem;letter-spacing:-.035em;margin:16px 0}
+#view>.card{box-shadow:0 8px 26px rgba(23,36,58,.055)}
+.field input,.field textarea,.field select{border-radius:12px;border-color:#dce2ec;background:#fff}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#168363;box-shadow:0 0 0 3px rgba(22,131,99,.1)}
+.profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.profile-fields .field:last-child{grid-column:1/-1}
+.theme-option{border-radius:15px}
+.gallery-thumb{border-radius:14px;overflow:hidden}
+.upload-more{border:1px dashed #b7c7d7;border-radius:15px;background:#f6fbf9;color:#167b62}
+@media(max-width:760px){
+ .heroGrid{grid-template-columns:1fr}
+ .hero .wrap{padding-bottom:46px}
+ .brand{margin-bottom:28px}
+ .phone{width:min(100%,310px)}
+ .proof-strip{grid-template-columns:1fr;margin-top:-16px}
+ .proof-strip>div{padding:13px 15px}
+ .profile-fields{grid-template-columns:1fr}
+ .profile-fields .field:last-child{grid-column:auto}
+ .appbar .in{align-items:flex-start;flex-direction:column}
+ .app-actions{width:100%}
+ .app-actions .btn{flex:1}
+ .banner{height:160px}
+}
