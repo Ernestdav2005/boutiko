@@ -1,10 +1,11 @@
-name: Homepage pro platform
+name: Accueil pro noir
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/home-pro.yml'
       - 'scripts/apply-home-pro.py'
+      - 'scripts/hf0.js'
 permissions:
   contents: write
 jobs:
@@ -20,5 +21,5 @@ jobs:
           git config user.name boutiko-home
           git config user.email noreply@github.com
           git add src/index.js src/client/style.txt
-          git commit -m "Accueil pro: nav Connexion Inscription, presentation jeunes entrepreneurs" || echo no
+          git commit -m "Accueil pro: noir, Connexion, Inscription, modeles" || echo no
           git push
