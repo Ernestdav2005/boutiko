@@ -1,0 +1,53 @@
+async function homePage(request, env) {
+  const name = platformName(env);
+  const admin = await adminContact(env);
+  const pros = await env.DB.prepare(
+    "SELECT name, slug FROM shops WHERE plan='pro' AND status='active' ORDER BY id DESC LIMIT 8"
+  ).all();
+  const wa = admin
+    ? `<a class="nav-link" href="https://wa.me/${esc(admin)}?text=${encodeURIComponent("Bonjour, je veux en savoir plus sur " + (env.PLATFORM_NAME || "Boutiko"))}">Support</a>`
+    : "";
+
+  const planMeta = {
+    essentiel: { label: "Essentiel", price: PLANS.essentiel.price, tone: "ess" },
+    standard: { label: "Standard", price: PLANS.standard.price, tone: "std" },
+    pro: { label: "Pro", price: PLANS.pro.price, tone: "pro" },
+  };
+  // Images d'ambiance (Unsplash) pour chaque modele
+  const shots = {
+    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
+    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=800&q=80",
+    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&q=80",
+    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&q=80",
+    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80",
+    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80",
+    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?w=800&q=80",
+  };
+
+  const cards = ["essentiel", "standard", "pro"].flatMap((pk) =>
+    (TEMPLATES_BY_PLAN[pk] || []).map((tid) => {
+      const t = TEMPLATES[tid];
+      const m = planMeta[pk];
+      const img = shots[tid] || shots.simple;
+      return `<article class="mk-card" data-plan="${esc(pk)}">
+        <a class="mk-visual" href="/modele/${esc(tid)}" aria-label="Apercu ${esc(t.label)}">
+          <img src="${esc(img)}" alt="" loading="lazy" width="640" height="400" />
+          <span class="mk-live">Apercu live</span>
+        </a>
+        <div class="mk-body">
+          <div class="mk-row">
+            <span class="mk-plan mk-${esc(m.tone)}">${esc(m.label)} · ${fcfa(m.price)} F/mois</span>
+          </div>
+          <h3>${esc(t.label)}</h3>
+          <p class="mk-tag">${esc(t.tagline)}</p>
+          <p class="mk-desc">${esc(t.desc)}</p>
+          <div class="mk-actions">
+            <a class="btn btn-primary" href="/app?modele=${esc(tid)}&formule=${esc(pk)}">Utiliser ce modele</a>
+            <a class="btn btn-ghost" href="/modele/${esc(tid)}">Voir l'exemple complet</a>
+          </div>
+        </div>
+      </article>`;
+    })
+  ).join("");
