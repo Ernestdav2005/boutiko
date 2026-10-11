@@ -42,7 +42,7 @@ Dans `wrangler.jsonc`, modifier la valeur de `PLATFORM_NAME` (par exemple `"MonN
 
 ## Formules (réglées dans `src/index.js`, section PLANS)
 
-| Formule | Prix | Produits | Photos par produit | Espace photos | Logo et bannière |
+| Formule | Prix | Produits | Photos par produit | Espace photos | Photo/Logo et bannière |
 |---|---|---|---|---|---|
 | Essentiel | 2 000 FCFA | 30 | 1 | 10 Mo | logo ou photo oui; bannière non |
 | Standard | 5 000 FCFA | 100 | 3 | 60 Mo | oui |
