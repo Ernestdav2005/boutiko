@@ -388,7 +388,7 @@ async function homePage(request, env) {
   const contact = admin
     ? `<a class="btn ghost" href="https://wa.me/${esc(admin)}?text=${encodeURIComponent("Bonjour, je veux en savoir plus sur " + (env.PLATFORM_NAME || "Boutiko"))}">Poser une question sur WhatsApp</a>`
     : "";
-
+  const wa = !!admin;
 
   const SHOTS = {
     simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=80",
