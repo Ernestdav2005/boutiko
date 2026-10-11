@@ -1,0 +1,17 @@
+{
+  "name": "boutiko",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plateforme de boutiques en ligne pour les commerçants, commande par WhatsApp",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "wrangler": "^4.149.0"
+  }
+}

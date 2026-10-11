@@ -1,0 +1,156 @@
+(function () {
+  var body = document.body;
+  var slug = body.getAttribute("data-slug");
+  var shopName = body.getAttribute("data-name") || "";
+  var sheetEl = null;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function toast(msg) {
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.setAttribute("role", "status");
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 3500);
+  }
+  function closeSheet() {
+    if (sheetEl) { sheetEl.remove(); sheetEl = null; document.body.style.overflow = ""; }
+  }
+
+  function openSheet(card) {
+    closeSheet();
+    var id = card.getAttribute("data-id");
+    var max = parseInt(card.getAttribute("data-max"), 10) || 20;
+    var sold = card.getAttribute("data-sold") === "1";
+    var ids = (card.getAttribute("data-photos") || "").split(",").filter(Boolean);
+    var name = card.querySelector("h3").textContent;
+    var price = card.querySelector(".pprice").innerHTML;
+    var descEl = card.querySelector(".pdesc");
+    var warnEl = card.querySelector(".warn");
+    var gallery = ids.length
+      ? '<div class="photos" id="gal">' + ids.map(function (i) {
+          return '<img src="/img/' + i + '" alt="' + esc(name) + '">';
+        }).join("") + "</div>" +
+        (ids.length > 1 ? '<div class="dots" id="dots">' + ids.map(function (_, k) {
+          return "<i" + (k === 0 ? ' class="on"' : "") + "></i>";
+        }).join("") + "</div>" : "")
+      : "";
+    var o = document.createElement("div");
+    o.className = "overlay";
+    o.innerHTML =
+      '<div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(name) + '">' +
+      '<button class="x" type="button" data-close aria-label="Fermer">×</button>' + gallery +
+      "<h2>" + esc(name) + '</h2><div class="big pprice">' + price + "</div>" +
+      (descEl ? '<p class="muted">' + descEl.innerHTML + "</p>" : "") +
+      (warnEl ? '<p class="warn">' + warnEl.innerHTML + "</p>" : "") +
+      (sold
+        ? '<button class="btn block" disabled>Épuisé pour le moment</button>'
+        : '<div class="qty"><span class="muted">Quantité</span><button type="button" data-q="-1" aria-label="Moins">−</button><span class="qv" id="qv">1</span><button type="button" data-q="1" aria-label="Plus">+</button></div>' +
+          '<button class="btn wa block" type="button" id="go">Commander sur WhatsApp</button>' +
+          '<p class="hint">Votre message est déjà écrit : il vous suffit de l\'envoyer.</p>') +
+      "</div>";
+    document.body.appendChild(o);
+    document.body.style.overflow = "hidden";
+    sheetEl = o;
+    o.addEventListener("click", function (e) { if (e.target === o) closeSheet(); });
+
+    var gal = o.querySelector("#gal");
+    if (gal && ids.length > 1) {
+      gal.addEventListener("scroll", function () {
+        var k = Math.round(gal.scrollLeft / gal.clientWidth);
+        var d = o.querySelectorAll("#dots i");
+        for (var j = 0; j < d.length; j++) d[j].className = j === k ? "on" : "";
+      });
+    }
+    o.addEventListener("click", function (e) {
+      var q = e.target.closest("[data-q]");
+      if (q) {
+        var span = o.querySelector("#qv");
+        var v = parseInt(span.textContent, 10) + parseInt(q.getAttribute("data-q"), 10);
+        span.textContent = Math.max(1, Math.min(max, v));
+        return;
+      }
+      if (e.target.closest("[data-close]")) { closeSheet(); return; }
+      var go = e.target.closest("#go");
+      if (go) {
+        var qty = parseInt(o.querySelector("#qv").textContent, 10) || 1;
+        var old = go.textContent;
+        go.disabled = true;
+        go.textContent = "Ouverture de WhatsApp…";
+        var reset = function () { go.disabled = false; go.textContent = old; };
+        fetch("/api/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: slug, product_id: id, qty: qty }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.url) {
+              window.location.href = d.url;
+              setTimeout(reset, 2500);
+            } else {
+              toast(d.error || "Une erreur est survenue. Réessayez.");
+              reset();
+            }
+          })
+          .catch(function () {
+            toast("Pas de connexion. Vérifiez votre réseau, puis réessayez.");
+            reset();
+          });
+      }
+    });
+    var first = o.querySelector("[data-close]");
+    if (first) first.focus();
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+
+  document.addEventListener("click", function (e) {
+    if (sheetEl) return;
+    var op = e.target.closest("[data-open]");
+    if (op) {
+      var card = op.closest(".prod");
+      if (card) openSheet(card);
+      return;
+    }
+    if (e.target.closest("#share")) {
+      var url = window.location.origin + "/" + slug;
+      if (navigator.share) {
+        navigator.share({ title: shopName, url: url }).catch(function () {});
+      } else {
+        window.open("https://wa.me/?text=" + encodeURIComponent(shopName + " : " + url), "_blank");
+      }
+    }
+  });
+
+  // Recherche (affichée quand la boutique a beaucoup de produits)
+  var search = document.getElementById("q");
+  if (search) {
+    search.addEventListener("input", function () {
+      var t = search.value.trim().toLowerCase();
+      var cards = document.querySelectorAll(".prod");
+      var shown = 0;
+      for (var i = 0; i < cards.length; i++) {
+        var n = cards[i].querySelector("h3").textContent.toLowerCase();
+        var ok = !t || n.indexOf(t) !== -1;
+        cards[i].classList.toggle("hide", !ok);
+        if (ok) shown++;
+      }
+      var none = document.getElementById("none");
+      if (none) none.hidden = shown > 0;
+    });
+  }
+
+  // Produit partagé (lien avec #p12) : on l'ouvre directement
+  if (location.hash && /^#p\d+$/.test(location.hash)) {
+    var el = document.querySelector(location.hash);
+    if (el) {
+      el.scrollIntoView({ block: "center" });
+      openSheet(el);
+    }
+  }
+})();

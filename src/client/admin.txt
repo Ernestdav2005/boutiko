@@ -1,0 +1,120 @@
+(function () {
+  "use strict";
+  var root = document.getElementById("root");
+  var D = null;
+  var filter = "all";
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fcfa(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function $(s, el) { return (el || document).querySelector(s); }
+  function toast(msg) {
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+  function api(path, method, body) {
+    var opt = { method: method || "GET", headers: { "X-Requested-With": "boutiko" }, credentials: "same-origin" };
+    if (body !== undefined) { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); }
+    return fetch(path, opt).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) { var e = new Error(d.error || "Une erreur est survenue."); e.status = r.status; throw e; }
+        return d;
+      });
+    });
+  }
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    return new Date(ts * 1000).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+
+  function load() {
+    api("/api/admin/shops").then(function (d) { D = d; draw(); }).catch(function (ex) {
+      if (ex.status === 401 || ex.status === 404) {
+        root.innerHTML = '<div class="card center" style="margin-top:30px"><p>Connectez-vous avec le compte administrateur.</p><a class="btn" href="/app">Ouvrir mon espace</a></div>';
+      } else if (ex.status === 403) {
+        root.innerHTML = '<div class="card center" style="margin-top:30px"><p>Cette page est réservée à l\'administrateur.</p><a class="btn" href="/app">Retour</a></div>';
+      } else {
+        root.innerHTML = '<div class="alert bad">' + esc(ex.message) + "</div>";
+      }
+    });
+  }
+  function dueState(s) {
+    var days = Math.ceil((s.paid_until * 1000 - Date.now()) / 86400000);
+    if (s.paid_until && days < 0) return "expired";
+    if (s.paid_until && days <= 3) return "soon";
+    return "ok";
+  }
+  function relanceText(s) {
+    var d = fmtDate(s.paid_until);
+    var past = dueState(s) === "expired";
+    return "Bonjour " + s.name + ", votre abonnement " + (past ? "est arrivé à échéance le " : "arrive à échéance le ") + d +
+      ". Pour le renouveler, vous pouvez payer par Mobile Money et m'envoyer la confirmation ici. Merci !";
+  }
+  function draw() {
+    var shops = D.shops, plans = D.plans;
+    var active = shops.filter(function (s) { return s.status === "active"; });
+    var due = shops.filter(function (s) { return s.status === "active" && dueState(s) !== "ok"; });
+    var monthly = active.reduce(function (a, s) { return a + (dueState(s) === "expired" ? 0 : (plans[s.plan] ? plans[s.plan].price : 0)); }, 0);
+    var list = shops.filter(function (s) {
+      if (filter === "due") return s.status === "active" && dueState(s) !== "ok";
+      if (filter === "suspended") return s.status !== "active";
+      return true;
+    });
+    var h = '<div class="appbar"><div class="awning sunny"></div><div class="in"><h1><small>Plateforme</small>Administration</h1><a class="btn ghost small" href="/app">Mon espace</a></div></div>' +
+      '<div class="stat"><div class="card"><b>' + shops.length + "</b>boutiques</div><div class=\"card\"><b>" + due.length + "</b>à relancer</div>" +
+      '<div class="card"><b>' + fcfa(monthly) + "</b>FCFA / mois (estimation)</div><div class=\"card\"><b>" + (D.totalBytes / 1048576).toFixed(1) + " Mo</b>photos utilisées sur 10 000</div></div>" +
+      '<div class="row" style="margin-top:12px"><button class="btn small ' + (filter === "all" ? "" : "ghost") + '" data-f="all">Toutes</button>' +
+      '<button class="btn small ' + (filter === "due" ? "" : "ghost") + '" data-f="due">À relancer</button>' +
+      '<button class="btn small ' + (filter === "suspended" ? "" : "ghost") + '" data-f="suspended">Suspendues</button>' +
+      '<a class="btn ghost small" href="/api/admin/export">Sauvegarde complète</a></div>';
+    if (!list.length) h += '<div class="empty"><b>Aucune boutique ici</b>Changez de filtre pour voir les autres.</div>';
+    h += list.map(function (s) {
+      var st = dueState(s);
+      var badge = s.status !== "active" ? '<span class="chipx zero">Suspendue</span>' : st === "expired" ? '<span class="chipx zero">Expiré</span>' : st === "soon" ? '<span class="chipx low">Bientôt</span>' : '<span class="chipx">À jour</span>';
+      return '<div class="sh"><div class="row" style="justify-content:space-between"><b><a href="/' + esc(s.slug) + '" target="_blank" rel="noopener">' + esc(s.name) + "</a></b>" + badge + "</div>" +
+        '<div class="muted small">+' + esc(s.whatsapp) + " · " + s.pc + " produits · " + (s.bytes / 1048576).toFixed(1) + " Mo · " + s.v30 + " visites (30 j)" + (s.po ? " · " + s.po + " commande(s) en attente" : "") + "</div>" +
+        '<div class="small">Abonnement jusqu\'au <b>' + fmtDate(s.paid_until) + "</b></div>" +
+        '<div class="row"><select data-plan="' + s.id + '" style="width:auto">' + Object.keys(plans).map(function (k) {
+          return '<option value="' + k + '"' + (k === s.plan ? " selected" : "") + ">" + plans[k].label + " (" + fcfa(plans[k].price) + ")</option>";
+        }).join("") + "</select>" +
+        '<button class="btn ok small" data-pay="' + s.id + '">Paiement reçu +30 jours</button></div>' +
+        '<div class="row"><a class="btn ghost small" target="_blank" rel="noopener" href="https://wa.me/' + esc(s.whatsapp) + "?text=" + encodeURIComponent(relanceText(s)) + '">Relancer sur WhatsApp</a>' +
+        '<button class="btn ghost small" data-sus="' + s.id + '" data-to="' + (s.status === "active" ? "suspended" : "active") + '">' + (s.status === "active" ? "Suspendre" : "Réactiver") + "</button>" +
+        '<button class="btn ghost small" data-reset="' + s.id + '">Nouveau mot de passe</button></div></div>';
+    }).join("");
+    root.innerHTML = h;
+    root.querySelectorAll("[data-f]").forEach(function (b) { b.onclick = function () { filter = b.getAttribute("data-f"); draw(); }; });
+    root.querySelectorAll("[data-plan]").forEach(function (sel) {
+      sel.onchange = function () {
+        api("/api/admin/shops/" + sel.getAttribute("data-plan"), "POST", { plan: sel.value }).then(function () { toast("Formule modifiée."); load(); }).catch(function (ex) { toast(ex.message); });
+      };
+    });
+    root.querySelectorAll("[data-pay]").forEach(function (b) {
+      b.onclick = function () {
+        api("/api/admin/shops/" + b.getAttribute("data-pay"), "POST", { add_days: 30 }).then(function () { toast("Abonnement prolongé de 30 jours."); load(); }).catch(function (ex) { toast(ex.message); });
+      };
+    });
+    root.querySelectorAll("[data-sus]").forEach(function (b) {
+      b.onclick = function () {
+        var to = b.getAttribute("data-to");
+        if (to === "suspended" && !confirm("Suspendre cette boutique ? Ses clients ne pourront plus la voir.")) return;
+        api("/api/admin/shops/" + b.getAttribute("data-sus"), "POST", { status: to }).then(function () { toast(to === "active" ? "Boutique réactivée." : "Boutique suspendue."); load(); }).catch(function (ex) { toast(ex.message); });
+      };
+    });
+    root.querySelectorAll("[data-reset]").forEach(function (b) {
+      b.onclick = function () {
+        if (!confirm("Créer un nouveau mot de passe temporaire pour ce commerçant ?")) return;
+        api("/api/admin/shops/" + b.getAttribute("data-reset") + "/reset", "POST", {}).then(function (d) {
+          prompt("Mot de passe temporaire à envoyer au commerçant (il pourra le changer) :", d.password);
+        }).catch(function (ex) { toast(ex.message); });
+      };
+    });
+  }
+  load();
+})();

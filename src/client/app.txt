@@ -1,0 +1,607 @@
+(function () {
+  "use strict";
+  var root = document.getElementById("root");
+  var S = { me: null, tab: "products", products: [], orders: null, stats: null, loaded: {} };
+  var COLORS = ["#0f766e", "#1d4ed8", "#b45309", "#be123c", "#6d28d9", "#15803d", "#0e7490", "#374151"];
+  var DAYS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  var DEFAULT_REPLIES = [
+    "Bonjour ! Merci pour votre message. Quel produit vous intéresse ?",
+    "Oui, ce produit est disponible. Vous pouvez passer le prendre à la boutique ou je peux organiser la livraison.",
+    "Le prix est celui indiqué sur la boutique. Le paiement se fait par Mobile Money ou en espèces.",
+    "Désolé, ce produit est épuisé pour le moment. Je vous préviens dès qu'il revient.",
+    "Merci pour votre achat ! N'hésitez pas à partager ma boutique avec vos proches.",
+  ].join("\n");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fcfa(n) {
+    return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  var IC = {
+    bag: '<path d="M6 7h12l1 13H5z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
+    list: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+    calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/>',
+    shop: '<path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 12v8h14v-8"/>',
+    more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    wa: '<path d="M3 21l1.6-5A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-2-2l.8-1-1-2z"/>',
+    ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'
+  };
+  function ic(n) { return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + IC[n] + "</svg>"; }
+  function toast(msg) {
+    var old = document.querySelector(".toast"); if (old) old.remove();
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.setAttribute("role", "status");
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 3200);
+  }
+  function openPw() {
+    var ov = document.createElement("div");
+    ov.className = "overlay";
+    ov.innerHTML = '<div class="sheet"><h2>Changer mon mot de passe</h2><form id="pwf">' +
+      '<label class="field"><span>Ancien mot de passe</span><input name="old" type="password" required autocomplete="current-password"></label>' +
+      '<label class="field"><span>Nouveau mot de passe</span><input name="new" type="password" minlength="6" required autocomplete="new-password"><small>6 caractères minimum.</small></label>' +
+      '<div id="pwerr" class="alert bad" style="display:none"></div>' +
+      '<button class="btn block" type="submit">Enregistrer</button>' +
+      '<button class="btn ghost block" type="button" id="pwx" style="margin-top:8px">Annuler</button></form></div>';
+    document.body.appendChild(ov);
+    $("#pwx", ov).onclick = function () { ov.remove(); };
+    $("#pwf", ov).onsubmit = function (e) {
+      e.preventDefault();
+      var f = formData(e.target);
+      api("/api/password", "POST", { old: f.old, new: f.new }).then(function () { ov.remove(); toast("Mot de passe modifié."); })
+        .catch(function (ex) { var er = $("#pwerr", ov); er.textContent = ex.message; er.style.display = "block"; });
+    };
+  }
+  function api(path, method, body) {
+    var opt = { method: method || "GET", headers: { "X-Requested-With": "boutiko" }, credentials: "same-origin" };
+    if (body !== undefined) {
+      opt.headers["Content-Type"] = "application/json";
+      opt.body = JSON.stringify(body);
+    }
+    return fetch(path, opt).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (r.status === 401 && path !== "/api/login") { S.me = null; renderAuth(); throw new Error("auth"); }
+        if (!r.ok) throw new Error(d.error || "Une erreur est survenue.");
+        return d;
+      });
+    });
+  }
+  function upload(blob, kind) {
+    return fetch("/api/upload?kind=" + kind, {
+      method: "POST",
+      headers: { "X-Requested-With": "boutiko", "Content-Type": "image/jpeg" },
+      body: blob,
+      credentials: "same-origin",
+    }).then(function (r) {
+      return r.json().then(function (d) {
+        if (!r.ok) throw new Error(d.error || "Envoi de la photo impossible.");
+        return d;
+      });
+    });
+  }
+  function compress(file, maxSide, maxBytes) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var s = Math.min(1, maxSide / Math.max(img.width, img.height));
+        var w = Math.max(1, Math.round(img.width * s));
+        var h = Math.max(1, Math.round(img.height * s));
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        var q = 0.74, tries = 0;
+        (function go() {
+          c.toBlob(function (blob) {
+            if (!blob) return reject(new Error("Photo illisible."));
+            if (blob.size > maxBytes && tries < 5) { q -= 0.1; tries++; return go(); }
+            resolve(blob);
+          }, "image/jpeg", q);
+        })();
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Photo illisible.")); };
+      img.src = url;
+    });
+  }
+  function waLink(phone, text) {
+    return "https://wa.me/" + (phone || "") + "?text=" + encodeURIComponent(text);
+  }
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    var d = new Date(ts * 1000);
+    return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+  function ago(ts) {
+    var m = Math.floor((Date.now() / 1000 - ts) / 60);
+    if (m < 1) return "à l'instant";
+    if (m < 60) return "il y a " + m + " min";
+    var h = Math.floor(m / 60);
+    if (h < 24) return "il y a " + h + " h";
+    return "il y a " + Math.floor(h / 24) + " j";
+  }
+  function formData(form) {
+    var o = {};
+    new FormData(form).forEach(function (v, k) { o[k] = v; });
+    return o;
+  }
+
+  // ---------- Connexion / inscription ----------
+  function renderAuth(mode) {
+    mode = mode || "login";
+    var name = document.body.getAttribute("data-platform") || "Boutiko";
+    var reg = mode === "register";
+    root.innerHTML =
+      '<div class="authwrap"><div class="center" style="margin:28px 0 14px"><div class="brandline"><span class="mark">' + esc(name.charAt(0).toUpperCase()) + "</span>" + name + "</div>" +
+      "<h1 style=\"margin-top:18px\">" + (reg ? "Créez votre boutique" : "Bon retour") + "</h1>" +
+      '<p class="muted">' + (reg ? "Prête en 2 minutes. 7 jours d'essai, sans engagement." : "Entrez votre numéro WhatsApp et votre mot de passe.") + "</p></div>" +
+      '<form id="authf" class="card">' +
+      (reg ? '<label class="field"><span>Nom de votre boutique</span><input name="name" maxlength="60" required placeholder="Ex : Mode Cotonou"></label>' +
+        '<label class="field"><span>Que vendez-vous ? (court)</span><input name="description" maxlength="300" placeholder="Ex : Pagnes, robes et accessoires"></label>' : "") +
+      '<label class="field"><span>Numéro WhatsApp</span><input name="phone" inputmode="tel" autocomplete="tel" required placeholder="Ex : 01 97 00 00 00"><small>Avec l\'indicatif du pays si vous n\'êtes pas au Bénin.</small></label>' +
+      '<label class="field"><span>Mot de passe</span><span class="pw"><input name="password" id="pwi" type="password" minlength="6" required autocomplete="' + (reg ? "new-password" : "current-password") + '"><button type="button" id="pws">Afficher</button></span><small>' + (reg ? "6 caractères minimum." : "Mot de passe oublié ? Écrivez à l'administrateur sur WhatsApp.") + "</small></label>" +
+      '<div id="aerr" class="alert bad" style="display:none"></div>' +
+      '<button class="btn block" type="submit">' + (reg ? "Créer ma boutique" : "Me connecter") + "</button></form>" +
+      '<p class="center" style="margin-top:14px"><a href="#" id="swap">' + (reg ? "J'ai déjà un compte" : "Créer ma boutique") + "</a></p></div>";
+    $("#pws").onclick = function () { var i = $("#pwi"), h = i.type === "password"; i.type = h ? "text" : "password"; this.textContent = h ? "Masquer" : "Afficher"; };
+    $("#swap").onclick = function (e) { e.preventDefault(); renderAuth(reg ? "login" : "register"); };
+    $("#authf").onsubmit = function (e) {
+      e.preventDefault();
+      var btn = $("#authf button[type=submit]");
+      btn.disabled = true; btn.textContent = "Un instant…";
+      var err = $("#aerr");
+      err.style.display = "none";
+      api(reg ? "/api/register" : "/api/login", "POST", formData(e.target))
+        .then(function () { S.loaded = {}; return boot(reg); })
+        .catch(function (ex) {
+          if (ex.message === "auth") return;
+          err.textContent = ex.message; err.style.display = "block"; btn.disabled = false; btn.textContent = reg ? "Créer ma boutique" : "Me connecter";
+        });
+    };
+  }
+
+  // ---------- Structure principale ----------
+  function boot(firstTime) {
+    return api("/api/me").then(function (me) {
+      if (me.guest) { renderAuth(); return; }
+      S.me = me;
+      S.tab = firstTime ? "products" : S.tab;
+      S.loaded = {};
+      return Promise.all([loadProducts(), loadOrders()]).then(function () {
+        render();
+        if (firstTime && !S.products.length) setTimeout(function () { productForm(); }, 300);
+      });
+    }).catch(function (ex) { if (ex.message === "auth") return; renderAuth(); });
+  }
+  function loadProducts() {
+    return api("/api/products").then(function (d) { S.products = d.products; });
+  }
+  function loadOrders() {
+    return api("/api/orders").then(function (d) { S.orders = d; if (S.me) S.me.pending = d.pending.length; });
+  }
+  function banner() {
+    var m = S.me, s = m.shop, html = "";
+    if (s.status !== "active")
+      html += '<div class="alert bad">Votre boutique est suspendue : vos clients ne peuvent plus la voir. Contactez l\'administrateur pour la réactiver.</div>';
+    else if (s.paid_until) {
+      var days = Math.ceil((s.paid_until * 1000 - Date.now()) / 86400000);
+      if (days < 0) html += '<div class="alert bad">Votre abonnement est expiré. Renouvelez-le pour garder votre boutique active.</div>';
+      else if (days <= 3) html += '<div class="alert warn">Votre abonnement se termine dans ' + days + ' jour' + (days > 1 ? "s" : "") + ". Pensez à le renouveler.</div>";
+    }
+    return html;
+  }
+  function render() {
+    var m = S.me, s = m.shop;
+    var tabs = [["products", "bag", "Produits"], ["orders", "list", "Commandes"], ["receipt", "calc", "Reçu"], ["shop", "shop", "Boutique"], ["more", "more", "Plus"]];
+    root.innerHTML =
+      '<div class="appbar"><div class="awning"></div><div class="in"><h1><small>Mon espace</small>' + esc(s.name) + '</h1><a class="btn ghost small" target="_blank" rel="noopener" href="/' + esc(s.slug) + '">Voir ma boutique ' + ic("ext") + "</a></div></div>" +
+      banner() + '<div id="view"></div>' +
+      '<nav class="tabs">' + tabs.map(function (t) {
+        var dot = t[0] === "orders" && m.pending ? '<span class="dot">' + m.pending + "</span>" : "";
+        return '<button data-tab="' + t[0] + '" class="' + (S.tab === t[0] ? "on" : "") + '">' + ic(t[1]) + "<span>" + t[2] + "</span>" + dot + "</button>";
+      }).join("") + "</nav>";
+    root.querySelectorAll("[data-tab]").forEach(function (b) {
+      b.onclick = function () { S.tab = b.getAttribute("data-tab"); window.scrollTo(0, 0); render(); };
+    });
+    var v = $("#view");
+    ({ products: viewProducts, orders: viewOrders, receipt: viewReceipt, shop: viewShop, more: viewMore })[S.tab](v);
+  }
+
+  // ---------- Produits ----------
+  function stockChip(p) {
+    if (!p.active) return '<span class="chipx off">Masqué</span>';
+    if (p.stock === null) return '<span class="chipx">Stock illimité</span>';
+    if (p.stock <= 0) return '<span class="chipx zero">Épuisé</span>';
+    if (p.stock <= 3) return '<span class="chipx low">Plus que ' + p.stock + "</span>";
+    return '<span class="chipx">Stock : ' + p.stock + "</span>";
+  }
+  function checklist() {
+    var s = S.me.shop;
+    var steps = [
+      [S.products.length > 0, "Ajouter votre premier produit", "Photo, nom et prix."],
+      [!!(s.address || s.maps_url), "Indiquer votre adresse", "Pour que vos clients vous trouvent. Onglet Boutique."],
+      [!!localStorage_get("shared"), "Partager votre lien", "Envoyez-le à vos clients sur WhatsApp. Onglet Boutique."]
+    ];
+    var done = steps.filter(function (x) { return x[0]; }).length;
+    if (done === steps.length) return "";
+    return '<div class="card" style="margin-bottom:12px"><b>Bien démarrer : ' + done + " sur " + steps.length + '</b><div class="progress"><i style="width:' + Math.round(done / steps.length * 100) + '%"></i></div>' +
+      steps.map(function (x, i) {
+        return '<div class="todo' + (x[0] ? " done" : "") + '"><span class="n">' + (x[0] ? "✓" : i + 1) + '</span><div class="t"><b>' + x[1] + '</b><div class="muted small">' + x[2] + "</div></div></div>";
+      }).join("") + "</div>";
+  }
+  function localStorage_get(k) { try { return localStorage.getItem("bk_" + k); } catch (e) { return null; } }
+  function localStorage_set(k, v) { try { localStorage.setItem("bk_" + k, v); } catch (e) {} }
+  function viewProducts(v) {
+    var lim = S.me.limits, n = S.products.length;
+    var h = '<div class="row" style="justify-content:space-between"><b>' + n + " / " + lim.products + ' produits</b>' +
+      '<button class="btn small" id="addp">' + ic("plus") + " Ajouter un produit</button></div>";
+    h = checklist() + h;
+    if (!n) {
+      h += '<div class="empty"><b>Votre vitrine est vide</b>Ajoutez un produit : une photo, un nom, un prix. Cela prend une minute.<div style="margin-top:12px"><button class="btn" id="addp2">' + ic("plus") + " Ajouter mon premier produit</button></div></div>";
+    }
+    h += S.products.map(function (p) {
+      var photo = p.photos.length ? '<img src="/img/' + p.photos[0] + '" alt="">' : '<div class="ph"></div>';
+      var price = p.promo_price !== null ? "<s>" + fcfa(p.price) + "</s> " + fcfa(p.promo_price) : fcfa(p.price);
+      return '<div class="lrow">' + photo + '<div class="t"><b>' + esc(p.name) + "</b><div>" + price + " FCFA</div>" + stockChip(p) +
+        '</div><div><button class="btn ghost small" data-edit="' + p.id + '">Modifier</button></div></div>';
+    }).join("");
+    v.innerHTML = h;
+    $("#addp").onclick = function () { productForm(); };
+    var a2 = $("#addp2"); if (a2) a2.onclick = function () { productForm(); };
+    v.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.onclick = function () {
+        var id = parseInt(b.getAttribute("data-edit"), 10);
+        productForm(S.products.filter(function (p) { return p.id === id; })[0]);
+      };
+    });
+  }
+  function productForm(p) {
+    var lim = S.me.limits;
+    var photos = p ? p.photos.slice() : [];
+    var ov = document.createElement("div");
+    ov.className = "overlay";
+    ov.innerHTML = '<div class="sheet"><h2>' + (p ? "Modifier le produit" : "Nouveau produit") + "</h2>" +
+      '<form id="pf">' +
+      '<div class="field"><span>Photos (' + lim.photos + " maximum)</span><div class=\"thumbs\" id=\"thumbs\"></div>" +
+      '<input type="file" id="pfile" accept="image/*" style="margin-top:8px"><small id="pmsg">Prenez ou choisissez une photo. Elle est réduite automatiquement pour charger vite.</small></div>' +
+      '<label class="field"><span>Nom du produit</span><input name="name" maxlength="80" required value="' + esc(p ? p.name : "") + '"></label>' +
+      '<label class="field"><span>Prix (FCFA)</span><input name="price" type="number" inputmode="numeric" min="0" required value="' + (p ? p.price : "") + '"></label>' +
+      '<label class="field"><span>Prix promo (facultatif)</span><input name="promo_price" type="number" inputmode="numeric" min="0" value="' + (p && p.promo_price !== null ? p.promo_price : "") + '"><small>Doit être inférieur au prix normal.</small></label>' +
+      '<label class="field"><span>Quantité en stock</span><input name="stock" type="number" inputmode="numeric" min="0" value="' + (p && p.stock !== null ? p.stock : "") + '"><small>Laissez vide si vous ne comptez pas le stock.</small></label>' +
+      '<label class="field"><span>Description (facultatif)</span><textarea name="description" maxlength="500">' + esc(p ? p.description : "") + "</textarea></label>" +
+      '<label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="active" ' + (!p || p.active ? "checked" : "") + '> <span style="margin:0">Visible dans ma boutique</span></label>' +
+      '<div id="perr" class="alert bad" style="display:none"></div>' +
+      '<button class="btn block" type="submit">Enregistrer</button>' +
+      '<button class="btn ghost block" type="button" id="pcancel" style="margin-top:8px">Annuler</button>' +
+      (p ? '<button class="btn danger block" type="button" id="pdel" style="margin-top:8px">Supprimer ce produit</button>' : "") +
+      "</form></div>";
+    document.body.appendChild(ov);
+    function close() { ov.remove(); }
+    ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
+    function drawThumbs() {
+      $("#thumbs", ov).innerHTML = photos.map(function (id, i) {
+        return '<div class="thumb"><img src="/img/' + id + '" alt=""><button type="button" data-rm="' + i + '">×</button></div>';
+      }).join("");
+      ov.querySelectorAll("[data-rm]").forEach(function (b) {
+        b.onclick = function () { photos.splice(parseInt(b.getAttribute("data-rm"), 10), 1); drawThumbs(); };
+      });
+      $("#pfile", ov).style.display = photos.length >= lim.photos ? "none" : "";
+    }
+    drawThumbs();
+    $("#pcancel", ov).onclick = close;
+    $("#pfile", ov).onchange = function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var msg = $("#pmsg", ov);
+      msg.textContent = "Envoi de la photo, patientez…";
+      compress(f, 900, 280 * 1024).then(function (blob) { return upload(blob, "product"); })
+        .then(function (d) { photos.push(d.id); drawThumbs(); msg.textContent = "Photo ajoutée."; })
+        .catch(function (ex) { msg.textContent = ex.message; })
+        .then(function () { e.target.value = ""; });
+    };
+    if (p) $("#pdel", ov).onclick = function () {
+      if (!confirm("Supprimer définitivement « " + p.name + " » ?")) return;
+      api("/api/products/" + p.id, "DELETE").then(function () { close(); return loadProducts(); }).then(render).catch(function (ex) { toast(ex.message); });
+    };
+    $("#pf", ov).onsubmit = function (e) {
+      e.preventDefault();
+      var f = formData(e.target);
+      var body = {
+        name: f.name, price: f.price, promo_price: f.promo_price === "" ? null : f.promo_price,
+        stock: f.stock === "" ? null : f.stock, description: f.description, active: !!f.active, photos: photos,
+      };
+      var btn = $("button[type=submit]", ov);
+      btn.disabled = true;
+      api(p ? "/api/products/" + p.id : "/api/products", p ? "PUT" : "POST", body)
+        .then(function () { close(); toast("Produit enregistré."); return loadProducts(); }).then(render)
+        .catch(function (ex) { var er = $("#perr", ov); er.textContent = ex.message; er.style.display = "block"; btn.disabled = false; });
+    };
+  }
+
+  // ---------- Commandes ----------
+  function updateDot() {
+    var nav = $("[data-tab=orders]");
+    if (!nav || !S.me) return;
+    var d = nav.querySelector(".dot");
+    var n = S.me.pending || 0;
+    if (!n) { if (d) d.remove(); return; }
+    if (!d) { d = document.createElement("span"); d.className = "dot"; nav.appendChild(d); }
+    d.textContent = n;
+  }
+  function viewOrders(v) {
+    v.innerHTML = '<p class="muted">Chargement…</p>';
+    loadOrders().then(function () { updateDot(); drawOrders(v); }).catch(function (ex) { if (ex.message !== "auth") v.innerHTML = '<div class="alert bad">' + esc(ex.message) + "</div>"; });
+  }
+  // Rafraîchit les nouvelles commandes toutes les 30 secondes
+  setInterval(function () {
+    if (!S.me || document.hidden) return;
+    loadOrders().then(function () {
+      updateDot();
+      if (S.tab === "orders" && !document.querySelector(".overlay") && $("#view")) drawOrders($("#view"));
+    }).catch(function () {});
+  }, 30000);
+  function drawOrders(v) {
+    var o = S.orders;
+    var h = "<h2>Commandes à confirmer</h2>";
+    h += '<p class="muted small">Quand un client appuie sur « Commander », la demande arrive ici et sur votre WhatsApp. Confirmez quand la vente est faite : le stock baisse automatiquement.</p>';
+    if (!o.pending.length) h += '<div class="empty"><b>Aucune commande en attente</b>Dès qu\'un client appuie sur « Commander », elle apparaît ici.</div>';
+    h += o.pending.map(function (x) {
+      return '<div class="lrow"><div class="t"><b>' + esc(x.product_name) + " × " + x.qty + "</b><div>" + fcfa(x.unit_price * x.qty) +
+        ' FCFA</div><span class="muted small">Réf. n°' + x.id + " · " + ago(x.created_at) + '</span></div>' +
+        '<div class="col"><button class="btn ok small" data-sold="' + x.id + '">Vendu</button>' +
+        '<button class="btn danger small" data-cancel="' + x.id + '">Annuler</button></div></div>';
+    }).join("");
+    if (o.history.length) {
+      h += '<h2 style="margin-top:18px">Dernières ventes et annulations</h2>';
+      h += o.history.map(function (x) {
+        var st = x.status === "sold" ? '<span class="chipx good">Vendu</span>' : '<span class="chipx off">Annulé</span>';
+        return '<div class="lrow"><div class="t"><b>' + esc(x.product_name) + " × " + x.qty + "</b><span class=\"muted small\">" + fcfa(x.unit_price * x.qty) + " FCFA · " + ago(x.created_at) + (x.source === "direct" ? " · vente directe" : "") + "</span></div>" + st + "</div>";
+      }).join("");
+    }
+    v.innerHTML = h;
+    v.querySelectorAll("[data-sold]").forEach(function (b) {
+      b.onclick = function () {
+        b.disabled = true;
+        api("/api/orders/" + b.getAttribute("data-sold") + "/sold", "POST", {}).then(function (d) {
+          if (d.product && d.product.stock !== null) toast(d.product.stock <= 0 ? "« " + d.product.name + " » est maintenant épuisé." : "Stock restant : " + d.product.stock);
+          else toast("Vente enregistrée.");
+          return Promise.all([loadProducts(), loadOrders()]);
+        }).then(render).catch(function (ex) { toast(ex.message); b.disabled = false; });
+      };
+    });
+    v.querySelectorAll("[data-cancel]").forEach(function (b) {
+      b.onclick = function () {
+        if (!confirm("Annuler cette commande ?")) return;
+        api("/api/orders/" + b.getAttribute("data-cancel") + "/cancel", "POST", {}).then(loadOrders).then(render).catch(function (ex) { toast(ex.message); });
+      };
+    });
+  }
+
+  // ---------- Reçu / calculateur ----------
+  var RC = { items: [], client: "", phone: "", discount: 0, record: true };
+  function receiptText() {
+    var s = S.me.shop;
+    var total = receiptTotal();
+    var lines = RC.items.map(function (i) { return "• " + i.name + " x" + i.qty + " : " + fcfa(i.price * i.qty) + " FCFA"; });
+    var t = "🧾 Reçu — " + s.name + "\nDate : " + fmtDate(Date.now() / 1000) + (RC.client ? "\nClient : " + RC.client : "") + "\n\n" + lines.join("\n");
+    if (RC.discount > 0) t += "\nRemise : -" + fcfa(RC.discount) + " FCFA";
+    t += "\n\nTotal : " + fcfa(total) + " FCFA\nMerci pour votre achat !";
+    return t;
+  }
+  function receiptTotal() {
+    var t = RC.items.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
+    return Math.max(0, t - (Number(RC.discount) || 0));
+  }
+  function viewReceipt(v) {
+    var opts = S.products.filter(function (p) { return p.active || true; }).map(function (p) {
+      var price = p.promo_price !== null ? p.promo_price : p.price;
+      return '<option value="' + p.id + '">' + esc(p.name) + " — " + fcfa(price) + " FCFA</option>";
+    }).join("");
+    v.innerHTML = "<h2>Calculer une vente et envoyer le reçu</h2>" +
+      '<div class="card"><label class="field"><span>Produit</span><select id="rsel"><option value="">— Choisir un produit —</option>' + opts + '<option value="custom">Autre article (saisir)</option></select></label>' +
+      '<div id="rcustom" style="display:none"><label class="field"><span>Nom de l\'article</span><input id="rcn" maxlength="80"></label><label class="field"><span>Prix (FCFA)</span><input id="rcp" type="number" inputmode="numeric" min="0"></label></div>' +
+      '<label class="field"><span>Quantité</span><input id="rqty" type="number" inputmode="numeric" min="1" value="1"></label>' +
+      '<button class="btn block" id="radd">Ajouter à la vente</button></div>' +
+      '<div id="rlist"></div>';
+    $("#rsel").onchange = function () { $("#rcustom").style.display = this.value === "custom" ? "" : "none"; };
+    $("#radd").onclick = function () {
+      var sel = $("#rsel").value, qty = Math.max(1, parseInt($("#rqty").value, 10) || 1);
+      if (!sel) return toast("Choisissez un produit.");
+      if (sel === "custom") {
+        var n = $("#rcn").value.trim(), pr = parseInt($("#rcp").value, 10);
+        if (!n || isNaN(pr) || pr < 0) return toast("Entrez le nom et le prix.");
+        RC.items.push({ pid: null, name: n, price: pr, qty: qty });
+        $("#rcn").value = ""; $("#rcp").value = "";
+      } else {
+        var p = S.products.filter(function (x) { return String(x.id) === sel; })[0];
+        RC.items.push({ pid: p.id, name: p.name, price: p.promo_price !== null ? p.promo_price : p.price, qty: qty });
+      }
+      $("#rqty").value = 1;
+      drawReceipt();
+    };
+    drawReceipt();
+  }
+  function drawReceipt() {
+    var box = $("#rlist");
+    if (!box) return;
+    if (!RC.items.length) { box.innerHTML = '<p class="muted center" style="margin-top:14px">Ajoutez des articles pour calculer le total.</p>'; return; }
+    box.innerHTML = RC.items.map(function (i, idx) {
+      return '<div class="lrow"><div class="t"><b>' + esc(i.name) + " × " + i.qty + "</b><span>" + fcfa(i.price * i.qty) + ' FCFA</span></div><button class="btn danger small" data-rm="' + idx + '">Retirer</button></div>';
+    }).join("") +
+      '<div class="card"><label class="field"><span>Remise (FCFA, facultatif)</span><input id="rdisc" type="number" inputmode="numeric" min="0" value="' + (RC.discount || "") + '"></label>' +
+      '<div class="total" id="rtotal"></div>' +
+      '<label class="field"><span>Nom du client (facultatif)</span><input id="rcli" maxlength="60" value="' + esc(RC.client) + '"></label>' +
+      '<label class="field"><span>WhatsApp du client (facultatif)</span><input id="rph" inputmode="tel" value="' + esc(RC.phone) + '"></label>' +
+      '<label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="rrec" ' + (RC.record ? "checked" : "") + '> <span style="margin:0">Enregistrer la vente et retirer du stock</span></label>' +
+      '<pre class="msg" id="rmsg"></pre>' +
+      '<button class="btn block" id="rsend">Envoyer le reçu sur WhatsApp</button>' +
+      '<button class="btn ghost block" id="rcopy" style="margin-top:8px">Copier le reçu</button>' +
+      '<button class="btn danger block" id="rclear" style="margin-top:8px">Vider la vente</button></div>';
+    function refresh() {
+      RC.discount = Math.max(0, parseInt($("#rdisc").value, 10) || 0);
+      RC.client = $("#rcli").value.trim(); RC.phone = $("#rph").value; RC.record = $("#rrec").checked;
+      $("#rtotal").textContent = "Total : " + fcfa(receiptTotal()) + " FCFA";
+      $("#rmsg").textContent = receiptText();
+    }
+    ["#rdisc", "#rcli", "#rph", "#rrec"].forEach(function (s) { $(s).oninput = refresh; $(s).onchange = refresh; });
+    refresh();
+    box.querySelectorAll("[data-rm]").forEach(function (b) {
+      b.onclick = function () { RC.items.splice(parseInt(b.getAttribute("data-rm"), 10), 1); drawReceipt(); };
+    });
+    $("#rclear").onclick = function () { RC = { items: [], client: "", phone: "", discount: 0, record: true }; drawReceipt(); };
+    $("#rcopy").onclick = function () {
+      refresh();
+      if (navigator.clipboard) navigator.clipboard.writeText(receiptText()).then(function () { toast("Reçu copié."); });
+    };
+    $("#rsend").onclick = function () {
+      refresh();
+      var text = receiptText();
+      var phone = RC.phone ? normPhone(RC.phone) : "";
+      var done = function () { window.open(waLink(phone, text), "_blank"); };
+      if (!RC.record) return done();
+      var items = RC.items.map(function (i) { return { product_id: i.pid, name: i.name, price: i.price, qty: i.qty }; });
+      api("/api/sale", "POST", { items: items }).then(function () {
+        toast("Vente enregistrée.");
+        RC = { items: [], client: "", phone: "", discount: 0, record: true };
+        return loadProducts();
+      }).then(function () { done(); drawReceipt(); }).catch(function (ex) { toast(ex.message); });
+    };
+  }
+  function normPhone(raw) {
+    var d = String(raw || "").replace(/\D/g, "");
+    if (d.indexOf("00") === 0) d = d.slice(2);
+    if (d.indexOf("229") === 0) return d;
+    if (d.length === 10 && d.indexOf("01") === 0) return "229" + d;
+    if (d.length === 8) return "22901" + d;
+    return d;
+  }
+
+  // ---------- Ma boutique ----------
+  function viewShop(v) {
+    var s = S.me.shop, lim = S.me.limits;
+    var h = {};
+    try { h = JSON.parse(s.hours || "{}") || {}; } catch (e) { h = {}; }
+    var days = h.days || [1, 2, 3, 4, 5, 6];
+    var link = location.origin + "/" + s.slug;
+    v.innerHTML = "<h2>Ma boutique</h2>" +
+      '<div class="card"><b>Mon lien</b><p style="word-break:break-all"><a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + "</a></p>" +
+      '<div class="row"><button class="btn small" id="copyl">Copier le lien</button><a class="btn ghost small" id="sharewa" target="_blank" rel="noopener" href="' + esc(waLink("", "Découvrez ma boutique : " + link)) + '">Partager sur WhatsApp</a></div>' +
+      '<div class="qrbox"><img src="/qr/' + esc(s.slug) + '" alt="QR code" width="180" height="180"></div><p class="muted small">Imprimez ce QR code (capture d\'écran) et collez-le à votre comptoir.</p></div>' +
+      '<form id="sf" class="card" style="margin-top:12px">' +
+      '<label class="field"><span>Nom de la boutique</span><input name="name" maxlength="60" required value="' + esc(s.name) + '"></label>' +
+      '<label class="field"><span>Description</span><textarea name="description" maxlength="300">' + esc(s.description) + "</textarea></label>" +
+      '<label class="field"><span>Numéro WhatsApp qui reçoit les commandes</span><input name="whatsapp" inputmode="tel" required value="' + esc(s.whatsapp) + '"></label>' +
+      '<div class="field"><span>Couleur de la boutique</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
+        return '<button type="button" class="sw ' + (c === s.color ? "on" : "") + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur"></button>';
+      }).join("") + "</div></div>" +
+      '<div class="field"><span>Logo</span><div id="logo"></div></div>' +
+      '<div class="field"><span>Bannière</span><div id="banner"></div></div>' +
+      '<label class="field"><span>Adresse</span><input name="address" maxlength="200" value="' + esc(s.address) + '" placeholder="Ex : Marché Dantokpa, allée B"></label>' +
+      '<div class="field"><span>Position sur la carte</span><input name="maps_url" maxlength="500" value="' + esc(s.maps_url) + '" placeholder="Lien Google Maps (facultatif)">' +
+      '<button type="button" class="btn ghost small" id="geo" style="margin-top:6px">Utiliser ma position actuelle</button><small>Vos clients verront un bouton « Itinéraire ».</small></div>' +
+      '<div class="field"><span>Horaires d\'ouverture</span><div class="row"><input type="time" name="open" value="' + esc(h.open || "") + '" style="width:auto"> à <input type="time" name="close" value="' + esc(h.close || "") + '" style="width:auto"></div>' +
+      '<div class="days">' + DAYS.map(function (d, i) { return '<label><input type="checkbox" name="d' + i + '" ' + (days.indexOf(i) >= 0 ? "checked" : "") + "> " + d + "</label>"; }).join("") + "</div><small>Laissez vide pour ne pas afficher d'horaires.</small></div>" +
+      '<label class="field"><span>Paiement Mobile Money (affiché sur la boutique)</span><input name="momo" maxlength="120" value="' + esc(s.momo) + '" placeholder="Ex : MTN MoMo 01 97 00 00 00"></label>' +
+      '<div id="serr" class="alert bad" style="display:none"></div><button class="btn block" type="submit">Enregistrer</button></form>';
+    $("#sharewa").onclick = function () { localStorage_set("shared", "1"); };
+    $("#copyl").onclick = function () { localStorage_set("shared", "1"); if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { toast("Lien copié."); }); };
+    var color = s.color;
+    v.querySelectorAll("[data-c]").forEach(function (b) {
+      b.onclick = function () { color = b.getAttribute("data-c"); v.querySelectorAll(".sw").forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); };
+    });
+    $("#geo").onclick = function () {
+      if (!navigator.geolocation) return toast("Position indisponible sur cet appareil.");
+      toast("Recherche de votre position…");
+      navigator.geolocation.getCurrentPosition(function (p) {
+        $("#sf [name=maps_url]").value = "https://www.google.com/maps?q=" + p.coords.latitude.toFixed(6) + "," + p.coords.longitude.toFixed(6);
+        toast("Position ajoutée. Enregistrez.");
+      }, function () { toast("Autorisez la position dans votre téléphone."); }, { enableHighAccuracy: true, timeout: 15000 });
+    };
+    function mediaField(id, kind, current, maxSide, maxBytes) {
+      var box = $("#" + id);
+      if (!lim.custom) { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
+      function draw() {
+        box.innerHTML = (current ? '<div class="thumb" style="width:' + (kind === "logo" ? 80 : 160) + 'px"><img src="/img/' + current + '" style="width:100%;height:80px" alt=""><button type="button" id="' + id + 'x">×</button></div>' : "") +
+          '<input type="file" accept="image/*" id="' + id + 'f" style="margin-top:6px"><small id="' + id + 'm"></small>';
+        var x = $("#" + id + "x");
+        if (x) x.onclick = function () { current = null; pending[kind] = null; draw(); };
+        $("#" + id + "f").onchange = function (e) {
+          var f = e.target.files[0]; if (!f) return;
+          $("#" + id + "m").textContent = "Envoi…";
+          compress(f, maxSide, maxBytes).then(function (b) { return upload(b, kind); })
+            .then(function (d) { current = d.id; pending[kind] = d.id; draw(); })
+            .catch(function (ex) { $("#" + id + "m").textContent = ex.message; });
+        };
+      }
+      draw();
+    }
+    var pending = {};
+    mediaField("logo", "logo", s.logo_id, 400, 120 * 1024);
+    mediaField("banner", "banner", s.banner_id, 1200, 350 * 1024);
+    $("#sf").onsubmit = function (e) {
+      e.preventDefault();
+      var f = formData(e.target), btn = $("#sf button[type=submit]");
+      var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
+      var body = { name: f.name, description: f.description, whatsapp: f.whatsapp, color: color, address: f.address, maps_url: f.maps_url, momo: f.momo,
+        hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
+      if (lim.custom) { if (pending.logo !== undefined) body.logo_id = pending.logo; if (pending.banner !== undefined) body.banner_id = pending.banner; }
+      btn.disabled = true;
+      api("/api/shop", "PUT", body).then(function (d) { S.me.shop = d.shop; toast("Boutique enregistrée."); render(); })
+        .catch(function (ex) { var er = $("#serr"); er.textContent = ex.message; er.style.display = "block"; btn.disabled = false; });
+    };
+  }
+
+  // ---------- Plus : statistiques, messages rapides, abonnement ----------
+  function viewMore(v) {
+    v.innerHTML = '<p class="muted">Chargement…</p>';
+    api("/api/stats").then(function (st) { drawMore(v, st); }).catch(function (ex) { if (ex.message !== "auth") v.innerHTML = '<div class="alert bad">' + esc(ex.message) + "</div>"; });
+  }
+  function drawMore(v, st) {
+    var s = S.me.shop, m = S.me, lim = m.limits;
+    var mb = (m.usage.bytes / 1048576).toFixed(1);
+    var replies = (s.quick_replies || DEFAULT_REPLIES).split("\n").filter(function (x) { return x.trim(); });
+    var admin = m.adminPhone;
+    var h = "<h2>Mes chiffres</h2>" +
+      '<div class="stat"><div class="card"><b>' + st.week.v + "</b>visites (7 jours)</div><div class=\"card\"><b>" + st.week.c + "</b>clics Commander (7 jours)</div>" +
+      '<div class="card"><b>' + st.month.v + "</b>visites (30 jours)</div><div class=\"card\"><b>" + st.sales.n + "</b>ventes confirmées (30 jours)</div></div>" +
+      '<div class="card" style="margin-top:8px"><b>' + fcfa(st.sales.total) + " FCFA</b> de ventes confirmées sur 30 jours</div>";
+    if (st.top.length) h += '<div class="card" style="margin-top:8px"><b>Produits les plus demandés</b>' + st.top.map(function (t) { return "<div>" + esc(t.name) + " <span class=\"muted\">× " + t.q + "</span></div>"; }).join("") + "</div>";
+    if (st.low.length) h += '<div class="alert warn" style="margin-top:8px"><b>Stock à renouveler</b>' + st.low.map(function (t) { return "<div>" + esc(t.name) + " : " + t.stock + " restant" + (t.stock > 1 ? "s" : "") + "</div>"; }).join("") + "</div>";
+    h += '<h2 style="margin-top:18px">Réponses rapides</h2><p class="muted small">Copiez un message et collez-le dans WhatsApp. Une réponse par ligne, vous pouvez les modifier.</p>' +
+      replies.map(function (r, i) { return '<div class="qrep"><p>' + esc(r) + '</p><button class="btn ghost small" data-copy="' + i + '">Copier</button></div>'; }).join("") +
+      '<button class="btn ghost small" id="qedit" style="margin-top:6px">Modifier mes réponses</button>';
+    h += '<h2 style="margin-top:18px">Mon abonnement</h2><div class="card"><p>Formule : <b>' + esc(lim.label) + "</b> (" + fcfa(lim.price) + " FCFA / mois)</p>" +
+      "<p>Valable jusqu'au : <b>" + fmtDate(s.paid_until) + "</b></p><p class=\"muted small\">Produits : " + m.usage.products + " / " + lim.products + " · Photos : " + mb + " / " + lim.storageMb + " Mo</p>" +
+      (admin ? '<a class="btn small" target="_blank" rel="noopener" href="' + esc(waLink(admin, "Bonjour, je suis " + s.name + ". Je voudrais renouveler ou changer ma formule.")) + '">Renouveler ou changer de formule</a>' : "") + "</div>";
+    h += '<h2 style="margin-top:18px">Mon compte</h2><div class="card">' +
+      '<button class="btn ghost small" id="mypw">Changer mon mot de passe</button> ' +
+      '<a class="btn ghost small" href="/api/export">Télécharger mes données</a> ' +
+      (m.user.is_admin ? '<a class="btn small" href="/admin">Administration</a> ' : "") +
+      '<button class="btn danger small" id="logout">Me déconnecter</button></div>';
+    v.innerHTML = h;
+    v.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.onclick = function () { var t = replies[parseInt(b.getAttribute("data-copy"), 10)]; if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Message copié."); }); };
+    });
+    $("#qedit").onclick = function () {
+      var txt = prompt("Une réponse par ligne :", replies.join("\n"));
+      if (txt === null) return;
+      api("/api/shop", "PUT", { quick_replies: txt }).then(function (d) { S.me.shop = d.shop; render(); }).catch(function (ex) { toast(ex.message); });
+    };
+    $("#mypw").onclick = openPw;
+    $("#logout").onclick = function () { api("/api/logout", "POST", {}).then(function () { S.me = null; renderAuth(); }); };
+  }
+
+  // ---------- Démarrage ----------
+  boot(false);
+})();

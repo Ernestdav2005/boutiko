@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "boutiko",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "vars": {
+    "PLATFORM_NAME": "Boutiko"
+  },
+  "d1_databases": [
+    { "binding": "DB" }
+  ],
+  "r2_buckets": [
+    { "binding": "IMAGES" }
+  ]
+}
