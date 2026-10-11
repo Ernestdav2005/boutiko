@@ -39,7 +39,7 @@ const PWA_SW = `const CACHE="boutiko-shell-v1";const SHELL=["/","/app","/style.c
 const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT UNIQUE NOT NULL, pass TEXT NOT NULL, is_admin INTEGER DEFAULT 0, created_at INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires INTEGER NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS shops(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', whatsapp TEXT NOT NULL, color TEXT DEFAULT '#0f766e', address TEXT DEFAULT '', maps_url TEXT DEFAULT '', hours TEXT DEFAULT '', momo TEXT DEFAULT '', logo_id INTEGER, banner_id INTEGER, gallery TEXT DEFAULT '[]', theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', plan TEXT DEFAULT 'essentiel', status TEXT DEFAULT 'active', paid_until INTEGER, quick_replies TEXT DEFAULT '', created_at INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS shops(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, business_name TEXT DEFAULT '', brand_name TEXT DEFAULT '', slogan TEXT DEFAULT '', description TEXT DEFAULT '', whatsapp TEXT NOT NULL, color TEXT DEFAULT '#0f766e', address TEXT DEFAULT '', maps_url TEXT DEFAULT '', hours TEXT DEFAULT '', momo TEXT DEFAULT '', logo_id INTEGER, banner_id INTEGER, gallery TEXT DEFAULT '[]', theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', plan TEXT DEFAULT 'essentiel', status TEXT DEFAULT 'active', paid_until INTEGER, quick_replies TEXT DEFAULT '', created_at INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', price INTEGER NOT NULL, promo_price INTEGER, stock INTEGER, active INTEGER DEFAULT 1, photos TEXT DEFAULT '[]', created_at INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_products_shop ON products(shop_id)",
   "CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, qty INTEGER NOT NULL, unit_price INTEGER NOT NULL, status TEXT DEFAULT 'pending', source TEXT DEFAULT 'web', ip TEXT, created_at INTEGER NOT NULL)",
@@ -59,6 +59,9 @@ function ensureSchema(env) {
       const columns = new Set(info.results.map((c) => c.name));
       if (!columns.has("gallery")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN gallery TEXT DEFAULT '[]'").run();
       if (!columns.has("theme")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN theme TEXT DEFAULT 'editorial'").run();
+      if (!columns.has("business_name")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN business_name TEXT DEFAULT ''").run();
+      if (!columns.has("brand_name")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN brand_name TEXT DEFAULT ''").run();
+      if (!columns.has("slogan")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN slogan TEXT DEFAULT ''").run();
       if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT 'grid'").run();
     }).catch((e) => {
       schemaReady = null;
@@ -318,11 +321,11 @@ async function homePage(request, env) {
 <div class="pc"><i style="background:#7fb7a4"></i><b>Sac en tissu</b><span>3 000 FCFA</span><u>Commander</u></div></div></div>`;
   const feat = (ic, t, d) => `<div class="feat"><div class="ic">${icon(ic)}</div><div><b>${t}</b><span class="muted">${d}</span></div></div>`;
   const body = `<header class="hero"><div class="awning"></div><div class="wrap"><div class="brand"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span>${name}</div>
-<div class="heroGrid"><div><h1>Votre boutique en ligne, prête en 2 minutes</h1>
-<p class="lead">Montrez vos produits, vos prix et votre adresse. Vos clients commandent directement sur votre WhatsApp.</p>
+<div class="heroGrid"><div><p class="hero-kicker">VOTRE COMMERCE, EN VERSION NUMÉRIQUE</p><h1>Votre boutique mérite d’être <em>vue.</em></h1>
+<p class="lead">Créez une vitrine élégante à votre image. Présentez vos produits, racontez votre marque et recevez les commandes directement sur WhatsApp.</p>
 <div class="row"><a class="btn" href="/app">Créer ma boutique</a><button class="btn ghost" id="installPwa" type="button">Installer Boutiko</button>${contact}</div>
 <p class="note">${TRIAL_DAYS} jours d'essai. Aucune connaissance technique nécessaire.</p></div>${mock}</div></div></header>
-<main class="wrap"><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
+<main class="wrap"><section class="proof-strip"><div><b>Votre identité</b><span>Nom, marque, slogan et couleurs</span></div><div><b>Vos belles images</b><span>Produits et photos de votre boutique</span></div><div><b>Vos clients</b><span>Un lien facile à partager</span></div></section><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
 <li><b>Créez votre compte</b><span class="muted">Avec votre numéro WhatsApp. Une minute suffit.</span></li>
 <li><b>Ajoutez vos produits</b><span class="muted">Une photo, un nom, un prix. Depuis votre téléphone.</span></li>
 <li><b>Partagez votre lien</b><span class="muted">Sur WhatsApp, Facebook, ou avec le QR code à votre comptoir.</span></li></ol></section>
@@ -458,6 +461,8 @@ async function shopPage(request, env, ctx, slug) {
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
   const head = `${banner}<div class="awning"></div><header class="shophead"><div class="wrap">
 <div class="idrow">${avatar}<div><h1>${name}</h1>${st ? `<span class="badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span>` : ""}</div></div>
+${shop.slogan ? `<p class="shop-slogan">${esc(shop.slogan)}</p>` : ""}
+${shop.business_name || shop.brand_name ? `<p class="brand-eyebrow">${esc(shop.brand_name || shop.business_name)}</p>` : ""}
 ${shop.description ? `<p class="sdesc">${esc(shop.description)}</p>` : ""}
 <div class="infos">${shop.address ? `<span>${icon("pin")}<span>${esc(shop.address)}</span></span>` : ""}
 ${shop.momo ? `<span>${icon("card")}<span>${esc(shop.momo)}</span></span>` : ""}</div>
@@ -630,7 +635,7 @@ async function publicShop(env, shop) {
   const media = {};
   for (const id of [shop.logo_id, shop.banner_id]) if (id) media[id] = `/img/${id}`;
   return {
-    id: shop.id, slug: shop.slug, name: shop.name, description: shop.description, whatsapp: shop.whatsapp,
+    id: shop.id, slug: shop.slug, name: shop.name, business_name: shop.business_name || "", brand_name: shop.brand_name || "", slogan: shop.slogan || "", description: shop.description, whatsapp: shop.whatsapp,
     color: shop.color, address: shop.address, maps_url: shop.maps_url, hours: shop.hours, momo: shop.momo,
     logo_id: shop.logo_id, banner_id: shop.banner_id, gallery: parseIds(shop.gallery), theme: shop.theme || "editorial",
     layout: shop.layout || "grid", plan: shop.plan, status: shop.status,
@@ -660,6 +665,9 @@ async function apiShopUpdate(request, env, auth) {
     f.name = str(b.name, 60);
     if (f.name.length < 2) return fail("Le nom de la boutique est trop court.");
   }
+  if (b.business_name !== undefined) f.business_name = str(b.business_name, 80);
+  if (b.brand_name !== undefined) f.brand_name = str(b.brand_name, 80);
+  if (b.slogan !== undefined) f.slogan = str(b.slogan, 140);
   if (b.description !== undefined) f.description = str(b.description, 300);
   if (b.whatsapp !== undefined) {
     f.whatsapp = normalizePhone(b.whatsapp);

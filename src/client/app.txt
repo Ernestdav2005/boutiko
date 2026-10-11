@@ -514,7 +514,10 @@
       '<div class="row"><button class="btn small" id="copyl">Copier le lien</button><a class="btn ghost small" id="sharewa" target="_blank" rel="noopener" href="' + esc(waLink("", "Découvrez ma boutique : " + link)) + '">Partager sur WhatsApp</a></div>' +
       '<div class="qrbox"><img src="/qr/' + esc(s.slug) + '" alt="QR code" width="180" height="180"></div><p class="muted small">Imprimez ce QR code (capture d\'écran) et collez-le à votre comptoir.</p></div>' +
       '<form id="sf" class="card" style="margin-top:12px">' +
-      '<label class="field"><span>Nom de la boutique</span><input name="name" maxlength="60" required value="' + esc(s.name) + '"></label>' +
+      '<label class="field"><span>Nom de la boutique</span><input name="name" maxlength="60" required value="' + esc(s.name) + '"><small>Le titre principal de votre vitrine.</small></label>' +
+      '<div class="profile-fields"><label class="field"><span>Nom de l’entreprise</span><input name="business_name" maxlength="80" value="' + esc(s.business_name || "") + '" placeholder="Ex. : Les créations d’Ama"></label>' +
+      '<label class="field"><span>Nom de marque</span><input name="brand_name" maxlength="80" value="' + esc(s.brand_name || "") + '" placeholder="Ex. : AMA Studio"></label>' +
+      '<label class="field"><span>Slogan</span><input name="slogan" maxlength="140" value="' + esc(s.slogan || "") + '" placeholder="Ex. : Le style qui vous ressemble"></label></div>' +
       '<label class="field"><span>Description</span><textarea name="description" maxlength="300">' + esc(s.description) + "</textarea></label>" +
       '<label class="field"><span>Numéro WhatsApp qui reçoit les commandes</span><input name="whatsapp" inputmode="tel" required value="' + esc(s.whatsapp) + '"></label>' +
       '<div class="field"><span>Couleur principale</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
@@ -556,7 +559,7 @@
     };
     function mediaField(id, kind, current, maxSide, maxBytes) {
       var box = $("#" + id);
-      if (!lim.custom && kind !== "logo") { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
+      if (!lim.custom && kind === "banner") { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
       function draw() {
         box.innerHTML = (current ? '<div class="thumb" style="width:' + (kind === "logo" ? 80 : 160) + 'px"><img src="/img/' + current + '" style="width:100%;height:80px" alt=""><button type="button" id="' + id + 'x">×</button></div>' : "") +
           '<input type="file" accept="image/*" id="' + id + 'f" style="margin-top:6px"><small id="' + id + 'm"></small>';
@@ -606,7 +609,7 @@
       e.preventDefault();
       var f = formData(e.target), btn = $("#sf button[type=submit]");
       var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
-      var body = { name: f.name, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
+      var body = { name: f.name, business_name: f.business_name, brand_name: f.brand_name, slogan: f.slogan, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
         hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
       if (pending.logo !== undefined) body.logo_id = pending.logo;
       if (lim.custom && pending.banner !== undefined) body.banner_id = pending.banner;
