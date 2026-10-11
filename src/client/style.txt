@@ -618,3 +618,42 @@ body.home-models,body.v2{background:#f7f7f8!important;color:#0a0a0b;font-family:
 .home-models .hero-models .lead{color:#a1a1aa!important}
 .home-models .hero-models .btn{background:#fff!important;color:#0a0a0b!important;border-radius:12px!important}
 .home-models .hero-models .btn.ghost{background:transparent!important;color:#fff!important;border:1.5px solid #3f3f46!important}
+
+
+/* APERCUS MODELES = mini-boutiques (pas photos hasard) */
+.mock{position:relative;width:100%;aspect-ratio:16/10;background:#f4f4f5;overflow:hidden;border-radius:0}
+.mock-top{padding:10px 12px 6px;position:relative}
+.mock-banner{height:42%;min-height:48px;border-radius:8px;margin-bottom:8px}
+.mock-logo{width:28px;height:28px;border-radius:8px;background:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.15);margin-top:-18px;margin-left:6px}
+.mock-name{height:8px;width:42%;background:#d4d4d8;border-radius:4px;margin:8px 0 4px}
+.mock-line{height:5px;width:28%;background:#e4e4e7;border-radius:3px}
+.mock-body{padding:4px 12px 12px}
+.mock-sec{height:6px;width:30%;background:#e4e4e7;border-radius:3px;margin-bottom:8px}
+.mock-prods{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mock-prods i{display:block;aspect-ratio:1;border-radius:8px;background:#e4e4e7}
+.mock-simple .mock-banner{background:linear-gradient(135deg,#0f766e,#14b8a6)}
+.mock-quartier .mock-banner{background:linear-gradient(135deg,#b45309,#f59e0b)}
+.mock-express .mock-banner{background:linear-gradient(135deg,#334155,#64748b);min-height:28px;height:28%}
+.mock-express .mock-logo{display:none}
+.mock-vitrine .mock-banner{background:linear-gradient(135deg,#4c1d95,#7c3aed);height:50%}
+.mock-catalogue .mock-banner{background:linear-gradient(135deg,#1e3a5f,#3b82f6);height:30%}
+.mock-catalogue .mock-prods{grid-template-columns:1fr 1fr 1fr}
+.mock-mode .mock-banner{background:linear-gradient(135deg,#831843,#ec4899);height:55%}
+.mock-mode .mock-prods i{aspect-ratio:3/4}
+.mock-premium .mock-banner{background:linear-gradient(135deg,#0f3d2e,#1a5c40);height:58%;border-radius:0;margin:-10px -12px 8px}
+.mock-maison .mock-banner{background:linear-gradient(135deg,#1a1a1a,#525252);height:55%;border-radius:0;margin:-10px -12px 8px}
+.mock-flagship .mock-banner{background:linear-gradient(135deg,#1e1b4b,#6366f1);height:60%;border-radius:0;margin:-10px -12px 8px}
+.mock-premium .mock-name,.mock-maison .mock-name,.mock-flagship .mock-name{background:#a1a1aa;width:55%}
+.tpl-shot{display:block;position:relative;overflow:hidden;background:#f4f4f5}
+.tpl-preview-label{position:absolute;bottom:10px;right:10px;z-index:2;background:rgba(10,10,11,.9);color:#fff;font-size:.68rem;font-weight:700;padding:5px 10px;border-radius:999px}
+.tpl-photo{display:none!important}
+.vis-strip{background:#0a0a0b;padding:12px 0}
+.vis-row{display:flex;gap:12px;padding:0 12px;overflow-x:auto;scroll-snap-type:x mandatory}
+.vis-item{flex:0 0 auto;width:min(70vw,220px);text-decoration:none;color:#fff;scroll-snap-align:start}
+.vis-item .mock{border-radius:14px;border:1px solid #27272a}
+.vis-item span{display:block;font-size:.75rem;font-weight:650;margin-top:8px;color:#a1a1aa;text-align:center}
+.sf-tpl-mode .sf-hero .sf-cover{min-height:220px}
+.sf-tpl-premium .sf-hero,.sf-tpl-flagship .sf-hero,.sf-tpl-maison .sf-hero{min-height:280px}
+.sf-tpl-express .sf-about{display:none}
+.sf-tpl-catalogue .pgrid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:600px){.sf-tpl-catalogue .pgrid{grid-template-columns:repeat(2,1fr)}}

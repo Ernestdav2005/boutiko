@@ -411,8 +411,19 @@ async function homePage(request, env) {
       const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
       return `<article class="tpl-card tpl-${esc(tid)}" data-plan="${esc(pk)}" data-id="${esc(tid)}">
         <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
-          <img class="tpl-photo" src="${esc((SHOTS[tid]||SHOTS.simple))}" alt="${esc(t.label)}" loading="lazy" width="640" height="400" />
-          <span class="tpl-preview-label">Apercu live</span>
+          <div class="mock mock-${esc(tid)}" data-plan="${esc(pk)}">
+            <div class="mock-top">
+              <div class="mock-banner"></div>
+              <div class="mock-logo"></div>
+              <div class="mock-name"></div>
+              <div class="mock-line"></div>
+            </div>
+            <div class="mock-body">
+              <div class="mock-sec"></div>
+              <div class="mock-prods"><i></i><i></i><i></i><i></i></div>
+            </div>
+            <span class="tpl-preview-label">Modele ${esc(t.label)}</span>
+          </div>
         </a>
         <div class="tpl-meta">
           <div class="tpl-meta-top">
@@ -444,19 +455,19 @@ async function homePage(request, env) {
     <p class="note">${TRIAL_DAYS} jours d'essai · Commandes sur WhatsApp · Sans application a installer pour vos clients</p>
   </div></header>
 
-  <section class="vis-strip" aria-hidden="true">
+  <section class="vis-strip">
     <div class="vis-row">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="" loading="lazy" />
-      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="" loading="lazy" />
-      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="" loading="lazy" />
-      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80" alt="" loading="lazy" />
-      <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&q=80" alt="" loading="lazy" />
+      <a class="vis-item" href="/modele/simple"><div class="mock mock-simple"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Simple · Essentiel</span></a>
+      <a class="vis-item" href="/modele/vitrine"><div class="mock mock-vitrine"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Vitrine · Standard</span></a>
+      <a class="vis-item" href="/modele/premium"><div class="mock mock-premium"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Premium · Pro</span></a>
+      <a class="vis-item" href="/modele/mode"><div class="mock mock-mode"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Mode · Standard</span></a>
+      <a class="vis-item" href="/modele/flagship"><div class="mock mock-flagship"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Flagship · Pro</span></a>
     </div>
   </section>
 
   <section class="sec wrap" id="modeles">
     <h2>Galerie de modeles</h2>
-    <p class="muted" style="max-width:40ch;margin-bottom:28px">Comme sur Figma ou Shopify Themes : parcourez, filtrez par formule, ouvrez l'apercu, puis utilisez le modele.</p>
+    <p class="muted" style="max-width:40ch;margin-bottom:28px">Chaque carte est un modele de boutique. Ouvrez l'exemple, choisissez-le : votre boutique prendra ce design. Vous n'aurez qu'a remplacer textes, photos et produits.</p>
     <div class="tpl-filters" role="tablist"><button type="button" class="on" data-filter="all">Tous</button><button type="button" data-filter="essentiel">Essentiel</button><button type="button" data-filter="standard">Standard</button><button type="button" data-filter="pro">Pro</button></div><div class="tpl-marketplace">${allCards}</div>
   </section>
 
@@ -680,7 +691,7 @@ async function shopPage(request, env, ctx, slug) {
     color,
     body,
     script: `/shop.js?v=${V.shop}`,
-    bodyAttrs: `class="sf-page sf-${planKey}" data-plan="${planKey}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
+    bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${esc(shop.template || "simple")}" data-plan="${planKey}" data-template="${esc(shop.template || "simple")}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
   }), 200, extraHeaders);
 }
 
