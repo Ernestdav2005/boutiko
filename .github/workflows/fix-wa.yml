@@ -1,9 +1,10 @@
-name: Fix homePage wa variable
+name: Fix homePage wa
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/fix-wa.yml'
+      - 'scripts/fix-wa.py'
 permissions:
   contents: write
 jobs:
@@ -13,36 +14,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Fix
-        run: |
-          python3 << 'PY'
-          from pathlib import Path
-          import subprocess
-          src = Path("src/index.js").read_text()
-          old = '''  const contact = admin
-    ? `<a class="btn ghost" href="https://wa.me/${esc(admin)}?text=${encodeURIComponent("Bonjour, je veux en savoir plus sur " + (env.PLATFORM_NAME || "Boutiko"))}">Poser une question sur WhatsApp</a>`
-    : "";'''
-          new = old + "\n  const wa = !!admin;\n"
-          if "const wa = !!admin" not in src:
-            if old in src:
-              src = src.replace(old, new, 1)
-              print("added wa")
-            else:
-              src = src.replace(
-                '${wa ? `<a href="https://wa.me/${esc(admin)}">Aide</a>` : ""}',
-                '${admin ? `<a href="https://wa.me/${esc(admin)}">Aide</a>` : ""}',
-                1,
-              )
-              print("replaced wa with admin")
-          Path("src/index.js").write_text(src)
-          r = subprocess.run(["node","--check","src/index.js"],capture_output=True,text=True)
-          print(r.stderr or "OK")
-          raise SystemExit(r.returncode)
-          PY
+      - run: python3 scripts/fix-wa.py
       - name: Commit
         run: |
           git config user.name boutiko-fix
           git config user.email noreply@github.com
           git add src/index.js
-          git commit -m "Fix: variable wa manquante sur homePage" || echo no
+          git commit -m "Fix: wa defined on homePage" || echo no
           git push
