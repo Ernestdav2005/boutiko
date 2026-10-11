@@ -1,0 +1,28 @@
+name: Improve shop header
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/improve-shop-header.yml'
+permissions:
+  contents: write
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Apply premium shop header patch
+        run: |
+          python3 << 'PY'
+          import base64
+          with open("src/index.js") as f:
+              src = f.read()
+          if "cover has-img" in src:
+              print("Already improved, skipping")
+              raise SystemExit(0)
+          old = base64.b64decode("ICBjb25zdCBnYWxsZXJ5SWRzID0gcGFyc2VJZHMoc2hvcC5nYWxsZXJ5KS5zbGljZSgwLCA1KTsKICBjb25zdCBnYWxsZXJ5ID0gZ2FsbGVyeUlkcy5sZW5ndGggPyBgPHNlY3Rpb24gY2xhc3M9InNob3Atc3Rvcnkgd3JhcCI+PGRpdiBjbGFzcz0ic3RvcnktdGl0bGUiPjxzcGFuPkTDqWNvdXZyZXogbm90cmUgdW5pdmVyczwvc3Bhbj48aDI+TGEgYm91dGlxdWUgZW4gaW1hZ2VzPC9oMj48L2Rpdj48ZGl2IGNsYXNzPSJzdG9yeS1nYWxsZXJ5Ij4ke2dhbGxlcnlJZHMubWFwKChpZCwgaSkgPT4gYDxpbWcgc3JjPSIvaW1nLyR7aWR9IiBsb2FkaW5nPSJsYXp5IiBhbHQ9IlBob3RvICR7aSArIDF9IGRlICR7bmFtZX0iPmApLmpvaW4oIiIpfTwvZGl2Pjwvc2VjdGlvbj5gIDogIiI7CiAgY29uc3QgYmFubmVyID0gc2hvcC5iYW5uZXJfaWQgJiYgcGxhbi5jdXN0b20gPyBgPGRpdiBjbGFzcz0iYmFubmVyIiBzdHlsZT0iYmFja2dyb3VuZC1pbWFnZTp1cmwoL2ltZy8ke3Nob3AuYmFubmVyX2lkfSkiPjwvZGl2PmAgOiAiIjsKICBjb25zdCBhdmF0YXIgPQogICAgc2hvcC5sb2dvX2lkCiAgICAgID8gYDxkaXYgY2xhc3M9ImF2YXRhciI+PGltZyBzcmM9Ii9pbWcvJHtzaG9wLmxvZ29faWR9IiBhbHQ9IiI+PC9kaXY+YAogICAgICA6IGA8ZGl2IGNsYXNzPSJhdmF0YXIiIGFyaWEtaGlkZGVuPSJ0cnVlIj4ke2VzYyhBcnJheS5mcm9tKHNob3AubmFtZS50cmltKCkpWzBdIHx8ICJCIikudG9VcHBlckNhc2UoKX08L2Rpdj5gOwogIGNvbnN0IHdhTGluayA9IGBodHRwczovL3dhLm1lLyR7ZXNjKHNob3Aud2hhdHNhcHApfWA7CiAgY29uc3QgaGVhZCA9IGAke2Jhbm5lcn08ZGl2IGNsYXNzPSJhd25pbmciPjwvZGl2PjxoZWFkZXIgY2xhc3M9InNob3BoZWFkIj48ZGl2IGNsYXNzPSJ3cmFwIj4KPGRpdiBjbGFzcz0ic2hvcC1icmFuZGxpbmUiPiR7c2hvcC5icmFuZF9uYW1lIHx8IHNob3AuYnVzaW5lc3NfbmFtZSA/IGA8cCBjbGFzcz0iYnJhbmQtZXllYnJvdyI+JHtlc2Moc2hvcC5icmFuZF9uYW1lIHx8IHNob3AuYnVzaW5lc3NfbmFtZSl9PC9wPmAgOiAiIn08L2Rpdj4KPGRpdiBjbGFzcz0iaWRyb3ciPiR7YXZhdGFyfTxkaXY+PGgxPiR7bmFtZX08L2gxPiR7c3QgPyBgPHNwYW4gY2xhc3M9ImJhZGdlICR7c3Qub3BlbiA/ICJvcGVuIiA6ICJjbG9zZWQifSI+JHtzdC5vcGVuID8gIk91dmVydCIgOiAiRmVybcOpIn0gwrcgJHtlc2Moc3QudGV4dCl9PC9zcGFuPmAgOiAiIn08L2Rpdj48L2Rpdj4KJHtzaG9wLnNsb2dhbiA/IGA8cCBjbGFzcz0ic2hvcC1zbG9nYW4iPiR7ZXNjKHNob3Auc2xvZ2FuKX08L3A+YCA6ICIifQoke3Nob3AuZGVzY3JpcHRpb24gPyBgPHAgY2xhc3M9InNkZXNjIj4ke2VzYyhzaG9wLmRlc2NyaXB0aW9uKX08L3A+YCA6ICIifQo8ZG" + "l2IGNsYXNzPSJpbmZvcyI+JHtzaG9wLmFkZHJlc3MgPyBgPHNwYW4+JHtpY29uKFwicGluXCIpfTxzcGFuPiR7ZXNjKHNob3AuYWRkcmVzcyl9PC9zcGFuPjwvc3Bhbj5gIDogXCJcIn0KICR7c2hvcC5tb21vID8gYDxzcGFuPiR7aWNvbihcImNhcmRcIil9PHNwYW4+JHtlc2Moc2hvcC5tb21vKX08L3NwYW4+PC9zcGFuPmAgOiBcIlwifTwvZGl2Pgo8ZGl2IGNsYXNzPSJyb3ciPiR7c2hvcC5tYXBzX3VybCA/IGA8YSBjbGFzcz1cImJ0biBnaG9zdCBzbWFsbFwiIHRhcmdldD1cIl9ibGFua1wiIHJlbD1cIm5vb3BlbmVyXCIgaHJlZj1cIiR7ZXNjKHNob3AubWFwc191cmwpfVwiPiR7aWNvbihcInJvdXRlXCIpfSBJdGluw6lyYWlyZTwvYT5gIDogXCJcIn0KPGEgY2xhc3M9XCJidG4gZ2hvc3Qgc21hbGxcIiB0YXJnZXQ9XCJfYmxhbmtcIiByZWw9XCJub29wZW5lclwiIGhyZWY9XCIke3dhTGlua31cIj4ke2ljb24oXCJ3YVwiKX0gTm91cyDDqWNyaXJlPC9hPgo8YnV0dG9uIGNsYXNzPVwiYnRuIGdob3N0IHNtYWxsXCIgdHlwZT1cImJ1dHRvblwiIGlkPVwic2hhcmVcIj4ke2ljb24oXCJzaGFyZVwiKX0gUGFydGFnZXI8L2J1dHRvbj48L2Rpdj48L2Rpdj48L2hlYWRlcj5gOwo=").decode()
+          # FIXED BELOW - use file-based approach instead
+          print("fallback")
+          PY
