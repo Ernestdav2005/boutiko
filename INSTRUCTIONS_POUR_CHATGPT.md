@@ -17,7 +17,8 @@ Contexte : ce dossier est une application complète, testée, prête à être pu
    - `src/client/admin.txt`
    - `src/client/shop.txt`
    - `src/client/style.txt`
-3. Message de commit : `Boutiko : première version`.
+3. Message de commit : `Boutiko : design premium et espace propriétaire` (ou le message indiqué par l'utilisateur).
+4. Le dépôt existe déjà et Cloudflare est déjà relié : remplace les fichiers existants par ceux du zip. Cloudflare republie tout seul quelques minutes après l'envoi. Ne touche à aucun autre réglage.
 
 ## Règles strictes
 

@@ -25,11 +25,8 @@ Les fichiers `.txt` sont du code envoyé au navigateur. Ne pas changer leur exte
 4. Commande de construction : laisser vide. Commande de déploiement : `npx wrangler deploy` (valeur par défaut).
 5. Valider : Cloudflare publie l'application. À chaque nouvelle version envoyée sur GitHub, la publication se refait toute seule.
 
-La base de données (D1) et le stockage des photos (R2) sont créés automatiquement au premier déploiement.
-Si Cloudflare affiche une erreur à ce sujet :
-- créer à la main une base D1 et un bucket R2 (noms libres) ;
-- dans l'application → **Settings** → **Bindings** : ajouter une base D1 avec le nom de variable `DB`, et un bucket R2 avec le nom de variable `IMAGES` ;
-- relancer un déploiement.
+La base de données `boutiko-db` (D1) et le bucket `boutiko-photos` (R2) existent déjà sur le compte Cloudflare et sont déclarés dans `wrangler.jsonc`. Rien à créer.
+Si le projet est déployé sur un autre compte Cloudflare, créer une base D1 et un bucket R2, puis remplacer `database_id`, `database_name` et `bucket_name` dans `wrangler.jsonc`.
 
 ## Premier démarrage
 
