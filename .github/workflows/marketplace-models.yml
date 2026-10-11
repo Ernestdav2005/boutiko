@@ -1,0 +1,98 @@
+name: Marketplace modeles Boutiko
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/marketplace-models.yml'
+      - 'scripts/mkt-templates.b64'
+      - 'scripts/mkt-gallery.b64'
+      - 'scripts/mkt-css.b64'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Apply marketplace
+        run: |
+          set -e
+          python3 << 'PY'
+          from pathlib import Path
+          import base64, re
+          def load(p):
+              return base64.b64decode(Path(p).read_text().strip()).decode()
+          src = Path("src/index.js").read_text()
+          m = re.search(r"(?://[^\n]*\n)?const TEMPLATES = \{.*?\nfunction templateOf\(shop\) \{.*?\n\}\n", src, re.S)
+          if not m:
+              m = re.search(r"const TEMPLATES = \{.*?\nfunction templateOf\(shop\) \{.*?\n\}\n", src, re.S)
+          assert m, "TEMPLATES block not found"
+          src = src[:m.start()] + load("scripts/mkt-templates.b64").rstrip() + "\n" + src[m.end():]
+          print("templates ok")
+          g0 = src.find("  const planLabel")
+          g1 = src.find("  const shops = pros")
+          assert g0 > 0 and g1 > g0, (g0, g1)
+          src = src[:g0] + load("scripts/mkt-gallery.b64").rstrip() + "\n  " + src[g1:]
+          print("gallery js ok")
+          if "${modelCards}" in src:
+              src = src.replace("${modelCards}", "${allCards}", 1)
+              print("allCards ref")
+          src = src.replace("<h2>Nos modeles par formule</h2>", "<h2>Galerie de modeles</h2>", 1)
+          old_p = "Comme une collection de vitrines : regardez l'exemple, choisissez le modele qui vous ressemble, puis remplissez uniquement vos informations."
+          new_p = "Comme sur Figma ou Shopify Themes : parcourez, filtrez par formule, ouvrez l'apercu, puis utilisez le modele. Remplacez les textes, ajoutez photos et produits."
+          if old_p in src:
+              src = src.replace(old_p, new_p, 1)
+          if "tpl-marketplace" not in src and "${allCards}" in src:
+              src = src.replace("${allCards}", '<div class="tpl-marketplace">${allCards}</div>', 1)
+          if "tpl-filters" not in src:
+              src = src.replace(
+                  '<div class="tpl-marketplace">${allCards}</div>',
+                  '''<div class="tpl-filters" role="tablist">
+      <button type="button" class="on" data-filter="all">Tous</button>
+      <button type="button" data-filter="essentiel">Essentiel · 2 000 F</button>
+      <button type="button" data-filter="standard">Standard · 5 000 F</button>
+      <button type="button" data-filter="pro">Pro · 10 000 F</button>
+    </div>
+    <div class="tpl-marketplace">${allCards}</div>''',
+                  1,
+              )
+              print("filters ok")
+          old_steps = '''<h2>Comment ca marche</h2>
+    <ol class="steps">
+      <li><b>Choisissez un modele</b> selon votre formule (Essentiel, Standard ou Pro).</li>
+      <li><b>Renseignez vos infos</b> : nom, WhatsApp, produits et photos.</li>
+      <li><b>Partagez le lien</b> — vos clients commandent sur WhatsApp.</li>
+    </ol>'''
+          new_steps = '''<h2>Comment creer votre boutique</h2>
+    <div class="tpl-steps">
+      <div class="tpl-step"><b>1 · Modele</b>Choisissez un modele selon votre formule.</div>
+      <div class="tpl-step"><b>2 · Infos</b>Nom, WhatsApp, slogan — assez pour demarrer.</div>
+      <div class="tpl-step"><b>3 · Photos & produits</b>Logo, images et catalogue.</div>
+      <div class="tpl-step"><b>4 · Publier</b>Partagez le lien. Commandes WhatsApp.</div>
+    </div>'''
+          if old_steps in src:
+              src = src.replace(old_steps, new_steps, 1)
+              print("steps")
+          if "tpl-filters" in src and "querySelectorAll('.tpl-filters" not in src:
+              script = """
+  <script>(function(){var root=document.querySelector('.tpl-marketplace');if(!root)return;document.querySelectorAll('.tpl-filters button').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.tpl-filters button').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');var f=btn.getAttribute('data-filter');root.querySelectorAll('.tpl-card').forEach(function(card){card.hidden=(f!=='all'&&card.getAttribute('data-plan')!==f);});});});})();</script>"""
+              src = src.replace("${shops}", "${shops}" + script, 1)
+              print("script")
+          Path("src/index.js").write_text(src)
+          css = Path("src/client/style.txt").read_text()
+          if "tpl-marketplace" not in css:
+              Path("src/client/style.txt").write_text(css.rstrip() + "\n" + load("scripts/mkt-css.b64"))
+              print("css")
+          print("DONE")
+          PY
+          node --check src/index.js
+          grep -c "flagship\|express\|tpl-marketplace\|allCards" src/index.js
+      - name: Commit
+        run: |
+          git config user.name boutiko-marketplace
+          git config user.email noreply@github.com
+          git add src/index.js src/client/style.txt
+          git commit -m "Marketplace de modeles: 9 templates, filtres, parcours creation" || echo no
+          git push
