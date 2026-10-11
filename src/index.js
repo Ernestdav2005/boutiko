@@ -290,7 +290,7 @@ ${o.pwa ? '<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" hr
 ${o.image ? `<meta property="og:image" content="${esc(o.image)}">` : ""}${o.url ? `<meta property="og:url" content="${esc(o.url)}">` : ""}
 ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-color" content="${color}">
 <link rel="stylesheet" href="/style.css?v=${V.css}"><style>:root{--c:${color}}</style></head>
-<body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.pwa ? '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}</script>' : ""}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
+<body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.pwa ? '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}var ib=document.getElementById("installPwa");if(ib){var dp=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;});ib.addEventListener("click",function(){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;});}else{alert("Sur Android, ouvrez le menu ⋮ de Chrome puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».");}});}</script>' : ""}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
 }
 
 async function homePage(request, env) {
@@ -320,7 +320,7 @@ async function homePage(request, env) {
   const body = `<header class="hero"><div class="awning"></div><div class="wrap"><div class="brand"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span>${name}</div>
 <div class="heroGrid"><div><h1>Votre boutique en ligne, prête en 2 minutes</h1>
 <p class="lead">Montrez vos produits, vos prix et votre adresse. Vos clients commandent directement sur votre WhatsApp.</p>
-<div class="row"><a class="btn" href="/app">Créer ma boutique</a>${contact}</div>
+<div class="row"><a class="btn" href="/app">Créer ma boutique</a><button class="btn ghost" id="installPwa" type="button">Installer Boutiko</button>${contact}</div>
 <p class="note">${TRIAL_DAYS} jours d'essai. Aucune connaissance technique nécessaire.</p></div>${mock}</div></div></header>
 <main class="wrap"><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
 <li><b>Créez votre compte</b><span class="muted">Avec votre numéro WhatsApp. Une minute suffit.</span></li>
