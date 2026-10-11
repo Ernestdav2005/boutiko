@@ -385,6 +385,7 @@ const IC = {
   receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
   qr: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h3v3m3 0v3h-6"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
 };
 const icon = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -418,19 +419,15 @@ async function shopPage(request, env, ctx, slug) {
   const name = esc(shop.name);
   const color = safeColor(shop.color);
   if (shop.status !== "active") {
-    return html(
-      layout({
-        title: shop.name,
-        color,
-        noindex: true,
-        body: `<main class="wrap center"><h1>${name}</h1><p class="muted">Cette boutique est temporairement indisponible.</p><a class="btn ghost" href="/">Retour</a></main>`,
-      })
-    );
+    return html(layout({
+      title: shop.name, color, noindex: true,
+      body: `<main class="wrap center"><h1>${name}</h1><p class="muted">Cette boutique est temporairement indisponible.</p><a class="btn ghost" href="/">Retour</a></main>`,
+    }));
   }
   const prods = await env.DB.prepare("SELECT * FROM products WHERE shop_id=? AND active=1 ORDER BY id DESC").bind(shop.id).all();
-  const plan = PLANS[shop.plan] || PLANS.essentiel;
+  const planKey = ["essentiel", "standard", "pro"].includes(shop.plan) ? shop.plan : "essentiel";
+  const plan = PLANS[planKey] || PLANS.essentiel;
 
-  // Une visite comptée par appareil toutes les 30 minutes (évite de surcharger la base)
   const vcookie = `v${shop.id}`;
   const extraHeaders = {};
   if (!cookieOf(request, vcookie)) {
@@ -443,57 +440,115 @@ async function shopPage(request, env, ctx, slug) {
   if (!firstPhoto) {
     for (const p of prods.results) {
       const ph = parseIds(p.photos);
-      if (ph.length) {
-        firstPhoto = ph[0];
-        break;
-      }
+      if (ph.length) { firstPhoto = ph[0]; break; }
     }
   }
   const theme = ["editorial", "minimal", "elegant", "bold"].includes(shop.theme) ? shop.theme : "editorial";
   const productLayout = ["grid", "list", "large"].includes(shop.layout) ? shop.layout : "grid";
-  const galleryIds = parseIds(shop.gallery).slice(0, 5);
-  const gallery = galleryIds.length ? `<section class="shop-story"><div class="story-title"><span>Notre univers</span><h2>La boutique en images</h2></div><div class="story-gallery">${galleryIds.map((id, i) => `<button type="button" class="story-shot" data-lightbox="/img/${id}" aria-label="Voir la photo ${i + 1}"><img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}"></button>`).join("")}</div></section>` : "";
-  const banner = shop.banner_id && plan.custom
-    ? `<div class="cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
-    : `<div class="cover no-img" style="--c:${color}"></div>`;
-  const avatar =
-    shop.logo_id
-      ? `<div class="avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
-      : `<div class="avatar" aria-hidden="true">${esc(Array.from(shop.name.trim())[0] || "B").toUpperCase()}</div>`;
+  const galleryIds = parseIds(shop.gallery).slice(0, planKey === "pro" ? 8 : 5);
+  const brandLabel = esc(shop.brand_name || shop.business_name || "");
+  const slogan = esc(shop.slogan || "");
+  const desc = esc(shop.description || "");
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
-  const head = `${banner}<header class="shophead"><div class="wrap">
-<div class="shop-brandline">${shop.brand_name || shop.business_name ? `<p class="brand-eyebrow">${esc(shop.brand_name || shop.business_name)}</p>` : ""}</div>
-<div class="idrow">${avatar}<div class="shop-id"><h1>${name}</h1>${st ? `<span class="badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span>` : ""}</div></div>
-${shop.slogan ? `<p class="shop-slogan">${esc(shop.slogan)}</p>` : ""}
-${shop.description ? `<p class="sdesc">${esc(shop.description)}</p>` : ""}
-<div class="infos">${shop.address ? `<span>${icon("pin")}<span>${esc(shop.address)}</span></span>` : ""}
-${shop.momo ? `<span>${icon("card")}<span>${esc(shop.momo)}</span></span>` : ""}</div>
-<div class="row">${shop.maps_url ? `<a class="btn ghost small" target="_blank" rel="noopener" href="${esc(shop.maps_url)}">${icon("route")} Itinéraire</a>` : ""}
-<a class="btn ghost small" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Nous écrire</a>
-<button class="btn ghost small" type="button" id="share">${icon("share")} Partager</button></div></div></header>`;
   const many = prods.results.length > 8;
-  const list = prods.results.length
-    ? `<main class="wrap">${many ? '<div class="search"><input id="q" type="search" placeholder="Chercher un produit" aria-label="Chercher un produit" autocomplete="off"></div>' : ""}<div class="pgrid">${prods.results.map((p) => productCard(p, shop)).join("")}</div><p class="hint" id="none" hidden>Aucun produit ne correspond.</p><p class="hint">Touchez un produit pour le voir en grand, puis commandez sur WhatsApp.</p></main>`
-    : `<main class="wrap"><div class="empty"><b>Les produits arrivent bientôt</b>Revenez dans quelques jours ou écrivez-nous sur WhatsApp.</div></main>`;
+  const productCount = prods.results.length;
+
+  // ---- Cover / logo (all tiers) ----
+  const cover = (shop.banner_id && plan.custom)
+    ? `<div class="sf-cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
+    : `<div class="sf-cover no-img" style="--c:${color}"></div>`;
+  const avatar = shop.logo_id
+    ? `<div class="sf-avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
+    : `<div class="sf-avatar" aria-hidden="true">${esc((Array.from(shop.name.trim())[0] || "B").toUpperCase())}</div>`;
+  const openBadge = st
+    ? `<span class="sf-badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert maintenant" : "Fermé"} · ${esc(st.text)}</span>`
+    : "";
+
+  // ---- Hero by tier ----
+  let hero = "";
+  if (planKey === "pro") {
+    hero = `<section class="sf-hero sf-pro-hero">${cover}
+      <div class="sf-pro-overlay wrap">
+        ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}
+        <h1 class="sf-name">${name}</h1>
+        ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
+        ${openBadge}
+        <div class="sf-actions">
+          <a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Commander sur WhatsApp</a>
+          <button class="btn ghost" type="button" id="share">${icon("share")} Partager</button>
+        </div>
+      </div>
+    </section>`;
+  } else {
+    // essentiel + standard : identité type page découverte validée
+    hero = `<section class="sf-hero">${cover}
+      <div class="sf-identity wrap">${avatar}<div class="sf-id-text">
+        ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}
+        <h1 class="sf-name">${name}</h1>
+        ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
+        ${openBadge}
+      </div></div>
+    </section>`;
+  }
+
+  // ---- Infobar (actions + infos pratiques) ----
+  const infoItems = [];
+  if (shop.address) infoItems.push(`<span class="sf-info">${icon("pin")}<span>${esc(shop.address)}</span></span>`);
+  if (st) infoItems.push(`<span class="sf-info">${icon("clock")}<span>${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span></span>`);
+  if (shop.momo) infoItems.push(`<span class="sf-info">${icon("card")}<span>${esc(shop.momo)}</span></span>`);
+  const actionsEss = planKey === "pro" ? "" : `<div class="sf-actions">
+    <a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Commander / Nous écrire</a>
+    ${shop.maps_url ? `<a class="btn ghost" target="_blank" rel="noopener" href="${esc(shop.maps_url)}">${icon("route")} Itinéraire</a>` : ""}
+    <button class="btn ghost" type="button" id="share">${icon("share")} Partager</button>
+  </div>`;
+  const mapsPro = (planKey === "pro" && shop.maps_url)
+    ? `<a class="btn ghost small" target="_blank" rel="noopener" href="${esc(shop.maps_url)}">${icon("route")} Itinéraire</a>` : "";
+  const infoBar = `<section class="sf-infobar"><div class="wrap">
+    ${infoItems.length ? `<div class="sf-infos">${infoItems.join("")}</div>` : ""}
+    ${actionsEss}${mapsPro}
+  </div></section>`;
+
+  // ---- Entreprise (standard + pro always if desc; essentiel if desc) ----
+  const about = (desc || (planKey !== "essentiel" && brandLabel))
+    ? `<section class="sf-about wrap"><div class="sf-sec"><span>${planKey === "pro" ? "L'entreprise" : "L'entreprise"}</span><h2>${planKey === "pro" ? "Qui sommes-nous" : "Qui sommes-nous"}</h2></div>
+      <p class="sf-desc">${desc || (brandLabel + " vous accueille.")}</p></section>`
+    : "";
+
+  // ---- Galerie ----
+  const gallery = galleryIds.length
+    ? `<section class="sf-gallery"><div class="wrap"><div class="sf-sec"><span>Notre univers</span><h2>${planKey === "pro" ? "La marque en images" : "La boutique en images"}</h2></div>
+      <div class="story-gallery">${galleryIds.map((id, i) => `<button type="button" class="story-shot" data-lightbox="/img/${id}" aria-label="Photo ${i + 1}"><img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}"></button>`).join("")}</div></div></section>`
+    : "";
+
+  // ---- Produits ----
+  const productsHtml = productCount
+    ? `<section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits${productCount > 1 ? ` <small>(${productCount})</small>` : ""}</h2></div>
+      ${many ? '<div class="search"><input id="q" type="search" placeholder="Chercher un produit..." aria-label="Chercher un produit" autocomplete="off"></div>' : ""}
+      <div class="pgrid">${prods.results.map((p) => productCard(p, shop)).join("")}</div>
+      <p class="hint" id="none" hidden>Aucun produit ne correspond.</p>
+      <p class="hint">Touchez un produit pour le voir en grand, puis commandez sur WhatsApp.</p>
+    </div></section>`
+    : `<section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits</h2></div>
+      <div class="empty"><b>Les produits arrivent bientôt</b><p>Revenez bientôt ou écrivez-nous sur WhatsApp.</p>
+      <a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Nous écrire</a></div></div></section>`;
+
+  const foot = shop.plan === "pro"
+    ? `<footer class="sf-foot sf-foot-pro"><div class="wrap">Boutique créée avec <a href="/">${platformName(env)} Pro</a></div></footer>`
+    : `<footer class="sf-foot"><div class="wrap">Boutique créée avec <a href="/">${platformName(env)}</a></div></footer>`;
   const fab = `<a class="fab" target="_blank" rel="noopener" href="${waLink}" aria-label="Écrire sur WhatsApp">${icon("wa")}</a>`;
-  const foot =
-    shop.plan === "pro"
-      ? `<footer class="foot"></footer>`
-      : `<footer class="foot">Boutique créée avec <a href="/">${platformName(env)}</a></footer>`;
-  return html(
-    layout({
-      title: `${shop.name}${shop.address ? " | " + shop.address : ""}`,
-      desc: shop.description || `Découvrez les produits de ${shop.name} et commandez sur WhatsApp.`,
-      image: firstPhoto ? `${url.origin}/img/${firstPhoto}` : "",
-      url: `${url.origin}/${shop.slug}`,
-      color,
-      body: head + gallery + list + foot + fab,
-      script: `/shop.js?v=${V.shop}`,
-      bodyAttrs: `data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
-    }),
-    200,
-    extraHeaders
-  );
+
+  const body = hero + infoBar + about + gallery + productsHtml + foot + fab;
+
+  return html(layout({
+    title: `${shop.name}${shop.address ? " · " + shop.address : ""}`,
+    desc: shop.description || shop.slogan || `Découvrez ${shop.name} et commandez sur WhatsApp.`,
+    image: firstPhoto ? `${url.origin}/img/${firstPhoto}` : "",
+    url: `${url.origin}/${shop.slug}`,
+    color,
+    body,
+    script: `/shop.js?v=${V.shop}`,
+    bodyAttrs: `class="sf-page sf-${planKey}" data-plan="${planKey}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
+  }), 200, extraHeaders);
 }
 
 function notFound(env) {
