@@ -1,7 +1,7 @@
 from pathlib import Path
-import subprocess, sys
-home = "".join(Path(f"scripts/hf{i}.js").read_text() for i in range(10))
-css = "".join(Path(f"scripts/hc{i}.css").read_text() for i in range(5))
+import base64, subprocess, sys
+home = base64.b64decode("".join(Path(f"scripts/H{i}.b64").read_text().strip() for i in range(18))).decode()
+css = base64.b64decode("".join(Path(f"scripts/C{i}.b64").read_text().strip() for i in range(13))).decode()
 assert "hk-nav" in home and "Connexion" in home
 src = Path("src/index.js").read_text()
 a = src.find("async function homePage")
@@ -13,7 +13,7 @@ sty = Path("src/client/style.txt").read_text()
 m = "/* ===== ACCUEIL PRO NOIR"
 if m in sty: sty = sty[:sty.find(m)].rstrip()
 Path("src/client/style.txt").write_text(sty + "\n" + css)
-r = subprocess.run(["node", "--check", "src/index.js"], capture_output=True, text=True)
+r = subprocess.run(["node","--check","src/index.js"],capture_output=True,text=True)
 if r.returncode:
     print(r.stderr); sys.exit(1)
 print("OK")
