@@ -1,6 +1,6 @@
 {
   "name": "boutiko",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Plateforme de boutiques en ligne pour les commerçants, commande par WhatsApp",
   "main": "src/index.js",
