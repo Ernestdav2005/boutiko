@@ -160,6 +160,7 @@ async function getAuth(request, env) {
     .first();
   if (!row || row.expires < now()) return null;
   const shop = await env.DB.prepare("SELECT * FROM shops WHERE user_id=?").bind(row.id).first();
+  if (shop && shop.status === "blocked" && !row.is_admin) return null; // compte bloqué par l'administrateur
   return { user: { id: row.id, phone: row.phone, is_admin: !!row.is_admin }, shop };
 }
 
@@ -289,6 +290,7 @@ ${feat("lock", "Votre boutique reste en ligne", "Hébergée sur Cloudflare, jour
     layout({
       title: `${env.PLATFORM_NAME || "Boutiko"} : votre boutique en ligne`,
       desc: "Créez votre boutique en ligne en 2 minutes. Vos clients commandent sur WhatsApp.",
+      color: "#27338f",
       body,
     })
   );
@@ -311,6 +313,7 @@ function adminPage(env) {
       title: `Administration | ${env.PLATFORM_NAME || "Boutiko"}`,
       body: `<div id="root" class="app"><p class="center muted">Chargement…</p></div>`,
       script: `/admin.js?v=${V.admin}`,
+      color: "#27338f",
       noindex: true,
     })
   );
@@ -549,6 +552,10 @@ async function apiLogin(request, env) {
     return fail("Numéro ou mot de passe incorrect.", 401);
   }
   if (f) await env.DB.prepare("DELETE FROM login_fails WHERE phone=?").bind(phone).run();
+  if (!u.is_admin) {
+    const sh = await env.DB.prepare("SELECT status FROM shops WHERE user_id=?").bind(u.id).first();
+    if (sh && sh.status === "blocked") return fail("Ce compte est bloqué. Contactez l'administrateur sur WhatsApp.", 403);
+  }
   return startSession(request, env, u.id);
 }
 async function apiLogout(request, env) {
@@ -886,11 +893,48 @@ async function apiAdmin(request, env, auth, parts) {
        (SELECT COUNT(*) FROM products WHERE shop_id=s.id) pc,
        (SELECT COALESCE(SUM(bytes),0) FROM media WHERE shop_id=s.id) bytes,
        (SELECT COUNT(*) FROM orders WHERE shop_id=s.id AND status='pending') po,
-       (SELECT COALESCE(SUM(visits),0) FROM stats WHERE shop_id=s.id AND day>=?) v30
+       (SELECT COALESCE(SUM(visits),0) FROM stats WHERE shop_id=s.id AND day>=?) v30,
+       (SELECT COUNT(*) FROM orders WHERE shop_id=s.id AND status='sold') sold,
+       (SELECT is_admin FROM users WHERE id=s.user_id) is_admin
        FROM shops s ORDER BY s.id DESC`
     ).bind(dayStr(29)).all();
     const tot = await env.DB.prepare("SELECT COALESCE(SUM(bytes),0) n FROM media").first();
     return json({ shops: r.results, plans: PLANS, totalBytes: tot.n, now: now() });
+  }
+  if (request.method === "GET" && parts[2] === "overview") {
+    const t = now();
+    const d30 = dayStr(29);
+    const q = async (sql, ...b) => (await env.DB.prepare(sql).bind(...b).first()) || {};
+    const byPlan = await env.DB.prepare(
+      `SELECT plan, COUNT(*) total,
+        SUM(CASE WHEN status='active' AND (paid_until IS NULL OR paid_until>=?) THEN 1 ELSE 0 END) paying_or_trial,
+        SUM(CASE WHEN status='active' AND paid_until<? THEN 1 ELSE 0 END) expired,
+        SUM(CASE WHEN status!='active' THEN 1 ELSE 0 END) off
+       FROM shops GROUP BY plan`
+    ).bind(t, t).all();
+    const byStatus = await env.DB.prepare("SELECT status, COUNT(*) n FROM shops GROUP BY status").all();
+    const trial = await q("SELECT COUNT(*) n FROM shops WHERE status='active' AND paid_until>=? AND paid_until<=created_at+?", t, TRIAL_DAYS * 86400 + 60);
+    const su7 = await q("SELECT COUNT(*) n FROM shops WHERE created_at>=?", t - 7 * 86400);
+    const su30 = await q("SELECT COUNT(*) n FROM shops WHERE created_at>=?", t - 30 * 86400);
+    const days = await env.DB.prepare("SELECT strftime('%Y-%m-%d', created_at+3600, 'unixepoch') d, COUNT(*) n FROM shops WHERE created_at>=? GROUP BY d").bind(t - 14 * 86400).all();
+    const prod = await q("SELECT COUNT(*) n FROM products");
+    const pend = await q("SELECT COUNT(*) n FROM orders WHERE status='pending'");
+    const sales = await q("SELECT COUNT(*) n, COALESCE(SUM(qty*unit_price),0) total FROM orders WHERE status='sold' AND created_at>=?", t - 30 * 86400);
+    const traf = await q("SELECT COALESCE(SUM(visits),0) v, COALESCE(SUM(clicks),0) c FROM stats WHERE day>=?", d30);
+    const bytes = await q("SELECT COALESCE(SUM(bytes),0) n FROM media");
+    const users = await q("SELECT COUNT(*) n FROM users");
+    const series = {};
+    for (const r of days.results) series[r.d] = r.n;
+    const signups14 = [];
+    for (let i = 13; i >= 0; i--) {
+      const k = dayStr(i);
+      signups14.push({ d: k, n: series[k] || 0 });
+    }
+    return json({
+      plans: PLANS, trialDays: TRIAL_DAYS, users: users.n, byPlan: byPlan.results, byStatus: byStatus.results, trial: trial.n,
+      signups7: su7.n, signups30: su30.n, signups14, products: prod.n, pendingOrders: pend.n,
+      sales30: { n: sales.n, total: sales.total }, visits30: traf.v, clicks30: traf.c, totalBytes: bytes.n, now: t,
+    });
   }
   if (request.method === "GET" && parts[2] === "export") {
     const s = await env.DB.prepare("SELECT * FROM shops").all();
@@ -921,8 +965,11 @@ async function apiAdmin(request, env, auth, parts) {
       await env.DB.prepare("UPDATE shops SET plan=? WHERE id=?").bind(b.plan, id).run();
     }
     if (b.status !== undefined) {
-      if (!["active", "suspended"].includes(b.status)) return fail("Statut inconnu.");
+      if (!["active", "suspended", "blocked"].includes(b.status)) return fail("Statut inconnu.");
+      const owner = await env.DB.prepare("SELECT is_admin FROM users WHERE id=?").bind(shop.user_id).first();
+      if (owner && owner.is_admin && b.status !== "active") return fail("Le compte administrateur ne peut pas être suspendu ni bloqué.");
       await env.DB.prepare("UPDATE shops SET status=? WHERE id=?").bind(b.status, id).run();
+      if (b.status === "blocked") await env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(shop.user_id).run();
     }
     if (b.add_days !== undefined) {
       const days = Math.max(1, Math.min(366, parseInt(b.add_days, 10) || 30));

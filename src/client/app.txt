@@ -2,7 +2,7 @@
   "use strict";
   var root = document.getElementById("root");
   var S = { me: null, tab: "products", products: [], orders: null, stats: null, loaded: {} };
-  var COLORS = ["#0f766e", "#1d4ed8", "#b45309", "#be123c", "#6d28d9", "#15803d", "#0e7490", "#374151"];
+  var COLORS = ["#0f766e", "#1e3a8a", "#b45309", "#be123c", "#6d28d9", "#166534", "#0e7490", "#1f2937", "#9d174d", "#c2410c"];
   var DAYS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
   var DEFAULT_REPLIES = [
     "Bonjour ! Merci pour votre message. Quel produit vous intéresse ?",

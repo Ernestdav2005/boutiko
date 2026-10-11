@@ -6,14 +6,14 @@
   --c:#27338f;          /* couleur principale (celle de la boutique sur sa page) */
   --ink:#1b2540;        /* texte et fonds sombres : encre indigo */
   --mut:#5d6785;
-  --bg:#f3f4f8;
+  --bg:#f5f6fa;
   --card:#fff;
   --bd:#e1e4ee;
   --ok:#168a45;         /* vert WhatsApp, lisible avec du texte blanc */
   --bad:#c0262d;
   --warn:#a85a07;
   --sun:#f5a623;        /* ocre : accent de la plateforme */
-  --r:14px;
+  --r:18px;
 }
 html,body{margin:0;padding:0}
 body{font-family:"Avenir Next","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
@@ -227,3 +227,95 @@ pre.msg{white-space:pre-wrap;background:#f7f8fc;border:2px dashed var(--bd);bord
 .brandline{display:flex;align-items:center;gap:8px;justify-content:center;font-weight:800;font-size:1.25rem;color:var(--c)}
 .brandline .mark{width:34px;height:34px;border-radius:10px;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-weight:900}
 .authwrap{max-width:440px;margin:0 auto}
+
+/* ===== Couche « premium » : relief, couleur, finitions ===== */
+:root{--shadow:0 1px 2px rgba(20,28,60,.06),0 8px 24px -12px rgba(20,28,60,.18);--shadow-lg:0 2px 4px rgba(20,28,60,.08),0 20px 44px -16px rgba(20,28,60,.28)}
+body{background:var(--bg)}
+h1{font-size:1.9rem;letter-spacing:-.03em}
+.card,.plan,.steps li,.lrow,.sh,.empty,.qrep{box-shadow:var(--shadow);border-color:#e7e9f2}
+.btn{border-radius:14px;box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 6px 14px -8px var(--c);letter-spacing:-.005em}
+.btn.ghost,.btn.danger,.btn.link{box-shadow:none}
+.btn.wa,.btn.ok{box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 8px 16px -9px var(--ok)}
+.btn.small{border-radius:12px}
+input,select,textarea{border-radius:14px;border-color:#dfe3ee;background:#fbfcfe}
+
+/* Accueil */
+.hero{background:radial-gradient(900px 420px at 85% -10%,rgba(245,166,35,.30),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(99,102,241,.35),transparent 60%),linear-gradient(160deg,#141a3a 0%,#1b2552 55%,#232f6b 100%)}
+.hero h1{font-size:2.2rem;line-height:1.08}
+@media(min-width:820px){.hero h1{font-size:3.1rem}}
+.hero .btn{box-shadow:0 10px 24px -10px rgba(245,166,35,.8)}
+.phone{box-shadow:0 30px 60px -20px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08);transform:rotate(2deg)}
+.sec h2{font-size:1.65rem}
+.feat{background:#fff;border:1px solid #e7e9f2;border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.feat .ic{background:linear-gradient(135deg,#eef0ff,#e3e7ff)}
+.plan{position:relative;overflow:hidden}
+.plan::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--c),var(--sun))}
+.plan .price{font-size:2rem}
+.chip{box-shadow:var(--shadow)}
+
+/* Boutique publique : en-tête en couleur, façon grande enseigne */
+.banner{height:190px;position:relative}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.35))}
+.shophead{background:linear-gradient(145deg,var(--c),color-mix(in srgb,var(--c) 55%,#0b1020));color:#fff;border-bottom:0}
+.shophead .wrap{padding-top:10px;padding-bottom:26px}
+.shophead h1{font-size:1.7rem;color:#fff}
+.shophead .sdesc{color:rgba(255,255,255,.88);font-size:1.02rem;max-width:36em}
+.shophead .infos{color:rgba(255,255,255,.95)}
+.shophead .infos svg.i{color:#fff;opacity:.9}
+.shophead .btn.ghost{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.45);box-shadow:none;backdrop-filter:blur(4px)}
+.avatar{background:#fff;color:var(--c);width:72px;height:72px;flex:0 0 72px;border-radius:22px;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);font-size:1.9rem}
+.badge.open{background:#d9f8e6;color:#0e6a35}
+.badge.closed{background:#ffe3e3;color:#9b1c1c}
+.search input{background:#fff;box-shadow:var(--shadow);border-color:transparent;min-height:50px}
+.pgrid{gap:14px}
+.prod{border-radius:20px;border-color:#e9ebf3;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease}
+@media(hover:hover){.prod:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}}
+.photos{aspect-ratio:4/5}
+.pbody{padding:12px 12px 14px;gap:4px}
+.pbody h3{font-size:1rem;font-weight:700}
+.pprice b{font-size:1.15rem;color:var(--ink)}
+.prod .buy{border-radius:12px;margin-top:8px}
+.tag{border-radius:999px;padding:4px 11px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
+.fab{box-shadow:0 14px 30px -10px rgba(22,138,69,.7)}
+.sheet{border-radius:26px 26px 0 0;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)}
+.sheet .photos{aspect-ratio:1/1;border-radius:18px}
+@media(min-width:700px){.overlay{align-items:center}.sheet{border-radius:26px}}
+
+/* Espace commerçant */
+.appbar{box-shadow:0 1px 0 var(--bd),0 10px 24px -20px rgba(20,28,60,.4)}
+.tabs{box-shadow:0 -10px 30px -20px rgba(20,28,60,.45);border-top-color:#e7e9f2}
+.tabs button.on{color:var(--c)}
+.stat .card b{font-size:1.8rem}
+.todo .n{box-shadow:0 6px 12px -6px var(--c)}
+
+/* Espace propriétaire (administration) */
+.own{background:#0f1430}
+.ownbar{background:linear-gradient(160deg,#141a3a,#232f6b);color:#fff;margin:0 -12px 14px;padding:16px 16px 18px;position:relative}
+.ownbar h1{color:#fff;font-size:1.35rem;margin:0}
+.ownbar small{display:block;color:#aeb7e6;font-weight:600;margin-bottom:2px}
+.ownbar .in{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ownbar .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.35);box-shadow:none}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:700px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:#fff;border:1px solid #e7e9f2;border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.kpi b{display:block;font-size:1.7rem;letter-spacing:-.03em;color:var(--ink);line-height:1.1}
+.kpi span{color:var(--mut);font-size:.88rem}
+.kpi.hi{background:linear-gradient(145deg,#27338f,#4b3fbf);color:#fff;border:0}
+.kpi.hi b,.kpi.hi span{color:#fff}
+.kpi.hi span{opacity:.85}
+.kpi.warn b{color:var(--warn)}
+.kpi.bad b{color:var(--bad)}
+.ptable{display:grid;gap:10px}
+.prow{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.prow .meter{grid-column:1/-1;height:8px;border-radius:99px;background:#e9ebf4;overflow:hidden}
+.prow .meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),#7c8cf0)}
+.spark{display:flex;align-items:flex-end;gap:4px;height:70px;margin-top:8px}
+.spark i{flex:1;background:linear-gradient(180deg,#7c8cf0,var(--c));border-radius:5px 5px 2px 2px;min-height:3px}
+.spark i.z{background:#e3e6f2}
+.seg{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:6px 0 10px}
+.seg button{white-space:nowrap}
+.sh.blocked{border-color:#f1a5a5;background:#fff8f8}
+.sh .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.sh .top b{font-size:1.05rem}
+.chipx.blocked{background:#4b1d1d;color:#fff}
+.chipx.trial{background:#e3e8ff;color:#27338f}

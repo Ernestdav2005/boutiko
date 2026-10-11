@@ -1,8 +1,10 @@
 (function () {
   "use strict";
   var root = document.getElementById("root");
-  var D = null;
-  var filter = "all";
+  var O = null;   // vue d'ensemble
+  var D = null;   // liste des boutiques
+  var tab = "home";
+  var F = { status: "all", plan: "all", q: "" };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -12,11 +14,13 @@
   function fcfa(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
   function $(s, el) { return (el || document).querySelector(s); }
   function toast(msg) {
+    var old = document.querySelector(".toast"); if (old) old.remove();
     var t = document.createElement("div");
     t.className = "toast";
+    t.setAttribute("role", "status");
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, 2600);
+    setTimeout(function () { t.remove(); }, 3200);
   }
   function api(path, method, body) {
     var opt = { method: method || "GET", headers: { "X-Requested-With": "boutiko" }, credentials: "same-origin" };
@@ -32,13 +36,43 @@
     if (!ts) return "—";
     return new Date(ts * 1000).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
+  function svg(p) { return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + p + "</svg>"; }
+  var IC = {
+    home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+    shops: '<path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 12v8h14v-8"/>',
+    cog: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>'
+  };
 
+  // ---------- Connexion propriétaire ----------
+  function renderLogin(msg) {
+    root.innerHTML =
+      '<div class="authwrap"><div class="center" style="margin:34px 0 14px"><div class="brandline"><span class="mark">★</span>Espace propriétaire</div>' +
+      '<p class="muted" style="margin-top:12px">Réservé à l\'administrateur de la plateforme.</p></div>' +
+      '<form id="lf" class="card">' +
+      '<label class="field"><span>Numéro WhatsApp</span><input name="phone" inputmode="tel" autocomplete="tel" required></label>' +
+      '<label class="field"><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>' +
+      '<div id="lerr" class="alert bad" style="' + (msg ? "" : "display:none") + '">' + esc(msg || "") + "</div>" +
+      '<button class="btn block" type="submit">Entrer</button></form>' +
+      '<p class="center small muted" style="margin-top:14px"><a href="/app">Aller à mon espace boutique</a></p></div>';
+    $("#lf").onsubmit = function (e) {
+      e.preventDefault();
+      var f = new FormData(e.target), b = $("#lf button");
+      b.disabled = true; b.textContent = "Un instant…";
+      api("/api/login", "POST", { phone: f.get("phone"), password: f.get("password") })
+        .then(function () { load(); })
+        .catch(function (ex) { renderLogin(ex.message); });
+    };
+  }
+
+  // ---------- Chargement ----------
   function load() {
-    api("/api/admin/shops").then(function (d) { D = d; draw(); }).catch(function (ex) {
-      if (ex.status === 401 || ex.status === 404) {
-        root.innerHTML = '<div class="card center" style="margin-top:30px"><p>Connectez-vous avec le compte administrateur.</p><a class="btn" href="/app">Ouvrir mon espace</a></div>';
-      } else if (ex.status === 403) {
-        root.innerHTML = '<div class="card center" style="margin-top:30px"><p>Cette page est réservée à l\'administrateur.</p><a class="btn" href="/app">Retour</a></div>';
+    Promise.all([api("/api/admin/overview"), api("/api/admin/shops")]).then(function (r) {
+      O = r[0]; D = r[1]; draw();
+    }).catch(function (ex) {
+      if (ex.status === 401 || ex.status === 404) renderLogin();
+      else if (ex.status === 403) {
+        root.innerHTML = '<div class="authwrap"><div class="empty" style="margin-top:40px"><b>Accès réservé</b>Ce compte n\'est pas celui du propriétaire de la plateforme.' +
+          '<div style="margin-top:12px"><a class="btn" href="/app">Retour à mon espace</a></div></div></div>';
       } else {
         root.innerHTML = '<div class="alert bad">' + esc(ex.message) + "</div>";
       }
@@ -50,71 +84,231 @@
     if (s.paid_until && days <= 3) return "soon";
     return "ok";
   }
+  function isTrial(s) { return s.paid_until && s.paid_until <= s.created_at + (O.trialDays * 86400) + 60 && dueState(s) !== "expired"; }
   function relanceText(s) {
     var d = fmtDate(s.paid_until);
     var past = dueState(s) === "expired";
     return "Bonjour " + s.name + ", votre abonnement " + (past ? "est arrivé à échéance le " : "arrive à échéance le ") + d +
       ". Pour le renouveler, vous pouvez payer par Mobile Money et m'envoyer la confirmation ici. Merci !";
   }
+  function revenue() {
+    return D.shops.reduce(function (a, s) {
+      if (s.status !== "active" || dueState(s) === "expired" || s.is_admin) return a;
+      return a + (D.plans[s.plan] ? D.plans[s.plan].price : 0);
+    }, 0);
+  }
+
+  // ---------- Structure ----------
   function draw() {
-    var shops = D.shops, plans = D.plans;
-    var active = shops.filter(function (s) { return s.status === "active"; });
-    var due = shops.filter(function (s) { return s.status === "active" && dueState(s) !== "ok"; });
-    var monthly = active.reduce(function (a, s) { return a + (dueState(s) === "expired" ? 0 : (plans[s.plan] ? plans[s.plan].price : 0)); }, 0);
-    var list = shops.filter(function (s) {
-      if (filter === "due") return s.status === "active" && dueState(s) !== "ok";
-      if (filter === "suspended") return s.status !== "active";
-      return true;
+    var tabs = [["home", "home", "Accueil"], ["shops", "shops", "Boutiques"], ["more", "cog", "Réglages"]];
+    root.innerHTML =
+      '<div class="ownbar"><div class="in"><div><small>Plateforme</small><h1>Espace propriétaire</h1></div>' +
+      '<a class="btn ghost small" href="/app">Mon espace boutique</a></div></div>' +
+      '<div id="view"></div>' +
+      '<nav class="tabs">' + tabs.map(function (t) {
+        return '<button data-tab="' + t[0] + '" class="' + (tab === t[0] ? "on" : "") + '">' + svg(IC[t[1]]) + "<span>" + t[2] + "</span></button>";
+      }).join("") + "</nav>";
+    root.querySelectorAll("[data-tab]").forEach(function (b) {
+      b.onclick = function () { tab = b.getAttribute("data-tab"); window.scrollTo(0, 0); draw(); };
     });
-    var h = '<div class="appbar"><div class="awning sunny"></div><div class="in"><h1><small>Plateforme</small>Administration</h1><a class="btn ghost small" href="/app">Mon espace</a></div></div>' +
-      '<div class="stat"><div class="card"><b>' + shops.length + "</b>boutiques</div><div class=\"card\"><b>" + due.length + "</b>à relancer</div>" +
-      '<div class="card"><b>' + fcfa(monthly) + "</b>FCFA / mois (estimation)</div><div class=\"card\"><b>" + (D.totalBytes / 1048576).toFixed(1) + " Mo</b>photos utilisées sur 10 000</div></div>" +
-      '<div class="row" style="margin-top:12px"><button class="btn small ' + (filter === "all" ? "" : "ghost") + '" data-f="all">Toutes</button>' +
-      '<button class="btn small ' + (filter === "due" ? "" : "ghost") + '" data-f="due">À relancer</button>' +
-      '<button class="btn small ' + (filter === "suspended" ? "" : "ghost") + '" data-f="suspended">Suspendues</button>' +
-      '<a class="btn ghost small" href="/api/admin/export">Sauvegarde complète</a></div>';
-    if (!list.length) h += '<div class="empty"><b>Aucune boutique ici</b>Changez de filtre pour voir les autres.</div>';
-    h += list.map(function (s) {
-      var st = dueState(s);
-      var badge = s.status !== "active" ? '<span class="chipx zero">Suspendue</span>' : st === "expired" ? '<span class="chipx zero">Expiré</span>' : st === "soon" ? '<span class="chipx low">Bientôt</span>' : '<span class="chipx">À jour</span>';
-      return '<div class="sh"><div class="row" style="justify-content:space-between"><b><a href="/' + esc(s.slug) + '" target="_blank" rel="noopener">' + esc(s.name) + "</a></b>" + badge + "</div>" +
-        '<div class="muted small">+' + esc(s.whatsapp) + " · " + s.pc + " produits · " + (s.bytes / 1048576).toFixed(1) + " Mo · " + s.v30 + " visites (30 j)" + (s.po ? " · " + s.po + " commande(s) en attente" : "") + "</div>" +
-        '<div class="small">Abonnement jusqu\'au <b>' + fmtDate(s.paid_until) + "</b></div>" +
-        '<div class="row"><select data-plan="' + s.id + '" style="width:auto">' + Object.keys(plans).map(function (k) {
-          return '<option value="' + k + '"' + (k === s.plan ? " selected" : "") + ">" + plans[k].label + " (" + fcfa(plans[k].price) + ")</option>";
-        }).join("") + "</select>" +
-        '<button class="btn ok small" data-pay="' + s.id + '">Paiement reçu +30 jours</button></div>' +
-        '<div class="row"><a class="btn ghost small" target="_blank" rel="noopener" href="https://wa.me/' + esc(s.whatsapp) + "?text=" + encodeURIComponent(relanceText(s)) + '">Relancer sur WhatsApp</a>' +
-        '<button class="btn ghost small" data-sus="' + s.id + '" data-to="' + (s.status === "active" ? "suspended" : "active") + '">' + (s.status === "active" ? "Suspendre" : "Réactiver") + "</button>" +
-        '<button class="btn ghost small" data-reset="' + s.id + '">Nouveau mot de passe</button></div></div>';
-    }).join("");
-    root.innerHTML = h;
-    root.querySelectorAll("[data-f]").forEach(function (b) { b.onclick = function () { filter = b.getAttribute("data-f"); draw(); }; });
-    root.querySelectorAll("[data-plan]").forEach(function (sel) {
+    var v = $("#view");
+    if (tab === "home") viewHome(v); else if (tab === "shops") viewShops(v); else viewMore(v);
+  }
+
+  // ---------- Accueil : chiffres de la plateforme ----------
+  function count(arr, key, val, field) {
+    for (var i = 0; i < arr.length; i++) if (arr[i][key] === val) return arr[i][field] || 0;
+    return 0;
+  }
+  function viewHome(v) {
+    var shops = D.shops;
+    var expired = shops.filter(function (s) { return s.status === "active" && dueState(s) === "expired" && !s.is_admin; }).length;
+    var soon = shops.filter(function (s) { return s.status === "active" && dueState(s) === "soon" && !s.is_admin; }).length;
+    var susp = count(O.byStatus, "status", "suspended", "n");
+    var blocked = count(O.byStatus, "status", "blocked", "n");
+    var active = count(O.byStatus, "status", "active", "n");
+    var h = '<div class="kpis">' +
+      '<div class="kpi hi"><b>' + O.users + "</b><span>utilisateurs inscrits</span></div>" +
+      '<div class="kpi"><b>' + active + "</b><span>boutiques actives</span></div>" +
+      '<div class="kpi hi"><b>' + fcfa(revenue()) + "</b><span>FCFA / mois (abonnements en cours)</span></div>" +
+      '<div class="kpi"><b>' + O.signups7 + "</b><span>nouvelles boutiques (7 jours)</span></div></div>";
+
+    h += '<h2 style="margin-top:20px">À surveiller</h2><div class="kpis">' +
+      '<div class="kpi warn"><b>' + soon + "</b><span>abonnements bientôt échus</span></div>" +
+      '<div class="kpi bad"><b>' + expired + "</b><span>abonnements expirés</span></div>" +
+      '<div class="kpi"><b>' + susp + "</b><span>boutiques suspendues</span></div>" +
+      '<div class="kpi"><b>' + blocked + "</b><span>comptes bloqués</span></div></div>";
+    if (soon + expired > 0) h += '<div style="margin-top:10px"><button class="btn small" data-go="due">Voir les abonnements à relancer</button></div>';
+
+    h += '<h2 style="margin-top:20px">Utilisateurs par formule</h2><div class="card ptable">';
+    var maxN = Math.max(1, shops.length);
+    Object.keys(O.plans).forEach(function (k) {
+      var n = count(O.byPlan, "plan", k, "total");
+      h += '<div class="prow"><div><b>' + esc(O.plans[k].label) + '</b> <span class="muted small">' + fcfa(O.plans[k].price) + ' FCFA / mois</span></div>' +
+        '<div><button class="btn ghost small" data-plan="' + k + '">' + n + (n > 1 ? " boutiques" : " boutique") + "</button></div>" +
+        '<div class="meter"><i style="width:' + Math.round(n / maxN * 100) + '%"></i></div></div>';
+    });
+    h += '<div class="muted small">En essai gratuit en ce moment : <b>' + O.trial + "</b></div></div>";
+
+    var max = 1;
+    O.signups14.forEach(function (d) { if (d.n > max) max = d.n; });
+    h += '<h2 style="margin-top:20px">Inscriptions des 14 derniers jours</h2><div class="card"><div class="spark" role="img" aria-label="Inscriptions par jour">' +
+      O.signups14.map(function (d) { return '<i class="' + (d.n ? "" : "z") + '" style="height:' + (d.n ? Math.max(8, Math.round(d.n / max * 100)) : 4) + '%" title="' + d.d + " : " + d.n + '"></i>'; }).join("") +
+      '</div><p class="muted small" style="margin:8px 0 0">' + O.signups30 + " nouvelles boutiques sur 30 jours.</p></div>";
+
+    h += '<h2 style="margin-top:20px">Activité (30 jours)</h2><div class="kpis">' +
+      '<div class="kpi"><b>' + fcfa(O.visits30) + "</b><span>visites des boutiques</span></div>" +
+      '<div class="kpi"><b>' + fcfa(O.clicks30) + "</b><span>clics « Commander »</span></div>" +
+      '<div class="kpi"><b>' + fcfa(O.sales30.n) + "</b><span>ventes confirmées</span></div>" +
+      '<div class="kpi"><b>' + fcfa(O.sales30.total) + "</b><span>FCFA vendus par vos commerçants</span></div></div>";
+
+    var mb = (O.totalBytes / 1048576);
+    h += '<h2 style="margin-top:20px">Ressources</h2><div class="card ptable"><div class="prow"><div><b>Photos</b> <span class="muted small">' + mb.toFixed(1) + ' Mo sur 10 000 Mo gratuits</span></div><div></div>' +
+      '<div class="meter"><i style="width:' + Math.min(100, mb / 100).toFixed(1) + '%"></i></div></div>' +
+      '<div class="muted small">' + fcfa(O.products) + " produits au total · " + O.pendingOrders + " commande(s) en attente chez les commerçants.</div></div>";
+    v.innerHTML = h;
+
+    v.querySelectorAll("[data-plan]").forEach(function (b) {
+      b.onclick = function () { F = { status: "all", plan: b.getAttribute("data-plan"), q: "" }; tab = "shops"; draw(); };
+    });
+    var g = $("[data-go=due]", v);
+    if (g) g.onclick = function () { F = { status: "due", plan: "all", q: "" }; tab = "shops"; draw(); };
+  }
+
+  // ---------- Boutiques : recherche, filtres, actions ----------
+  function matches(s) {
+    var st = dueState(s);
+    if (F.plan !== "all" && s.plan !== F.plan) return false;
+    if (F.status === "due" && !(s.status === "active" && st !== "ok" && !s.is_admin)) return false;
+    if (F.status === "expired" && !(s.status === "active" && st === "expired" && !s.is_admin)) return false;
+    if (F.status === "trial" && !(s.status === "active" && isTrial(s))) return false;
+    if (F.status === "suspended" && s.status !== "suspended") return false;
+    if (F.status === "blocked" && s.status !== "blocked") return false;
+    if (F.q) {
+      var q = F.q.toLowerCase();
+      if ((s.name + " " + s.slug + " " + s.whatsapp).toLowerCase().indexOf(q) < 0) return false;
+    }
+    return true;
+  }
+  function viewShops(v) {
+    var segs = [["all", "Toutes"], ["trial", "En essai"], ["due", "À relancer"], ["expired", "Expirées"], ["suspended", "Suspendues"], ["blocked", "Bloquées"]];
+    var h = '<div class="search" style="margin-bottom:8px"><input id="sq" type="search" placeholder="Chercher une boutique ou un numéro" value="' + esc(F.q) + '" autocomplete="off"></div>' +
+      '<div class="seg">' + segs.map(function (x) {
+        return '<button class="btn small ' + (F.status === x[0] ? "" : "ghost") + '" data-f="' + x[0] + '">' + x[1] + "</button>";
+      }).join("") + "</div>" +
+      '<div class="seg"><button class="btn small ' + (F.plan === "all" ? "" : "ghost") + '" data-p="all">Toutes formules</button>' +
+      Object.keys(D.plans).map(function (k) {
+        return '<button class="btn small ' + (F.plan === k ? "" : "ghost") + '" data-p="' + k + '">' + esc(D.plans[k].label) + "</button>";
+      }).join("") + "</div>";
+    var list = D.shops.filter(matches);
+    h += '<p class="muted small" id="cnt">' + list.length + (list.length > 1 ? " boutiques" : " boutique") + "</p><div id=\"list\">";
+    if (!list.length) h += '<div class="empty"><b>Aucune boutique ici</b>Changez de filtre ou de recherche.</div>';
+    h += list.map(shopCard).join("") + "</div>";
+    v.innerHTML = h;
+
+    var sq = $("#sq", v);
+    sq.oninput = function () {
+      F.q = sq.value.trim();
+      var l = D.shops.filter(matches);
+      $("#cnt", v).textContent = l.length + (l.length > 1 ? " boutiques" : " boutique");
+      $("#list", v).innerHTML = l.length ? l.map(shopCard).join("") : '<div class="empty"><b>Aucune boutique ici</b>Changez de filtre ou de recherche.</div>';
+      bindShopActions(v);
+    };
+    v.querySelectorAll("[data-f]").forEach(function (b) { b.onclick = function () { F.status = b.getAttribute("data-f"); draw(); }; });
+    v.querySelectorAll("[data-p]").forEach(function (b) { b.onclick = function () { F.plan = b.getAttribute("data-p"); draw(); }; });
+    bindShopActions(v);
+  }
+  function shopCard(s) {
+    var st = dueState(s);
+    var badge;
+    if (s.is_admin) badge = '<span class="chipx good">Propriétaire</span>';
+    else if (s.status === "blocked") badge = '<span class="chipx blocked">Bloqué</span>';
+    else if (s.status === "suspended") badge = '<span class="chipx zero">Suspendue</span>';
+    else if (st === "expired") badge = '<span class="chipx zero">Expiré</span>';
+    else if (st === "soon") badge = '<span class="chipx low">Bientôt échu</span>';
+    else if (isTrial(s)) badge = '<span class="chipx trial">Essai</span>';
+    else badge = '<span class="chipx good">À jour</span>';
+    var plan = D.plans[s.plan] ? D.plans[s.plan].label : s.plan;
+    var h = '<div class="sh' + (s.status === "blocked" ? " blocked" : "") + '" data-shop="' + s.id + '"><div class="top"><div><b><a href="/' + esc(s.slug) + '" target="_blank" rel="noopener">' + esc(s.name) + "</a></b>" +
+      '<div class="muted small">+' + esc(s.whatsapp) + " · inscrit le " + fmtDate(s.created_at) + "</div></div>" + badge + "</div>" +
+      '<div class="muted small" style="margin-top:6px">' + esc(plan) + " · " + s.pc + " produits · " + (s.bytes / 1048576).toFixed(1) + " Mo · " + s.v30 + " visites (30 j) · " + s.sold + " vente(s)" + (s.po ? " · " + s.po + " commande(s) en attente" : "") + "</div>" +
+      '<div class="small" style="margin-top:4px">Abonnement jusqu\'au <b>' + fmtDate(s.paid_until) + "</b></div>" +
+      '<div class="row"><select data-plan="' + s.id + '" style="width:auto;min-height:42px" aria-label="Formule">' + Object.keys(D.plans).map(function (k) {
+        return '<option value="' + k + '"' + (k === s.plan ? " selected" : "") + ">" + D.plans[k].label + " (" + fcfa(D.plans[k].price) + ")</option>";
+      }).join("") + "</select>" +
+      '<button class="btn ok small" data-pay="' + s.id + '" data-d="30">Paiement reçu +30 jours</button>' +
+      '<button class="btn ghost small" data-pay="' + s.id + '" data-d="90">+90 jours</button></div>' +
+      '<div class="row"><a class="btn ghost small" target="_blank" rel="noopener" href="https://wa.me/' + esc(s.whatsapp) + "?text=" + encodeURIComponent(relanceText(s)) + '">Relancer sur WhatsApp</a>' +
+      '<button class="btn ghost small" data-reset="' + s.id + '">Mot de passe temporaire</button></div>';
+    if (!s.is_admin) {
+      h += '<div class="row">' +
+        (s.status === "active"
+          ? '<button class="btn ghost small" data-sus="' + s.id + '" data-to="suspended">Suspendre</button>'
+          : '<button class="btn ok small" data-sus="' + s.id + '" data-to="active">' + (s.status === "blocked" ? "Débloquer" : "Réactiver") + "</button>") +
+        (s.status !== "blocked" ? '<button class="btn danger small" data-sus="' + s.id + '" data-to="blocked">Bloquer le compte</button>' : "") +
+        "</div>";
+    }
+    return h + "</div>";
+  }
+  function refreshAfter(msg) {
+    return function () { toast(msg); load(); };
+  }
+  function bindShopActions(v) {
+    v.querySelectorAll("select[data-plan]").forEach(function (sel) {
       sel.onchange = function () {
-        api("/api/admin/shops/" + sel.getAttribute("data-plan"), "POST", { plan: sel.value }).then(function () { toast("Formule modifiée."); load(); }).catch(function (ex) { toast(ex.message); });
+        api("/api/admin/shops/" + sel.getAttribute("data-plan"), "POST", { plan: sel.value }).then(refreshAfter("Formule modifiée.")).catch(function (ex) { toast(ex.message); });
       };
     });
-    root.querySelectorAll("[data-pay]").forEach(function (b) {
+    v.querySelectorAll("[data-pay]").forEach(function (b) {
       b.onclick = function () {
-        api("/api/admin/shops/" + b.getAttribute("data-pay"), "POST", { add_days: 30 }).then(function () { toast("Abonnement prolongé de 30 jours."); load(); }).catch(function (ex) { toast(ex.message); });
+        var d = parseInt(b.getAttribute("data-d"), 10) || 30;
+        api("/api/admin/shops/" + b.getAttribute("data-pay"), "POST", { add_days: d }).then(refreshAfter("Abonnement prolongé de " + d + " jours.")).catch(function (ex) { toast(ex.message); });
       };
     });
-    root.querySelectorAll("[data-sus]").forEach(function (b) {
+    v.querySelectorAll("[data-sus]").forEach(function (b) {
       b.onclick = function () {
         var to = b.getAttribute("data-to");
-        if (to === "suspended" && !confirm("Suspendre cette boutique ? Ses clients ne pourront plus la voir.")) return;
-        api("/api/admin/shops/" + b.getAttribute("data-sus"), "POST", { status: to }).then(function () { toast(to === "active" ? "Boutique réactivée." : "Boutique suspendue."); load(); }).catch(function (ex) { toast(ex.message); });
+        var q = to === "blocked" ? "Bloquer ce compte ? Le commerçant ne pourra plus se connecter et sa boutique sera cachée."
+          : to === "suspended" ? "Suspendre cette boutique ? Ses clients ne pourront plus la voir." : "";
+        if (q && !confirm(q)) return;
+        var msg = to === "active" ? "Compte réactivé." : to === "blocked" ? "Compte bloqué." : "Boutique suspendue.";
+        api("/api/admin/shops/" + b.getAttribute("data-sus"), "POST", { status: to }).then(refreshAfter(msg)).catch(function (ex) { toast(ex.message); });
       };
     });
-    root.querySelectorAll("[data-reset]").forEach(function (b) {
+    v.querySelectorAll("[data-reset]").forEach(function (b) {
       b.onclick = function () {
-        if (!confirm("Créer un nouveau mot de passe temporaire pour ce commerçant ?")) return;
+        if (!confirm("Créer un nouveau mot de passe temporaire pour ce commerçant ? L'ancien ne marchera plus.")) return;
         api("/api/admin/shops/" + b.getAttribute("data-reset") + "/reset", "POST", {}).then(function (d) {
-          prompt("Mot de passe temporaire à envoyer au commerçant (il pourra le changer) :", d.password);
+          showPassword(d.password);
         }).catch(function (ex) { toast(ex.message); });
       };
     });
   }
+  function showPassword(pw) {
+    var ov = document.createElement("div");
+    ov.className = "overlay";
+    ov.innerHTML = '<div class="sheet"><h2>Mot de passe temporaire</h2><p class="muted">Envoyez-le au commerçant. Il pourra le changer dans son espace.</p>' +
+      '<pre class="msg" style="font-size:1.4rem;text-align:center;font-weight:800">' + esc(pw) + '</pre>' +
+      '<button class="btn block" id="pwc">Copier</button><button class="btn ghost block" id="pwx" style="margin-top:8px">Fermer</button></div>';
+    document.body.appendChild(ov);
+    $("#pwx", ov).onclick = function () { ov.remove(); };
+    $("#pwc", ov).onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(pw).then(function () { toast("Mot de passe copié."); }); };
+  }
+
+  // ---------- Réglages ----------
+  function viewMore(v) {
+    v.innerHTML = '<h2>Sauvegarde</h2><div class="card"><p class="muted small">Un fichier avec tous les utilisateurs, boutiques, produits et commandes. À télécharger de temps en temps.</p>' +
+      '<a class="btn block" href="/api/admin/export">Télécharger la sauvegarde complète</a></div>' +
+      '<h2 style="margin-top:18px">Accès rapides</h2><div class="card col">' +
+      '<a class="btn ghost block" href="/">Voir la page d\'accueil publique</a>' +
+      '<a class="btn ghost block" href="/app">Mon espace boutique</a>' +
+      '<button class="btn danger block" id="out">Me déconnecter</button></div>' +
+      '<h2 style="margin-top:18px">Formules</h2><div class="card">' + Object.keys(D.plans).map(function (k) {
+        var p = D.plans[k];
+        return '<div class="todo"><div class="t"><b>' + esc(p.label) + " : " + fcfa(p.price) + ' FCFA / mois</b><div class="muted small">' + p.products + " produits · " + p.photos + " photo(s) par produit · " + p.storageMb + " Mo</div></div></div>";
+      }).join("") + '<p class="muted small" style="margin-bottom:0">Les prix et limites se changent dans le code (section PLANS).</p></div>';
+    $("#out").onclick = function () { api("/api/logout", "POST", {}).then(function () { renderLogin(); }); };
+  }
+
   load();
 })();
