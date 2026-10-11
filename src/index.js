@@ -32,12 +32,14 @@ function hashStr(s) {
   return (h >>> 0).toString(36);
 }
 const V = { css: hashStr(STYLE_CSS), app: hashStr(APP_JS), admin: hashStr(ADMIN_JS), shop: hashStr(SHOP_JS) };
+const PWA_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#27338f"/><path d="M64 178h384v42H64z" fill="#f5a623"/><path d="M64 220h384v30H64z" fill="#fff"/><path d="M64 250h384v42H64z" fill="#f5a623"/><path d="M98 292h316v112H98z" fill="#fff"/><path d="M128 320h50v56h-50zm103 0h50v56h-50zm103 0h50v56h-50z" fill="#27338f"/><path d="M64 178 100 118h312l36 60z" fill="#fff"/><text x="256" y="455" font-size="42" font-family="Arial,sans-serif" font-weight="800" text-anchor="middle" fill="#fff">BOUTIKO</text></svg>`;
+const PWA_SW = `const CACHE="boutiko-shell-v1";const SHELL=["/","/app","/style.css","/app.js","/icon.svg","/manifest.webmanifest"];self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)));self.skipWaiting()});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(e.request.method!=="GET"||u.origin!==self.location.origin||u.pathname.startsWith("/api/")||u.pathname.startsWith("/img/")||u.pathname.startsWith("/admin"))return;if(SHELL.includes(u.pathname)){e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(cached=>cached||fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r})));}});`;
 
 // ---------- Base de données : création automatique ----------
 const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT UNIQUE NOT NULL, pass TEXT NOT NULL, is_admin INTEGER DEFAULT 0, created_at INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires INTEGER NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS shops(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', whatsapp TEXT NOT NULL, color TEXT DEFAULT '#0f766e', address TEXT DEFAULT '', maps_url TEXT DEFAULT '', hours TEXT DEFAULT '', momo TEXT DEFAULT '', logo_id INTEGER, banner_id INTEGER, plan TEXT DEFAULT 'essentiel', status TEXT DEFAULT 'active', paid_until INTEGER, quick_replies TEXT DEFAULT '', created_at INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS shops(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', whatsapp TEXT NOT NULL, color TEXT DEFAULT '#0f766e', address TEXT DEFAULT '', maps_url TEXT DEFAULT '', hours TEXT DEFAULT '', momo TEXT DEFAULT '', logo_id INTEGER, banner_id INTEGER, gallery TEXT DEFAULT '[]', theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', plan TEXT DEFAULT 'essentiel', status TEXT DEFAULT 'active', paid_until INTEGER, quick_replies TEXT DEFAULT '', created_at INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', price INTEGER NOT NULL, promo_price INTEGER, stock INTEGER, active INTEGER DEFAULT 1, photos TEXT DEFAULT '[]', created_at INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_products_shop ON products(shop_id)",
   "CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, qty INTEGER NOT NULL, unit_price INTEGER NOT NULL, status TEXT DEFAULT 'pending', source TEXT DEFAULT 'web', ip TEXT, created_at INTEGER NOT NULL)",
@@ -51,7 +53,14 @@ const SCHEMA = [
 let schemaReady = null;
 function ensureSchema(env) {
   if (!schemaReady) {
-    schemaReady = env.DB.batch(SCHEMA.map((s) => env.DB.prepare(s))).catch((e) => {
+    schemaReady = env.DB.batch(SCHEMA.map((s) => env.DB.prepare(s))).then(async () => {
+      // Migrations compatibles avec la base existante : aucune donnée n'est supprimée.
+      const info = await env.DB.prepare("PRAGMA table_info(shops)").all();
+      const columns = new Set(info.results.map((c) => c.name));
+      if (!columns.has("gallery")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN gallery TEXT DEFAULT '[]'").run();
+      if (!columns.has("theme")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN theme TEXT DEFAULT 'editorial'").run();
+      if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT 'grid'").run();
+    }).catch((e) => {
       schemaReady = null;
       throw e;
     });
@@ -145,9 +154,10 @@ function cookieOf(request, name) {
   }
   return null;
 }
-function sessionCookie(request, token, maxAge) {
+function sessionCookie(request, token, maxAge, cookieName = "sid") {
   const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
-  return `sid=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+  const sameSite = cookieName === "owner_sid" ? "Strict" : "Lax";
+  return `${cookieName}=${token}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${maxAge}${secure}`;
 }
 
 async function getAuth(request, env) {
@@ -162,6 +172,45 @@ async function getAuth(request, env) {
   const shop = await env.DB.prepare("SELECT * FROM shops WHERE user_id=?").bind(row.id).first();
   if (shop && shop.status === "blocked" && !row.is_admin) return null; // compte bloqué par l'administrateur
   return { user: { id: row.id, phone: row.phone, is_admin: !!row.is_admin }, shop };
+}
+
+async function getOwnerAuth(request, env) {
+  const token = cookieOf(request, "owner_sid");
+  if (!token || !/^[a-f0-9]{48}$/.test(token)) return null;
+  const row = await env.DB.prepare(
+    "SELECT u.id, u.phone, u.is_admin, s.expires FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token=?"
+  ).bind(token).first();
+  if (!row || row.expires < now() || !row.is_admin) return null;
+  const shop = await env.DB.prepare("SELECT * FROM shops WHERE user_id=?").bind(row.id).first();
+  return { user: { id: row.id, phone: row.phone, is_admin: true }, shop };
+}
+async function startOwnerSession(request, env, userId) {
+  const token = randomHex(24);
+  await env.DB.prepare("DELETE FROM sessions WHERE expires<?").bind(now()).run();
+  await env.DB.prepare("INSERT INTO sessions(token, user_id, expires) VALUES(?,?,?)").bind(token, userId, now() + SESSION_DAYS * 86400).run();
+  return json({ ok: true, owner: true }, 200, { "set-cookie": sessionCookie(request, token, SESSION_DAYS * 86400, "owner_sid") });
+}
+async function apiAdminLogin(request, env) {
+  const b = await readJson(request);
+  if (!b) return fail("Requête invalide");
+  const phone = normalizePhone(b.phone);
+  const f = await env.DB.prepare("SELECT * FROM login_fails WHERE phone=?").bind(phone).first();
+  if (f && f.until > now()) return fail("Trop d'essais. Réessayez dans quelques minutes.", 429);
+  const u = await env.DB.prepare("SELECT * FROM users WHERE phone=? AND is_admin=1").bind(phone).first();
+  const ok = u && (await verifyPassword(String(b.password || ""), u.pass));
+  if (!ok) {
+    const c = (f ? f.count : 0) + 1;
+    await env.DB.prepare("INSERT INTO login_fails(phone,count,until) VALUES(?,?,?) ON CONFLICT(phone) DO UPDATE SET count=excluded.count, until=excluded.until")
+      .bind(phone, c, c >= 8 ? now() + 900 : 0).run();
+    return fail("Identifiants propriétaire incorrects.", 401);
+  }
+  if (f) await env.DB.prepare("DELETE FROM login_fails WHERE phone=?").bind(phone).run();
+  return startOwnerSession(request, env, u.id);
+}
+async function apiAdminLogout(request, env) {
+  const token = cookieOf(request, "owner_sid");
+  if (token) await env.DB.prepare("DELETE FROM sessions WHERE token=?").bind(token).run();
+  return json({ ok: true }, 200, { "set-cookie": sessionCookie(request, "", 0, "owner_sid") });
 }
 
 async function readJson(request) {
@@ -237,10 +286,11 @@ function layout(o) {
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(o.title)}</title><meta name="description" content="${esc(o.desc || "")}">
 <meta property="og:title" content="${esc(o.title)}"><meta property="og:description" content="${esc(o.desc || "")}"><meta property="og:type" content="website">
+${o.pwa ? '<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml">' : ""}
 ${o.image ? `<meta property="og:image" content="${esc(o.image)}">` : ""}${o.url ? `<meta property="og:url" content="${esc(o.url)}">` : ""}
 ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-color" content="${color}">
 <link rel="stylesheet" href="/style.css?v=${V.css}"><style>:root{--c:${color}}</style></head>
-<body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
+<body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.pwa ? '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}var ib=document.getElementById("installPwa");if(ib){var dp=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;});ib.addEventListener("click",function(){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;});}else{alert("Sur Android, ouvrez le menu ⋮ de Chrome puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».");}});}</script>' : ""}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
 }
 
 async function homePage(request, env) {
@@ -252,7 +302,7 @@ async function homePage(request, env) {
   const plans = Object.entries(PLANS)
     .map(
       ([k, p]) => `<div class="plan"><h3>${p.label}</h3><div class="price">${fcfa(p.price)} <small>FCFA / mois</small></div>
-<ul><li>${p.products} produits</li><li>${p.photos} photo${p.photos > 1 ? "s" : ""} par produit</li><li>${p.custom ? "Logo, bannière et couleurs" : "Couleurs personnalisées"}</li>${k === "pro" ? "<li>Boutique mise en avant</li>" : ""}</ul></div>`
+<ul><li>${p.products} produits</li><li>${p.photos} photo${p.photos > 1 ? "s" : ""} par produit</li><li>${p.custom ? "Logo, bannière et couleurs" : "Couleurs, logo ou photo du commerçant"}</li>${k === "pro" ? "<li>Boutique mise en avant</li>" : ""}</ul></div>`
     )
     .join("");
   const shops = pros.results.length
@@ -270,7 +320,7 @@ async function homePage(request, env) {
   const body = `<header class="hero"><div class="awning"></div><div class="wrap"><div class="brand"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span>${name}</div>
 <div class="heroGrid"><div><h1>Votre boutique en ligne, prête en 2 minutes</h1>
 <p class="lead">Montrez vos produits, vos prix et votre adresse. Vos clients commandent directement sur votre WhatsApp.</p>
-<div class="row"><a class="btn" href="/app">Créer ma boutique</a>${contact}</div>
+<div class="row"><a class="btn" href="/app">Créer ma boutique</a><button class="btn ghost" id="installPwa" type="button">Installer Boutiko</button>${contact}</div>
 <p class="note">${TRIAL_DAYS} jours d'essai. Aucune connaissance technique nécessaire.</p></div>${mock}</div></div></header>
 <main class="wrap"><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
 <li><b>Créez votre compte</b><span class="muted">Avec votre numéro WhatsApp. Une minute suffit.</span></li>
@@ -292,6 +342,7 @@ ${feat("lock", "Votre boutique reste en ligne", "Hébergée sur Cloudflare, jour
       desc: "Créez votre boutique en ligne en 2 minutes. Vos clients commandent sur WhatsApp.",
       color: "#27338f",
       body,
+      pwa: true,
     })
   );
 }
@@ -303,6 +354,7 @@ function appPage(env) {
       body: `<div id="root" class="app"><p class="center muted">Chargement…</p></div>`,
       script: `/app.js?v=${V.app}`,
       bodyAttrs: `data-platform="${platformName(env)}"`,
+      pwa: true,
       noindex: true,
     })
   );
@@ -394,9 +446,13 @@ async function shopPage(request, env, ctx, slug) {
       }
     }
   }
+  const theme = ["editorial", "minimal", "elegant", "bold"].includes(shop.theme) ? shop.theme : "editorial";
+  const productLayout = ["grid", "list", "large"].includes(shop.layout) ? shop.layout : "grid";
+  const galleryIds = parseIds(shop.gallery).slice(0, 5);
+  const gallery = galleryIds.length ? `<section class="shop-story wrap"><div class="story-title"><span>Découvrez notre univers</span><h2>La boutique en images</h2></div><div class="story-gallery">${galleryIds.map((id, i) => `<img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}">`).join("")}</div></section>` : "";
   const banner = shop.banner_id && plan.custom ? `<div class="banner" style="background-image:url(/img/${shop.banner_id})"></div>` : "";
   const avatar =
-    shop.logo_id && plan.custom
+    shop.logo_id
       ? `<div class="avatar"><img src="/img/${shop.logo_id}" alt=""></div>`
       : `<div class="avatar" aria-hidden="true">${esc(Array.from(shop.name.trim())[0] || "B").toUpperCase()}</div>`;
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
@@ -424,9 +480,9 @@ ${shop.momo ? `<span>${icon("card")}<span>${esc(shop.momo)}</span></span>` : ""}
       image: firstPhoto ? `${url.origin}/img/${firstPhoto}` : "",
       url: `${url.origin}/${shop.slug}`,
       color,
-      body: head + list + foot + fab,
+      body: head + gallery + list + foot + fab,
       script: `/shop.js?v=${V.shop}`,
-      bodyAttrs: `data-slug="${esc(shop.slug)}" data-name="${name}"`,
+      bodyAttrs: `data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
     }),
     200,
     extraHeaders
@@ -515,8 +571,9 @@ async function apiRegister(request, env) {
   if (password.length < 6) return fail("Le mot de passe doit avoir au moins 6 caractères.");
   const exists = await env.DB.prepare("SELECT 1 x FROM users WHERE phone=?").bind(phone).first();
   if (exists) return fail("Ce numéro a déjà un compte. Connectez-vous.");
-  const count = await env.DB.prepare("SELECT COUNT(*) n FROM users").first();
-  const isAdmin = count.n === 0 ? 1 : 0;
+  // Une inscription publique ne peut jamais créer un administrateur.
+  // Le compte propriétaire existant conserve son rôle en base.
+  const isAdmin = 0;
   const passHash = await hashPassword(password);
   const u = await env.DB.prepare("INSERT INTO users(phone, pass, is_admin, created_at) VALUES(?,?,?,?)").bind(phone, passHash, isAdmin, now()).run();
   const userId = u.meta.last_row_id;
@@ -575,7 +632,8 @@ async function publicShop(env, shop) {
   return {
     id: shop.id, slug: shop.slug, name: shop.name, description: shop.description, whatsapp: shop.whatsapp,
     color: shop.color, address: shop.address, maps_url: shop.maps_url, hours: shop.hours, momo: shop.momo,
-    logo_id: shop.logo_id, banner_id: shop.banner_id, plan: shop.plan, status: shop.status,
+    logo_id: shop.logo_id, banner_id: shop.banner_id, gallery: parseIds(shop.gallery), theme: shop.theme || "editorial",
+    layout: shop.layout || "grid", plan: shop.plan, status: shop.status,
     paid_until: shop.paid_until, quick_replies: shop.quick_replies,
   };
 }
@@ -611,6 +669,24 @@ async function apiShopUpdate(request, env, auth) {
     if (!/^#[0-9a-fA-F]{6}$/.test(b.color)) return fail("Couleur invalide.");
     f.color = b.color;
   }
+  if (b.theme !== undefined) {
+    if (!["editorial", "minimal", "elegant", "bold"].includes(b.theme)) return fail("Modèle de boutique invalide.");
+    f.theme = b.theme;
+  }
+  if (b.layout !== undefined) {
+    if (!["grid", "list", "large"].includes(b.layout)) return fail("Présentation des produits invalide.");
+    f.layout = b.layout;
+  }
+  if (b.gallery !== undefined) {
+    if (!Array.isArray(b.gallery) || b.gallery.length > 5) return fail("Choisissez au maximum 5 photos de présentation.");
+    const ids = [...new Set(b.gallery.map(Number))];
+    if (ids.some((id) => !Number.isInteger(id) || id <= 0)) return fail("Photos de présentation invalides.");
+    for (const id of ids) {
+      const m = await env.DB.prepare("SELECT id FROM media WHERE id=? AND shop_id=? AND kind='gallery'").bind(id, shop.id).first();
+      if (!m) return fail("Une photo de présentation ne vous appartient pas.");
+    }
+    f.gallery = JSON.stringify(ids);
+  }
   if (b.address !== undefined) f.address = str(b.address, 200);
   if (b.maps_url !== undefined) {
     const u = str(b.maps_url, 500);
@@ -644,7 +720,7 @@ async function apiShopUpdate(request, env, auth) {
     if (b[key] === null) {
       f[key] = null;
     } else {
-      if (!plan.custom) return fail("Logo et bannière sont disponibles à partir de la formule Standard.");
+      if (key === "banner_id" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
       const id = parseInt(b[key], 10);
       const m = await env.DB.prepare("SELECT * FROM media WHERE id=? AND shop_id=? AND kind=?").bind(id, shop.id, kind).first();
       if (!m) return fail("Image introuvable.");
@@ -658,6 +734,12 @@ async function apiShopUpdate(request, env, auth) {
   const keys = Object.keys(f);
   if (keys.length) {
     await env.DB.prepare(`UPDATE shops SET ${keys.map((k) => `${k}=?`).join(",")} WHERE id=?`).bind(...keys.map((k) => f[k]), shop.id).run();
+  }
+  if (b.gallery !== undefined) {
+    const keep = parseIds(f.gallery);
+    const oldGallery = await env.DB.prepare("SELECT * FROM media WHERE shop_id=? AND kind='gallery'").bind(shop.id).all();
+    const obsolete = oldGallery.results.filter((m) => !keep.includes(m.id));
+    if (obsolete.length) await deleteMedia(env, obsolete);
   }
   if (toDelete.length) await deleteMedia(env, toDelete);
   const fresh = await env.DB.prepare("SELECT * FROM shops WHERE id=?").bind(shop.id).first();
@@ -775,8 +857,12 @@ async function apiUpload(request, env, auth) {
   if (!env.IMAGES) return fail("Le stockage des photos n'est pas encore activé.", 503);
   const plan = PLANS[shop.plan] || PLANS.essentiel;
   const kind = new URL(request.url).searchParams.get("kind");
-  if (!["product", "logo", "banner"].includes(kind)) return fail("Type de photo invalide.");
-  if (kind !== "product" && !plan.custom) return fail("Logo et bannière sont disponibles à partir de la formule Standard.");
+  if (!["product", "logo", "banner", "gallery"].includes(kind)) return fail("Type de photo invalide.");
+  if (kind === "banner" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
+  if (kind === "gallery") {
+    const galleryMedia = await env.DB.prepare("SELECT COUNT(*) n FROM media WHERE shop_id=? AND kind='gallery'").bind(shop.id).first();
+    if (galleryMedia.n >= 10) return fail("Trop de photos temporaires. Enregistrez ou retirez des photos avant d'en ajouter.");
+  }
   const buf = await request.arrayBuffer();
   if (buf.byteLength === 0) return fail("Photo vide.");
   if (buf.byteLength > MAX_IMG_BYTES) return fail("Photo trop lourde. Choisissez une photo plus petite.");
@@ -992,6 +1078,15 @@ async function route(request, env, ctx) {
     if (path === "/") return homePage(request, env);
     if (path === "/app") return appPage(env);
     if (path === "/admin") return adminPage(env);
+    if (path === "/manifest.webmanifest") return new Response(JSON.stringify({
+      id: "/", name: env.PLATFORM_NAME || "Boutiko", short_name: "Boutiko",
+      description: "Gérez votre boutique en ligne depuis votre téléphone.",
+      start_url: "/app", scope: "/", display: "standalone", orientation: "portrait",
+      background_color: "#f5f6fa", theme_color: "#27338f",
+      icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }]
+    }), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=3600" } });
+    if (path === "/icon.svg") return new Response(PWA_ICON, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=86400" } });
+    if (path === "/sw.js") return new Response(PWA_SW, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
     if (path === "/style.css") return new Response(STYLE_CSS, { headers: { "content-type": "text/css; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
     const js = { "/app.js": APP_JS, "/admin.js": ADMIN_JS, "/shop.js": SHOP_JS }[path];
     if (js) return new Response(js, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
@@ -1008,6 +1103,14 @@ async function route(request, env, ctx) {
     if (method === "POST" && path === "/api/order") return apiOrder(request, env, ctx);
     if (method === "POST" && path === "/api/register") return apiRegister(request, env);
     if (method === "POST" && path === "/api/login") return apiLogin(request, env);
+    if (method === "POST" && path === "/api/admin/login") return apiAdminLogin(request, env);
+    if (method === "POST" && path === "/api/admin/logout") return apiAdminLogout(request, env);
+    if (parts[1] === "admin") {
+      if (method !== "GET" && request.headers.get("x-requested-with") !== "boutiko") return fail("Requête refusée", 403);
+      const ownerAuth = await getOwnerAuth(request, env);
+      if (!ownerAuth) return fail("Connexion propriétaire requise.", 401);
+      return apiAdmin(request, env, ownerAuth, parts);
+    }
     // Toutes les routes suivantes demandent d'être connecté
     if (method !== "GET" && request.headers.get("x-requested-with") !== "boutiko") return fail("Requête refusée", 403);
     if (method === "POST" && path === "/api/logout") return apiLogout(request, env);
@@ -1024,7 +1127,6 @@ async function route(request, env, ctx) {
     if (path === "/api/sale" && method === "POST") return apiSale(request, env, auth);
     if (path === "/api/stats" && method === "GET") return apiStats(env, auth);
     if (path === "/api/export" && method === "GET") return apiExport(env, auth);
-    if (parts[1] === "admin") return apiAdmin(request, env, auth, parts);
     return fail("Action inconnue", 404);
   }
 

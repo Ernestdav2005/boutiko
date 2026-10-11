@@ -58,7 +58,7 @@
       e.preventDefault();
       var f = new FormData(e.target), b = $("#lf button");
       b.disabled = true; b.textContent = "Un instant…";
-      api("/api/login", "POST", { phone: f.get("phone"), password: f.get("password") })
+      api("/api/admin/login", "POST", { phone: f.get("phone"), password: f.get("password") })
         .then(function () { load(); })
         .catch(function (ex) { renderLogin(ex.message); });
     };
@@ -307,7 +307,7 @@
         var p = D.plans[k];
         return '<div class="todo"><div class="t"><b>' + esc(p.label) + " : " + fcfa(p.price) + ' FCFA / mois</b><div class="muted small">' + p.products + " produits · " + p.photos + " photo(s) par produit · " + p.storageMb + " Mo</div></div></div>";
       }).join("") + '<p class="muted small" style="margin-bottom:0">Les prix et limites se changent dans le code (section PLANS).</p></div>';
-    $("#out").onclick = function () { api("/api/logout", "POST", {}).then(function () { renderLogin(); }); };
+    $("#out").onclick = function () { api("/api/admin/logout", "POST", {}).then(function () { renderLogin(); }); };
   }
 
   load();
