@@ -302,7 +302,7 @@ async function homePage(request, env) {
   const plans = Object.entries(PLANS)
     .map(
       ([k, p]) => `<div class="plan"><h3>${p.label}</h3><div class="price">${fcfa(p.price)} <small>FCFA / mois</small></div>
-<ul><li>${p.products} produits</li><li>${p.photos} photo${p.photos > 1 ? "s" : ""} par produit</li><li>${p.custom ? "Logo, bannière et couleurs" : "Couleurs personnalisées"}</li>${k === "pro" ? "<li>Boutique mise en avant</li>" : ""}</ul></div>`
+<ul><li>${p.products} produits</li><li>${p.photos} photo${p.photos > 1 ? "s" : ""} par produit</li><li>${p.custom ? "Logo, bannière et couleurs" : "Couleurs, logo ou photo du commerçant"}</li>${k === "pro" ? "<li>Boutique mise en avant</li>" : ""}</ul></div>`
     )
     .join("");
   const shops = pros.results.length
@@ -452,7 +452,7 @@ async function shopPage(request, env, ctx, slug) {
   const gallery = galleryIds.length ? `<section class="shop-story wrap"><div class="story-title"><span>Découvrez notre univers</span><h2>La boutique en images</h2></div><div class="story-gallery">${galleryIds.map((id, i) => `<img src="/img/${id}" loading="lazy" alt="Photo ${i + 1} de ${name}">`).join("")}</div></section>` : "";
   const banner = shop.banner_id && plan.custom ? `<div class="banner" style="background-image:url(/img/${shop.banner_id})"></div>` : "";
   const avatar =
-    shop.logo_id && plan.custom
+    shop.logo_id
       ? `<div class="avatar"><img src="/img/${shop.logo_id}" alt=""></div>`
       : `<div class="avatar" aria-hidden="true">${esc(Array.from(shop.name.trim())[0] || "B").toUpperCase()}</div>`;
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
@@ -720,7 +720,7 @@ async function apiShopUpdate(request, env, auth) {
     if (b[key] === null) {
       f[key] = null;
     } else {
-      if (!plan.custom) return fail("Logo et bannière sont disponibles à partir de la formule Standard.");
+      if (key === "banner_id" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
       const id = parseInt(b[key], 10);
       const m = await env.DB.prepare("SELECT * FROM media WHERE id=? AND shop_id=? AND kind=?").bind(id, shop.id, kind).first();
       if (!m) return fail("Image introuvable.");
@@ -858,7 +858,7 @@ async function apiUpload(request, env, auth) {
   const plan = PLANS[shop.plan] || PLANS.essentiel;
   const kind = new URL(request.url).searchParams.get("kind");
   if (!["product", "logo", "banner", "gallery"].includes(kind)) return fail("Type de photo invalide.");
-  if ((kind === "logo" || kind === "banner") && !plan.custom) return fail("Logo et bannière sont disponibles à partir de la formule Standard.");
+  if (kind === "banner" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
   if (kind === "gallery") {
     const galleryMedia = await env.DB.prepare("SELECT COUNT(*) n FROM media WHERE shop_id=? AND kind='gallery'").bind(shop.id).first();
     if (galleryMedia.n >= 10) return fail("Trop de photos temporaires. Enregistrez ou retirez des photos avant d'en ajouter.");
