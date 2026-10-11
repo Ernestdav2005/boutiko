@@ -1106,6 +1106,7 @@ async function route(request, env, ctx) {
     if (method === "POST" && path === "/api/admin/login") return apiAdminLogin(request, env);
     if (method === "POST" && path === "/api/admin/logout") return apiAdminLogout(request, env);
     if (parts[1] === "admin") {
+      if (method !== "GET" && request.headers.get("x-requested-with") !== "boutiko") return fail("Requête refusée", 403);
       const ownerAuth = await getOwnerAuth(request, env);
       if (!ownerAuth) return fail("Connexion propriétaire requise.", 401);
       return apiAdmin(request, env, ownerAuth, parts);
