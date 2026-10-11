@@ -608,7 +608,8 @@
       var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
       var body = { name: f.name, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
         hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
-      if (lim.custom) { if (pending.logo !== undefined) body.logo_id = pending.logo; if (pending.banner !== undefined) body.banner_id = pending.banner; }
+      if (pending.logo !== undefined) body.logo_id = pending.logo;
+      if (lim.custom && pending.banner !== undefined) body.banner_id = pending.banner;
       btn.disabled = true;
       api("/api/shop", "PUT", body).then(function (d) { S.me.shop = d.shop; toast("Boutique enregistrée."); render(); })
         .catch(function (ex) { var er = $("#serr"); er.textContent = ex.message; er.style.display = "block"; btn.disabled = false; });
