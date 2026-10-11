@@ -460,9 +460,9 @@ async function shopPage(request, env, ctx, slug) {
       : `<div class="avatar" aria-hidden="true">${esc(Array.from(shop.name.trim())[0] || "B").toUpperCase()}</div>`;
   const waLink = `https://wa.me/${esc(shop.whatsapp)}`;
   const head = `${banner}<div class="awning"></div><header class="shophead"><div class="wrap">
+<div class="shop-brandline">${shop.brand_name || shop.business_name ? `<p class="brand-eyebrow">${esc(shop.brand_name || shop.business_name)}</p>` : ""}</div>
 <div class="idrow">${avatar}<div><h1>${name}</h1>${st ? `<span class="badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert" : "Fermé"} · ${esc(st.text)}</span>` : ""}</div></div>
 ${shop.slogan ? `<p class="shop-slogan">${esc(shop.slogan)}</p>` : ""}
-${shop.business_name || shop.brand_name ? `<p class="brand-eyebrow">${esc(shop.brand_name || shop.business_name)}</p>` : ""}
 ${shop.description ? `<p class="sdesc">${esc(shop.description)}</p>` : ""}
 <div class="infos">${shop.address ? `<span>${icon("pin")}<span>${esc(shop.address)}</span></span>` : ""}
 ${shop.momo ? `<span>${icon("card")}<span>${esc(shop.momo)}</span></span>` : ""}</div>
@@ -1159,3 +1159,52 @@ export default {
     }
   },
 };
+
+
+/* ===== Vitrine publique : boutique éditoriale, chaleureuse et orientée photo ===== */
+.banner{height:clamp(170px,28vw,300px);background-position:center 45%;background-size:cover}
+.banner::after{background:linear-gradient(180deg,rgba(10,20,30,.02),rgba(10,20,30,.32))}
+.banner~.awning{display:none}
+.banner~.shophead{background:transparent;color:var(--ink);border:0;margin-top:-34px;position:relative;z-index:2}
+.banner~.shophead .wrap{background:rgba(255,255,255,.97);border:1px solid rgba(226,232,240,.8);border-radius:26px;box-shadow:0 22px 55px -34px rgba(16,27,53,.45);padding:22px clamp(16px,4vw,34px) 24px;backdrop-filter:blur(12px)}
+.shophead{background:radial-gradient(ellipse at 92% 0, color-mix(in srgb,var(--c) 14%,white),transparent 55%),linear-gradient(180deg,#fff,#f8faf9);color:var(--ink);border-bottom:1px solid #e8edf0}
+.shophead .wrap{padding-top:24px;padding-bottom:22px}
+.shop-brandline{margin:0 0 7px}
+.brand-eyebrow{color:var(--c);font-size:.68rem;letter-spacing:.17em;margin:0;text-wrap:balance}
+.shophead h1{color:#142033;font-size:clamp(1.65rem,4vw,2.35rem);letter-spacing:-.045em}
+.shophead .sdesc{color:#647184;font-size:.98rem;line-height:1.65;max-width:42em;margin-top:10px}
+.shop-slogan{font-size:1.08rem;font-weight:750;line-height:1.45;color:#334155;margin:4px 0 8px}
+.shophead .infos{color:#526176;font-size:.9rem}
+.shophead .infos svg.i{color:var(--c)}
+.shophead .btn.ghost{background:#fff;color:var(--c);border-color:#dce5e9;box-shadow:none;backdrop-filter:none}
+.shophead .btn.ghost:hover{background:#f0fdfa;border-color:var(--c)}
+.shophead .avatar{border:4px solid white;box-shadow:0 12px 30px -14px rgba(15,23,42,.45)}
+.shophead .idrow{align-items:center;gap:16px;margin:8px 0 8px}
+.shophead .badge{margin-top:6px;font-size:.78rem}
+.shop-story{padding-top:30px;padding-bottom:24px}
+.story-title{margin:0 0 14px}
+.story-title>span{display:block;color:var(--c);font-size:.68rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px}
+.story-title h2{font-size:1.6rem;letter-spacing:-.04em}
+.story-gallery{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}
+.story-gallery img{width:100%;height:clamp(130px,23vw,260px);object-fit:cover;border-radius:20px;background:#e9eef1;box-shadow:0 10px 30px -22px rgba(15,23,42,.4)}
+.story-gallery img:first-child{height:100%;min-height:210px;grid-row:span 2}
+.pgrid{gap:16px}
+.prod{border:1px solid #e7ebef;border-radius:20px;box-shadow:0 12px 32px -24px rgba(16,27,53,.35);background:#fff}
+.photos{background:linear-gradient(135deg,#edf3f0,#e9eef4)}
+.pbody{padding:14px}
+.pbody h3{letter-spacing:-.02em}
+.prod .buy{margin-top:10px;box-shadow:none}
+.hint{font-size:.86rem;color:#7b8798}
+@media(max-width:620px){
+ .banner{height:165px}
+ .banner~.shophead{margin-top:-25px}
+ .banner~.shophead .wrap{border-radius:22px;padding:18px 14px 20px}
+ .shophead .wrap{padding:19px 14px}
+ .shophead .idrow{gap:12px}
+ .shophead .avatar{width:60px;height:60px;flex-basis:60px;border-radius:18px}
+ .shophead .infos{font-size:.86rem}
+ .story-gallery{grid-template-columns:1fr 1fr;gap:8px}
+ .story-gallery img,.story-gallery img:first-child{height:145px;min-height:0;grid-row:auto;border-radius:14px}
+ .story-gallery img:first-child{grid-column:1/-1;height:190px}
+ .shop-story{padding-top:24px}
+}
