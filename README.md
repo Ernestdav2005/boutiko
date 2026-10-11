@@ -44,7 +44,7 @@ Dans `wrangler.jsonc`, modifier la valeur de `PLATFORM_NAME` (par exemple `"MonN
 
 | Formule | Prix | Produits | Photos par produit | Espace photos | Logo et bannière |
 |---|---|---|---|---|---|
-| Essentiel | 2 000 FCFA | 30 | 1 | 10 Mo | non |
+| Essentiel | 2 000 FCFA | 30 | 1 | 10 Mo | logo ou photo oui; bannière non |
 | Standard | 5 000 FCFA | 100 | 3 | 60 Mo | oui |
 | Pro | 10 000 FCFA | 300 | 3 | 160 Mo | oui, sans mention de la plateforme |
 
@@ -60,6 +60,7 @@ Un nouveau commerçant démarre en Essentiel avec 7 jours d'essai. Dans l'espace
 ## Personnalisation des boutiques
 
 - Chaque commerçant peut choisir une couleur précise, un style visuel (Marché chic, Minimal, Élégant ou Audacieux) et une disposition des produits (grille, liste ou grandes cartes).
+- La photo du commerçant ou le logo est disponible dans toutes les formules; la bannière reste réservée à Standard et Pro.
 - La galerie de présentation peut contenir jusqu'à 5 photos du commerce, distinctes des photos de produits. Les images sont validées et rattachées au compte propriétaire de la boutique.
 - Les nouvelles colonnes `gallery`, `theme` et `layout` sont ajoutées par migration D1 sans supprimer les boutiques ni les produits existants.
 
