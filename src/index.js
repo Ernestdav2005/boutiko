@@ -451,11 +451,13 @@ async function homePage(request, env) {
   <div class="hk-shell hk-nav-in">
     <a class="hk-logo" href="/"><span class="hk-mark">B</span> ${name}</a>
     <div class="hk-nav-links">
+      <a href="#comment">Comment ca marche</a>
       <a href="#modeles">Modeles</a>
       <a href="#pourquoi">Pourquoi Boutiko</a>
       <a href="#tarifs">Tarifs</a>
       ${wa ? `<a href="https://wa.me/${esc(admin)}">Aide</a>` : ""}
     </div>
+    <button type="button" class="hk-menu-btn" id="hkMenuBtn" aria-label="Menu">☰</button>
     <div class="hk-nav-cta">
       <a class="hk-btn hk-btn-ghost" href="/app">Connexion</a>
       <a class="hk-btn hk-btn-primary" href="/app">Inscription</a>
@@ -468,11 +470,11 @@ async function homePage(request, env) {
   <div class="hk-shell hk-hero-grid">
     <div class="hk-hero-copy">
       <p class="hk-eyebrow">Pour les commercants &amp; jeunes entrepreneurs</p>
-      <h1>Votre commerce merite une vitrine claire, serieuse et accessible a tous.</h1>
-      <p class="hk-lead">Boutiko aide les jeunes, les entrepreneurs et les entreprises a toucher plus de clients : une boutique en ligne a votre image, des modeles professionnels, des commandes directement sur WhatsApp.</p>
+      <h1>Ouvrez une boutique en ligne en 5 minutes. Vos clients commandent sur WhatsApp.</h1>
+      <p class="hk-lead">Choisissez un modele pro, ajoutez vos produits et votre logo. Partagez un lien. Recevez les commandes directement sur WhatsApp — sans application pour vos clients.</p>
       <div class="hk-hero-actions">
-        <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Voir les modeles</a>
-        <a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app">Creer ma boutique</a>
+        <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Creer ma boutique — essai gratuit</a>
+        <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Voir les modeles</a>
       </div>
       <p class="hk-note">${TRIAL_DAYS} jours d'essai · Sans competence technique · Clients sans application a installer</p>
     </div>
@@ -487,6 +489,16 @@ async function homePage(request, env) {
   </div>
 </header>
 
+
+<section class="hk-trust" aria-label="Confiance">
+  <div class="hk-shell hk-trust-in">
+    <div class="hk-trust-item"><strong>7 jours</strong><span>d'essai gratuit</span></div>
+    <div class="hk-trust-item"><strong>WhatsApp</strong><span>commandes directes</span></div>
+    <div class="hk-trust-item"><strong>0 app</strong><span>pour vos clients</span></div>
+    <div class="hk-trust-item"><strong>Mobile</strong><span>et ordinateur</span></div>
+  </div>
+</section>
+
 <section class="hk-band hk-dark" id="pourquoi">
   <div class="hk-shell">
     <div class="hk-section-head">
@@ -498,6 +510,21 @@ async function homePage(request, env) {
       <div class="hk-pillar"><strong>Toucher plus de clients</strong><p>Partagez un lien clair. Vos clients commandent sur WhatsApp, sans telecharger d'appli.</p></div>
       <div class="hk-pillar"><strong>Identite de marque</strong><p>Logo, couleurs, slogan, presentation de l'entreprise — votre vitrine vous ressemble.</p></div>
       <div class="hk-pillar"><strong>Simple pour demarrer</strong><p>Jeune commercant ou entreprise : un modele, vos textes, vos produits. C'est tout.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hk-band" id="comment">
+  <div class="hk-shell">
+    <div class="hk-section-head">
+      <p class="hk-eyebrow">Simple comme Shopify, pense pour WhatsApp</p>
+      <h2>Trois etapes. Votre boutique est en ligne.</h2>
+    </div>
+    <div class="hk-steps">
+      <div class="hk-step"><span class="hk-step-n">1</span><strong>Choisissez un modele</strong><p>Parcourez la galerie. Chaque modele est une vraie structure de boutique.</p></div>
+      <div class="hk-step"><span class="hk-step-n">2</span><strong>Remplissez vos infos</strong><p>Nom, WhatsApp, logo, photos, produits. Rien de technique.</p></div>
+      <div class="hk-step"><span class="hk-step-n">3</span><strong>Partagez le lien</strong><p>Vos clients ouvrent la vitrine et commandent sur WhatsApp.</p></div>
     </div>
   </div>
 </section>
@@ -551,6 +578,23 @@ async function homePage(request, env) {
 
 ${shops}
 
+
+<section class="hk-band hk-dark" id="faq">
+  <div class="hk-shell">
+    <div class="hk-section-head">
+      <p class="hk-eyebrow">Questions frequentes</p>
+      <h2>Tout ce qu'il faut savoir avant de demarrer</h2>
+    </div>
+    <div class="hk-faq">
+      <details class="hk-faq-item" open><summary>Faut-il savoir coder ?</summary><p>Non. Vous choisissez un modele, vous renseignez vos textes et photos. C'est tout.</p></details>
+      <details class="hk-faq-item"><summary>Comment mes clients commandent-ils ?</summary><p>Ils ouvrent votre lien boutique, choisissent un produit et envoient la commande sur WhatsApp. Pas d'application a installer pour eux.</p></details>
+      <details class="hk-faq-item"><summary>Puis-je commencer gratuitement ?</summary><p>Oui. ${TRIAL_DAYS} jours d'essai. Vous testez avant de passer a une formule payante.</p></details>
+      <details class="hk-faq-item"><summary>Quelle est la difference entre les formules ?</summary><p>Essentiel pour demarrer (produits limites, modeles simples). Standard pour l'image de marque (logo, banniere). Pro pour les enseignes qui veulent un rendu premium et plus de produits.</p></details>
+      <details class="hk-faq-item"><summary>Ca marche sur telephone ?</summary><p>Oui. L'espace commercant et la boutique client sont optimises mobile. Vous pouvez aussi installer Boutiko comme application (PWA).</p></details>
+    </div>
+  </div>
+</section>
+
 <section class="hk-cta">
   <div class="hk-shell">
     <h2>Pret a ouvrir votre vitrine ?</h2>
@@ -568,6 +612,14 @@ ${shops}
     <div class="hk-foot-links"><a href="#modeles">Modeles</a><a href="/app">Espace commercant</a><a href="/admin">Admin</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  var btn=document.getElementById('hkMenuBtn');
+  var links=document.querySelector('.hk-nav-links');
+  if(btn&&links){btn.addEventListener('click',function(){links.classList.toggle('open');});}
+})();
+</script>
 
 <script>
 (function(){
