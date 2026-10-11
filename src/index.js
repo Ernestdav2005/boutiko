@@ -859,7 +859,10 @@ async function apiUpload(request, env, auth) {
   const kind = new URL(request.url).searchParams.get("kind");
   if (!["product", "logo", "banner", "gallery"].includes(kind)) return fail("Type de photo invalide.");
   if ((kind === "logo" || kind === "banner") && !plan.custom) return fail("Logo et bannière sont disponibles à partir de la formule Standard.");
-  if (kind === "gallery" && parseIds(shop.gallery).length >= 5) return fail("La galerie est limitée à 5 photos. Retirez-en une avant d'en ajouter.");
+  if (kind === "gallery") {
+    const galleryMedia = await env.DB.prepare("SELECT COUNT(*) n FROM media WHERE shop_id=? AND kind='gallery'").bind(shop.id).first();
+    if (galleryMedia.n >= 10) return fail("Trop de photos temporaires. Enregistrez ou retirez des photos avant d'en ajouter.");
+  }
   const buf = await request.arrayBuffer();
   if (buf.byteLength === 0) return fail("Photo vide.");
   if (buf.byteLength > MAX_IMG_BYTES) return fail("Photo trop lourde. Choisissez une photo plus petite.");
