@@ -446,42 +446,146 @@ async function homePage(request, env) {
         .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`).join("")}</div></section>`
     : "";
 
-  const body = `<div class="v2-ribbon">BOUTIKO 2.0 — Modeles de boutiques · Essentiel · Standard · Pro</div><header class="hero hero-models"><div class="wrap">
-    <div class="brandline"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span><span>${name}</span></div>
-    <span class="v2-badge">Version 2.0</span><p class="eyebrow">MODELES DE BOUTIQUES PRETS A L'EMPLOI</p>
-    <h1>Ne creez pas seulement une boutique.<br><em>Choisissez un modele.</em></h1>
-    <p class="lead">Chaque formule propose des modeles de vitrine prets. Vous selectionnez le design, vous renseignez vos infos et vos photos — votre boutique est en ligne.</p>
-    <div class="row"><a class="btn" href="#modeles">Voir les modeles</a><a class="btn ghost" href="/app">Creer ma boutique</a>${contact}</div>
-    <p class="note">${TRIAL_DAYS} jours d'essai · Commandes sur WhatsApp · Sans application a installer pour vos clients</p>
-  </div></header>
-
-  <section class="vis-strip">
-    <div class="vis-row">
-      <a class="vis-item" href="/modele/simple"><div class="mock mock-simple"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Simple · Essentiel</span></a>
-      <a class="vis-item" href="/modele/vitrine"><div class="mock mock-vitrine"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Vitrine · Standard</span></a>
-      <a class="vis-item" href="/modele/premium"><div class="mock mock-premium"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Premium · Pro</span></a>
-      <a class="vis-item" href="/modele/mode"><div class="mock mock-mode"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Mode · Standard</span></a>
-      <a class="vis-item" href="/modele/flagship"><div class="mock mock-flagship"><div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div></div><div class="mock-body"><div class="mock-prods"><i></i><i></i></div></div></div><span>Flagship · Pro</span></a>
+  const body = `
+<nav class="hk-nav">
+  <div class="hk-shell hk-nav-in">
+    <a class="hk-logo" href="/"><span class="hk-mark">B</span> ${name}</a>
+    <div class="hk-nav-links">
+      <a href="#modeles">Modeles</a>
+      <a href="#pourquoi">Pourquoi Boutiko</a>
+      <a href="#tarifs">Tarifs</a>
+      ${wa ? `<a href="https://wa.me/${esc(admin)}">Aide</a>` : ""}
     </div>
-  </section>
+    <div class="hk-nav-cta">
+      <a class="hk-btn hk-btn-ghost" href="/app">Connexion</a>
+      <a class="hk-btn hk-btn-primary" href="/app">Inscription</a>
+      <button type="button" class="hk-btn hk-btn-soft" id="installPwa">Telecharger</button>
+    </div>
+  </div>
+</nav>
 
-  <section class="sec wrap" id="modeles">
-    <h2>Galerie de modeles</h2>
-    <p class="muted" style="max-width:40ch;margin-bottom:28px">Chaque carte est un modele de boutique. Ouvrez l'exemple, choisissez-le : votre boutique prendra ce design. Vous n'aurez qu'a remplacer textes, photos et produits.</p>
-    <div class="tpl-filters" role="tablist"><button type="button" class="on" data-filter="all">Tous</button><button type="button" data-filter="essentiel">Essentiel</button><button type="button" data-filter="standard">Standard</button><button type="button" data-filter="pro">Pro</button></div><div class="tpl-marketplace">${allCards}</div>
-  </section>
+<header class="hk-hero">
+  <div class="hk-shell hk-hero-grid">
+    <div class="hk-hero-copy">
+      <p class="hk-eyebrow">Pour les commercants &amp; jeunes entrepreneurs</p>
+      <h1>Votre commerce merite une vitrine claire, serieuse et accessible a tous.</h1>
+      <p class="hk-lead">Boutiko aide les jeunes, les entrepreneurs et les entreprises a toucher plus de clients : une boutique en ligne a votre image, des modeles professionnels, des commandes directement sur WhatsApp.</p>
+      <div class="hk-hero-actions">
+        <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Voir les modeles</a>
+        <a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app">Creer ma boutique</a>
+      </div>
+      <p class="hk-note">${TRIAL_DAYS} jours d'essai · Sans competence technique · Clients sans application a installer</p>
+    </div>
+    <div class="hk-hero-visual" aria-hidden="true">
+      <div class="hk-phone">
+        <div class="mock mock-premium hk-phone-screen">
+          <div class="mock-top"><div class="mock-banner"></div><div class="mock-logo"></div><div class="mock-name"></div><div class="mock-line"></div></div>
+          <div class="mock-body"><div class="mock-sec"></div><div class="mock-prods"><i></i><i></i><i></i><i></i></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 
-  <section class="sec wrap">
-    <h2>Comment creer votre boutique</h2>
-    <ol class="steps">
-      <li><b>Choisissez un modele</b> selon votre formule (Essentiel, Standard ou Pro).</li>
-      <li><b>Renseignez vos infos</b> : nom, WhatsApp, produits et photos.</li>
-      <li><b>Partagez le lien</b> — vos clients commandent sur WhatsApp.</li>
-    </ol>
-  </section>
+<section class="hk-band hk-dark" id="pourquoi">
+  <div class="hk-shell">
+    <div class="hk-section-head">
+      <p class="hk-eyebrow">Franchise &amp; professionnalisme</p>
+      <h2>Une identite visuelle digne de votre activite</h2>
+      <p class="hk-sub">Pas besoin d'etre une grande enseigne pour paraitre professionnel. Choisissez un modele, renseignez vos infos, ajoutez vos photos : votre boutique est prete.</p>
+    </div>
+    <div class="hk-pillars">
+      <div class="hk-pillar"><strong>Toucher plus de clients</strong><p>Partagez un lien clair. Vos clients commandent sur WhatsApp, sans telecharger d'appli.</p></div>
+      <div class="hk-pillar"><strong>Identite de marque</strong><p>Logo, couleurs, slogan, presentation de l'entreprise — votre vitrine vous ressemble.</p></div>
+      <div class="hk-pillar"><strong>Simple pour demarrer</strong><p>Jeune commercant ou entreprise : un modele, vos textes, vos produits. C'est tout.</p></div>
+    </div>
+  </div>
+</section>
 
-  ${shops}<script>(function(){var root=document.querySelector('.tpl-marketplace');if(!root)return;document.querySelectorAll('.tpl-filters button').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.tpl-filters button').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');var f=btn.getAttribute('data-filter');root.querySelectorAll('.tpl-card').forEach(function(card){card.hidden=(f!=='all'&&card.getAttribute('data-plan')!==f);});});});})();</script>
-  <footer class="foot"><div class="wrap">© ${name} · Vitrines digitales pour commercants</div></footer>`;
+<section class="hk-band" id="modeles">
+  <div class="hk-shell">
+    <div class="hk-section-head">
+      <p class="hk-eyebrow">Modeles de boutiques</p>
+      <h2>Choisissez le design. Remplacez seulement vos infos.</h2>
+      <p class="hk-sub">Chaque modele est une vraie structure de boutique. Ouvrez l'exemple, selectionnez-le : votre vitrine prendra ce design.</p>
+    </div>
+    <div class="tpl-filters" role="tablist">
+      <button type="button" class="on" data-filter="all">Tous</button>
+      <button type="button" data-filter="essentiel">Essentiel</button>
+      <button type="button" data-filter="standard">Standard</button>
+      <button type="button" data-filter="pro">Pro</button>
+    </div>
+    <div class="tpl-marketplace">${allCards}</div>
+  </div>
+</section>
+
+<section class="hk-band hk-dark" id="tarifs">
+  <div class="hk-shell">
+    <div class="hk-section-head">
+      <p class="hk-eyebrow">Tarifs clairs</p>
+      <h2>Trois formules, zero surprise</h2>
+    </div>
+    <div class="hk-prices">
+      <div class="hk-price">
+        <h3>Essentiel</h3>
+        <div class="hk-price-num">${fcfa(PLANS.essentiel.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS.essentiel.products} produits</li><li>3 modeles</li><li>Ideal pour demarrer</li></ul>
+        <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
+      </div>
+      <div class="hk-price hk-price-feat">
+        <p class="hk-badge">Recommande</p>
+        <h3>Standard</h3>
+        <div class="hk-price-num">${fcfa(PLANS.standard.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS.standard.products} produits</li><li>Logo &amp; banniere</li><li>Image de marque</li></ul>
+        <a class="hk-btn hk-btn-primary" href="#modeles">Voir modeles</a>
+      </div>
+      <div class="hk-price">
+        <h3>Pro</h3>
+        <div class="hk-price-num">${fcfa(PLANS.pro.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS.pro.products} produits</li><li>Modeles premium</li><li>Mise en avant</li></ul>
+        <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+${shops}
+
+<section class="hk-cta">
+  <div class="hk-shell">
+    <h2>Pret a ouvrir votre vitrine ?</h2>
+    <p>Inscrivez-vous, choisissez un modele, publiez. ${TRIAL_DAYS} jours pour tester.</p>
+    <div class="hk-hero-actions" style="justify-content:center">
+      <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">Inscription</a>
+      <a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app">Connexion</a>
+    </div>
+  </div>
+</section>
+
+<footer class="hk-foot">
+  <div class="hk-shell hk-foot-in">
+    <div><strong>${name}</strong><p>Boutiques en ligne pour commercants. Commandes WhatsApp.</p></div>
+    <div class="hk-foot-links"><a href="#modeles">Modeles</a><a href="/app">Espace commercant</a><a href="/admin">Admin</a></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.querySelector('.tpl-marketplace');
+  if(!root)return;
+  document.querySelectorAll('.tpl-filters button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.tpl-filters button').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      var f=btn.getAttribute('data-filter');
+      root.querySelectorAll('.tpl-card').forEach(function(card){
+        card.hidden=(f!=='all'&&card.getAttribute('data-plan')!==f);
+      });
+    });
+  });
+})();
+</script>
+`;
 
   return html(layout({
     title: `${env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
@@ -489,7 +593,7 @@ async function homePage(request, env) {
     color: "#27338f",
     body,
     pwa: true,
-    bodyAttrs: `data-platform="${platformName(env)}" class="home-models v2"`,
+    bodyAttrs: `data-platform="${platformName(env)}" class="home-models v2 hk-site"`,
   }));
 }
 
