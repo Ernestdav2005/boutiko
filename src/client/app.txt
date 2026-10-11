@@ -640,7 +640,6 @@
     h += '<h2 style="margin-top:18px">Mon compte</h2><div class="card">' +
       '<button class="btn ghost small" id="mypw">Changer mon mot de passe</button> ' +
       '<a class="btn ghost small" href="/api/export">Télécharger mes données</a> ' +
-      (m.user.is_admin ? '<a class="btn small" href="/admin">Administration</a> ' : "") +
       '<button class="btn danger small" id="logout">Me déconnecter</button></div>';
     v.innerHTML = h;
     v.querySelectorAll("[data-copy]").forEach(function (b) {
