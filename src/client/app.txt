@@ -2,6 +2,9 @@
   "use strict";
   var root = document.getElementById("root");
   var S = { me: null, tab: "products", products: [], orders: null, stats: null, loaded: {} };
+  var installPrompt = null;
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installPrompt = e; });
+  window.addEventListener("appinstalled", function () { installPrompt = null; toast("Boutiko est installé sur votre téléphone."); });
   var COLORS = ["#0f766e", "#1e3a8a", "#b45309", "#be123c", "#6d28d9", "#166534", "#0e7490", "#1f2937", "#9d174d", "#c2410c"];
   var DAYS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
   var DEFAULT_REPLIES = [
@@ -205,7 +208,7 @@
     var m = S.me, s = m.shop;
     var tabs = [["products", "bag", "Produits"], ["orders", "list", "Commandes"], ["receipt", "calc", "Reçu"], ["shop", "shop", "Boutique"], ["more", "more", "Plus"]];
     root.innerHTML =
-      '<div class="appbar"><div class="awning"></div><div class="in"><h1><small>Mon espace</small>' + esc(s.name) + '</h1><a class="btn ghost small" target="_blank" rel="noopener" href="/' + esc(s.slug) + '">Voir ma boutique ' + ic("ext") + "</a></div></div>" +
+      '<div class="appbar"><div class="awning"></div><div class="in"><h1><small>Mon espace</small>' + esc(s.name) + '</h1><div class="row app-actions"><button class="btn ghost small" id="installApp" type="button">Installer l’application</button><a class="btn ghost small" target="_blank" rel="noopener" href="/' + esc(s.slug) + '">Voir ma boutique ' + ic("ext") + "</a></div></div></div>" +
       banner() + '<div id="view"></div>' +
       '<nav class="tabs">' + tabs.map(function (t) {
         var dot = t[0] === "orders" && m.pending ? '<span class="dot">' + m.pending + "</span>" : "";
@@ -214,6 +217,18 @@
     root.querySelectorAll("[data-tab]").forEach(function (b) {
       b.onclick = function () { S.tab = b.getAttribute("data-tab"); window.scrollTo(0, 0); render(); };
     });
+    var installButton = $("#installApp");
+    if (installButton) installButton.onclick = function () {
+      if (installPrompt) {
+        installPrompt.prompt();
+        installPrompt.userChoice.then(function (choice) {
+          if (choice && choice.outcome === "accepted") toast("Installation lancée.");
+          installPrompt = null;
+        });
+      } else {
+        toast("Sur Android : ouvrez le menu ⋮ de Chrome puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».");
+      }
+    };
     var v = $("#view");
     ({ products: viewProducts, orders: viewOrders, receipt: viewReceipt, shop: viewShop, more: viewMore })[S.tab](v);
   }
@@ -502,11 +517,17 @@
       '<label class="field"><span>Nom de la boutique</span><input name="name" maxlength="60" required value="' + esc(s.name) + '"></label>' +
       '<label class="field"><span>Description</span><textarea name="description" maxlength="300">' + esc(s.description) + "</textarea></label>" +
       '<label class="field"><span>Numéro WhatsApp qui reçoit les commandes</span><input name="whatsapp" inputmode="tel" required value="' + esc(s.whatsapp) + '"></label>' +
-      '<div class="field"><span>Couleur de la boutique</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
-        return '<button type="button" class="sw ' + (c === s.color ? "on" : "") + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur"></button>';
-      }).join("") + "</div></div>" +
+      '<div class="field"><span>Couleur principale</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
+        return '<button type="button" class="sw ' + (c === s.color ? "on" : "") + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur ' + c + '"></button>';
+      }).join("") + '</div><label class="color-picker"><span>Ou choisissez votre propre couleur</span><input type="color" id="customColor" value="' + esc(s.color || "#0f766e") + '"></label></div>' +
+      '<div class="field"><span>Style visuel</span><p class="muted small">Choisissez une ambiance qui correspond à votre activité.</p><div class="theme-options">' +
+      [["editorial","Marché chic","Un style chaleureux et vivant"],["minimal","Minimal","Sobre et très épuré"],["elegant","Élégant","Raffiné, avec des formes douces"],["bold","Audacieux","Des couleurs et des contrastes forts"]].map(function (t) {
+        return '<label class="theme-option theme-' + t[0] + '"><input type="radio" name="theme" value="' + t[0] + '" ' + ((s.theme || "editorial") === t[0] ? "checked" : "") + '><span class="theme-preview"></span><b>' + t[1] + '</b><small>' + t[2] + '</small></label>';
+      }).join("") + '</div></div>' +
+      '<label class="field"><span>Présentation des produits</span><select name="layout"><option value="grid" ' + ((s.layout || "grid") === "grid" ? "selected" : "") + '>Grille classique</option><option value="list" ' + (s.layout === "list" ? "selected" : "") + '>Liste avec grandes photos</option><option value="large" ' + (s.layout === "large" ? "selected" : "") + '>Grandes cartes visuelles</option></select></label>' +
       '<div class="field"><span>Logo</span><div id="logo"></div></div>' +
       '<div class="field"><span>Bannière</span><div id="banner"></div></div>' +
+      '<div class="field"><span>Photos pour présenter votre boutique (5 maximum)</span><p class="muted small">Montrez votre local, votre équipe, votre atelier ou l’ambiance de votre commerce. Ce sont des photos différentes de celles des produits.</p><div id="gallery"></div></div>' +
       '<label class="field"><span>Adresse</span><input name="address" maxlength="200" value="' + esc(s.address) + '" placeholder="Ex : Marché Dantokpa, allée B"></label>' +
       '<div class="field"><span>Position sur la carte</span><input name="maps_url" maxlength="500" value="' + esc(s.maps_url) + '" placeholder="Lien Google Maps (facultatif)">' +
       '<button type="button" class="btn ghost small" id="geo" style="margin-top:6px">Utiliser ma position actuelle</button><small>Vos clients verront un bouton « Itinéraire ».</small></div>' +
@@ -517,9 +538,14 @@
     $("#sharewa").onclick = function () { localStorage_set("shared", "1"); };
     $("#copyl").onclick = function () { localStorage_set("shared", "1"); if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { toast("Lien copié."); }); };
     var color = s.color;
+    var customColor = $("#customColor");
     v.querySelectorAll("[data-c]").forEach(function (b) {
-      b.onclick = function () { color = b.getAttribute("data-c"); v.querySelectorAll(".sw").forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); };
+      b.onclick = function () { color = b.getAttribute("data-c"); if (customColor) customColor.value = color; v.querySelectorAll(".sw").forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); };
     });
+    if (customColor) customColor.oninput = function () {
+      color = customColor.value;
+      v.querySelectorAll(".sw").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-c") === color); });
+    };
     $("#geo").onclick = function () {
       if (!navigator.geolocation) return toast("Position indisponible sur cet appareil.");
       toast("Recherche de votre position…");
@@ -549,11 +575,38 @@
     var pending = {};
     mediaField("logo", "logo", s.logo_id, 400, 120 * 1024);
     mediaField("banner", "banner", s.banner_id, 1200, 350 * 1024);
+    var galleryIds = Array.isArray(s.gallery) ? s.gallery.slice(0, 5) : [];
+    function drawGallery() {
+      var box = $("#gallery");
+      box.innerHTML = '<div class="gallery-manager">' + galleryIds.map(function (id) {
+        return '<div class="gallery-thumb"><img src="/img/' + id + '" alt="Photo de présentation"><button type="button" data-remove-gallery="' + id + '" aria-label="Retirer cette photo">×</button></div>';
+      }).join("") + '</div>' + (galleryIds.length < 5 ? '<label class="upload-more"><span>＋ Ajouter une photo (' + galleryIds.length + '/5)</span><input type="file" id="galleryFiles" accept="image/*" multiple></label>' : '<small>Limite de 5 photos atteinte. Retirez-en une pour la remplacer.</small>') + '<small id="galleryMsg"></small>';
+      box.querySelectorAll("[data-remove-gallery]").forEach(function (b) {
+        b.onclick = function () { galleryIds = galleryIds.filter(function (id) { return id !== Number(b.getAttribute("data-remove-gallery")); }); drawGallery(); };
+      });
+      var picker = $("#galleryFiles");
+      if (picker) picker.onchange = function () {
+        var files = Array.prototype.slice.call(picker.files || []).slice(0, 5 - galleryIds.length);
+        if (!files.length) return;
+        var msg = $("#galleryMsg"); msg.textContent = "Préparation des photos…";
+        var chain = Promise.resolve();
+        files.forEach(function (file) {
+          chain = chain.then(function () {
+            if (galleryIds.length >= 5) return;
+            return compress(file, 1200, 350 * 1024).then(function (blob) { return upload(blob, "gallery"); })
+              .then(function (d) { galleryIds.push(d.id); drawGallery(); })
+              .catch(function (ex) { var m = $("#galleryMsg"); if (m) m.textContent = ex.message; });
+          });
+        });
+        chain.then(function () { var m = $("#galleryMsg"); if (m) m.textContent = "Photos prêtes. Appuyez sur « Enregistrer » pour les publier."; });
+      };
+    }
+    drawGallery();
     $("#sf").onsubmit = function (e) {
       e.preventDefault();
       var f = formData(e.target), btn = $("#sf button[type=submit]");
       var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
-      var body = { name: f.name, description: f.description, whatsapp: f.whatsapp, color: color, address: f.address, maps_url: f.maps_url, momo: f.momo,
+      var body = { name: f.name, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
         hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
       if (lim.custom) { if (pending.logo !== undefined) body.logo_id = pending.logo; if (pending.banner !== undefined) body.banner_id = pending.banner; }
       btn.disabled = true;
