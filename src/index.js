@@ -15,6 +15,48 @@ const PLANS = {
   standard: { label: "Standard", price: 5000, products: 100, photos: 3, storageMb: 60, custom: true },
   pro: { label: "Pro", price: 10000, products: 300, photos: 3, storageMb: 160, custom: true },
 };
+// Modèles de boutique vendus avec chaque formule (le client choisit un modèle, puis renseigne ses infos)
+const TEMPLATES = {
+  simple: {
+    id: "simple", plan: "essentiel", label: "Simple & claire",
+    tagline: "Idéal pour démarrer vite depuis chez soi",
+    desc: "Une page découverte nette : nom, slogan, WhatsApp et produits. Sans complication.",
+  },
+  quartier: {
+    id: "quartier", plan: "essentiel", label: "Boutique de quartier",
+    tagline: "L’ambiance du commerce de proximité",
+    desc: "Mise en avant de l’adresse, des horaires et du contact WhatsApp. Parfait pour un petit commerce local.",
+  },
+  vitrine: {
+    id: "vitrine", plan: "standard", label: "Vitrine pro",
+    tagline: "Une image de marque plus soignée",
+    desc: "Bannière, logo fort, section entreprise et catalogue bien structuré.",
+  },
+  catalogue: {
+    id: "catalogue", plan: "standard", label: "Catalogue produit",
+    tagline: "Les produits d’abord",
+    desc: "Grille produits mise en avant, recherche rapide, style catalogue moderne.",
+  },
+  premium: {
+    id: "premium", plan: "pro", label: "Premium",
+    tagline: "Niveau boutique haut de gamme",
+    desc: "Grand hero photo, texte élégant, univers de marque et catalogue premium.",
+  },
+  maison: {
+    id: "maison", plan: "pro", label: "Maison de marque",
+    tagline: "Rivaliser avec une grande enseigne",
+    desc: "Storytelling d’entreprise, galerie d’univers, présentation digne d’une marque établie.",
+  },
+};
+const TEMPLATES_BY_PLAN = {
+  essentiel: ["simple", "quartier"],
+  standard: ["vitrine", "catalogue"],
+  pro: ["premium", "maison"],
+};
+function templateOf(shop) {
+  const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
+  return TEMPLATES[id] || TEMPLATES.simple;
+}
 const TRIAL_DAYS = 7;
 const SESSION_DAYS = 30;
 const PBKDF2_ITER = 10000; // volontairement modéré : limite de 10 ms de calcul par requête (offre gratuite)
@@ -22,7 +64,7 @@ const MAX_IMG_BYTES = 600 * 1024;
 const MAX_ORDERS_PER_HOUR = 12;
 const RESERVED = new Set([
   "app", "admin", "api", "img", "qr", "style.css", "app.js", "admin.js", "shop.js", "favicon.ico",
-  "robots.txt", "sitemap.xml", "login", "register", "aide", "www", "assets", "static",
+  "robots.txt", "sitemap.xml", "login", "register", "aide", "modele", "www", "assets", "static",
 ]);
 
 // Empreinte simple du contenu des fichiers pour le cache navigateur
@@ -63,6 +105,7 @@ function ensureSchema(env) {
       if (!columns.has("brand_name")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN brand_name TEXT DEFAULT ''").run();
       if (!columns.has("slogan")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN slogan TEXT DEFAULT ''").run();
       if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT 'grid'").run();
+      if (!columns.has("template")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN template TEXT DEFAULT 'simple'").run();
     }).catch((e) => {
       schemaReady = null;
       throw e;
@@ -300,55 +343,84 @@ async function homePage(request, env) {
   const name = platformName(env);
   const admin = await adminContact(env);
   const pros = await env.DB.prepare(
-    "SELECT name, slug FROM shops WHERE plan='pro' AND status='active' ORDER BY id DESC LIMIT 12"
+    "SELECT name, slug FROM shops WHERE plan='pro' AND status='active' ORDER BY id DESC LIMIT 8"
   ).all();
-  const plans = Object.entries(PLANS)
-    .map(
-      ([k, p]) => `<div class="plan"><h3>${p.label}</h3><div class="price">${fcfa(p.price)} <small>FCFA / mois</small></div>
-<ul><li>${p.products} produits</li><li>${p.photos} photo${p.photos > 1 ? "s" : ""} par produit</li><li>${p.custom ? "Logo, bannière et couleurs" : "Couleurs, logo ou photo du commerçant"}</li>${k === "pro" ? "<li>Boutique mise en avant</li>" : ""}</ul></div>`
-    )
-    .join("");
-  const shops = pros.results.length
-    ? `<section class="sec"><h2>Boutiques à découvrir</h2><div class="chips">${pros.results
-        .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`)
-        .join("")}</div></section>`
-    : "";
   const contact = admin
     ? `<a class="btn ghost" href="https://wa.me/${esc(admin)}?text=${encodeURIComponent("Bonjour, je veux en savoir plus sur " + (env.PLATFORM_NAME || "Boutiko"))}">Poser une question sur WhatsApp</a>`
     : "";
-  const mock = `<div class="phone" aria-hidden="true"><div class="awning"></div><div class="pn">Chez Ama, mode et pagnes</div><div class="ps">Cotonou · Ouvert jusqu'à 19h</div>
-<div class="pg"><div class="pc"><i style="background:#f3b562"></i><b>Pagne wax</b><span>6 500 FCFA</span><u>Commander</u></div>
-<div class="pc"><i style="background:#7fb7a4"></i><b>Sac en tissu</b><span>3 000 FCFA</span><u>Commander</u></div></div></div>`;
-  const feat = (ic, t, d) => `<div class="feat"><div class="ic">${icon(ic)}</div><div><b>${t}</b><span class="muted">${d}</span></div></div>`;
-  const body = `<header class="hero"><div class="awning"></div><div class="wrap"><div class="brand"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span>${name}</div>
-<div class="heroGrid"><div><p class="hero-kicker">VOTRE COMMERCE, EN VERSION NUMÉRIQUE</p><h1>Votre boutique mérite d’être <em>vue.</em></h1>
-<p class="lead">Créez une vitrine élégante à votre image. Présentez vos produits, racontez votre marque et recevez les commandes directement sur WhatsApp.</p>
-<div class="row"><a class="btn" href="/app">Créer ma boutique</a><button class="btn ghost" id="installPwa" type="button">Installer Boutiko</button>${contact}</div>
-<p class="note">${TRIAL_DAYS} jours d'essai. Aucune connaissance technique nécessaire.</p></div>${mock}</div></div></header>
-<main class="wrap"><section class="proof-strip"><div><b>Votre identité</b><span>Nom, marque, slogan et couleurs</span></div><div><b>Vos belles images</b><span>Produits et photos de votre boutique</span></div><div><b>Vos clients</b><span>Un lien facile à partager</span></div></section><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
-<li><b>Créez votre compte</b><span class="muted">Avec votre numéro WhatsApp. Une minute suffit.</span></li>
-<li><b>Ajoutez vos produits</b><span class="muted">Une photo, un nom, un prix. Depuis votre téléphone.</span></li>
-<li><b>Partagez votre lien</b><span class="muted">Sur WhatsApp, Facebook, ou avec le QR code à votre comptoir.</span></li></ol></section>
-<section class="sec"><h2>Ce que vous obtenez</h2><div class="grid3">
-${feat("wa", "Commande sur WhatsApp", "Le client appuie, le message est déjà écrit. Vous le recevez chez vous.")}
-${feat("box", "Stock à jour", "Un produit épuisé s'affiche tout seul comme épuisé.")}
-${feat("receipt", "Reçus et calculs", "Calculez une vente et envoyez le reçu au client sur WhatsApp.")}
-${feat("pin", "Adresse et horaires", "Vos clients vous trouvent et voient si vous êtes ouvert.")}
-${feat("qr", "QR code et lien", "Un lien court à partager et un QR code à imprimer.")}
-${feat("lock", "Votre boutique reste en ligne", "Hébergée sur Cloudflare, jour et nuit, sans que vous ayez à gérer quoi que ce soit.")}</div></section>
-<section class="sec"><h2>Nos formules</h2><div class="grid3">${plans}</div>
-<p class="muted">Paiement par Mobile Money. Sans engagement.</p></section>${shops}</main>
-<footer class="foot">© ${name}</footer>`;
-  return html(
-    layout({
-      title: `${env.PLATFORM_NAME || "Boutiko"} : votre boutique en ligne`,
-      desc: "Créez votre boutique en ligne en 2 minutes. Vos clients commandent sur WhatsApp.",
-      color: "#27338f",
-      body,
-      pwa: true,
-    })
-  );
+
+  const planLabel = { essentiel: "Essentiel · 2 000 F/mois", standard: "Standard · 5 000 F/mois", pro: "Pro · 10 000 F/mois" };
+  const planOrder = ["essentiel", "standard", "pro"];
+  const modelCards = planOrder.map((pk) => {
+    const p = PLANS[pk];
+    const cards = (TEMPLATES_BY_PLAN[pk] || []).map((tid) => {
+      const t = TEMPLATES[tid];
+      return `<article class="model-card model-${esc(tid)}" data-plan="${esc(pk)}">
+        <a class="model-preview" href="/modele/${esc(tid)}" aria-label="Voir le modele ${esc(t.label)}">
+          <div class="model-frame model-frame-${esc(tid)}"><div class="model-frame-inner">
+            <div class="mf-cover"></div>
+            <div class="mf-body"><div class="mf-logo"></div><div class="mf-lines"><i></i><i></i><i></i></div>
+            <div class="mf-grid"><span></span><span></span><span></span><span></span></div></div>
+          </div></div>
+        </a>
+        <div class="model-info">
+          <span class="model-plan-pill">${esc(planLabel[pk])}</span>
+          <h3>${esc(t.label)}</h3>
+          <p class="model-tag">${esc(t.tagline)}</p>
+          <p class="muted small">${esc(t.desc)}</p>
+          <div class="row model-actions">
+            <a class="btn small" href="/app?modele=${esc(tid)}&formule=${esc(pk)}">Choisir ce modele</a>
+            <a class="btn ghost small" href="/modele/${esc(tid)}">Voir l'exemple</a>
+          </div>
+        </div>
+      </article>`;
+    }).join("");
+    return `<div class="model-plan-block"><h3 class="model-plan-title">${esc(p.label)} <small>${fcfa(p.price)} FCFA / mois</small></h3>
+      <div class="model-grid">${cards}</div></div>`;
+  }).join("");
+
+  const shops = pros.results.length
+    ? `<section class="sec wrap"><h2>Boutiques deja en ligne</h2><div class="chips">${pros.results
+        .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`).join("")}</div></section>`
+    : "";
+
+  const body = `<header class="hero hero-models"><div class="wrap">
+    <div class="brandline"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span><span>${name}</span></div>
+    <p class="eyebrow">MODELES DE BOUTIQUES PRETS A L'EMPLOI</p>
+    <h1>Ne creez pas seulement une boutique.<br><em>Choisissez un modele.</em></h1>
+    <p class="lead">Chaque formule propose des modeles de vitrine prets. Vous selectionnez le design, vous renseignez vos infos et vos photos — votre boutique est en ligne.</p>
+    <div class="row"><a class="btn" href="#modeles">Voir les modeles</a><a class="btn ghost" href="/app">Creer ma boutique</a>${contact}</div>
+    <p class="note">${TRIAL_DAYS} jours d'essai · Commandes sur WhatsApp · Sans application a installer pour vos clients</p>
+  </div></header>
+
+  <section class="sec wrap" id="modeles">
+    <h2>Nos modeles par formule</h2>
+    <p class="muted" style="max-width:40ch;margin-bottom:28px">Comme une collection de vitrines : regardez l'exemple, choisissez le modele qui vous ressemble, puis remplissez uniquement vos informations.</p>
+    ${modelCards}
+  </section>
+
+  <section class="sec wrap">
+    <h2>Comment ca marche</h2>
+    <ol class="steps">
+      <li><b>Choisissez un modele</b> selon votre formule (Essentiel, Standard ou Pro).</li>
+      <li><b>Renseignez vos infos</b> : nom, WhatsApp, produits et photos.</li>
+      <li><b>Partagez le lien</b> — vos clients commandent sur WhatsApp.</li>
+    </ol>
+  </section>
+
+  ${shops}
+  <footer class="foot"><div class="wrap">© ${name} · Vitrines digitales pour commercants</div></footer>`;
+
+  return html(layout({
+    title: `${env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
+    desc: "Choisissez un modele de boutique selon votre formule, renseignez vos infos et vendez sur WhatsApp.",
+    color: "#27338f",
+    body,
+    pwa: true,
+    bodyAttrs: `data-platform="${platformName(env)}" class="home-models"`,
+  }));
 }
+
 
 function appPage(env) {
   return html(
@@ -551,6 +623,61 @@ async function shopPage(request, env, ctx, slug) {
   }), 200, extraHeaders);
 }
 
+async function modelDemoPage(request, env, tid) {
+  const t = TEMPLATES[tid];
+  if (!t) return notFound(env);
+  const plan = PLANS[t.plan];
+  const color = t.plan === "pro" ? "#0f3d2e" : t.plan === "standard" ? "#4c1d95" : "#0f766e";
+  const fakeShop = {
+    id: 0, slug: "modele-" + tid, name: t.label + " — Exemple", brand_name: "Exemple Boutiko",
+    business_name: "", slogan: t.tagline, description: t.desc + " Remplacez ces textes par les vôtres après inscription.",
+    whatsapp: "22900000000", color, address: "Cotonou, Bénin", maps_url: "", hours: JSON.stringify({ open: "08:00", close: "19:00", days: [1,2,3,4,5,6] }),
+    momo: "", logo_id: null, banner_id: null, gallery: "[]", theme: "editorial", layout: "grid",
+    plan: t.plan, template: tid, status: "active",
+  };
+  // Réutilise shopPage logic via query injection: build minimal HTML demo
+  const name = esc(fakeShop.name);
+  const waLink = "https://wa.me/22900000000";
+  const products = [
+    { id: 1, name: "Produit exemple 1", price: 6500, promo_price: null, photos: "[]", stock: 5, active: 1 },
+    { id: 2, name: "Produit exemple 2", price: 12000, promo_price: 9000, photos: "[]", stock: 3, active: 1 },
+    { id: 3, name: "Produit exemple 3", price: 3000, promo_price: null, photos: "[]", stock: null, active: 1 },
+  ];
+  const cover = `<div class="sf-cover no-img" style="--c:${color}"></div>`;
+  const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
+  let hero;
+  if (t.plan === "pro") {
+    hero = `<section class="sf-hero sf-pro-hero">${cover}<div class="sf-pro-overlay wrap">
+      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${esc(t.tagline)}</p>
+      <div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Choisir ce modèle</a>
+      <a class="btn ghost" href="/#modeles">Autres modèles</a></div></div></section>`;
+  } else {
+    hero = `<section class="sf-hero">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
+      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${esc(t.tagline)}</p></div></div></section>`;
+  }
+  const about = `<section class="sf-about wrap"><div class="sf-sec"><span>L'entreprise</span><h2>Qui sommes-nous</h2></div>
+    <p class="sf-desc">${esc(t.desc)} Ceci est un aperçu : vos textes et photos remplaceront cet exemple.</p></section>`;
+  const prods = products.map((p) => productCard(p, fakeShop)).join("");
+  const body = `${hero}
+    <section class="sf-infobar"><div class="wrap"><div class="sf-actions">
+      <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Utiliser ce modèle — ${esc(plan.label)} ${fcfa(plan.price)} F/mois</a>
+      <a class="btn ghost" href="/#modeles">Voir tous les modèles</a>
+    </div></div></section>
+    ${about}
+    <section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits <small>(exemple)</small></h2></div>
+    <div class="pgrid">${prods}</div></div></section>
+    <footer class="sf-foot"><div class="wrap">Aperçu du modèle <b>${esc(t.label)}</b> · <a href="/app?modele=${esc(tid)}">Créer ma boutique avec ce modèle</a></div></footer>`;
+  return html(layout({
+    title: `Modèle ${t.label} · ${env.PLATFORM_NAME || "Boutiko"}`,
+    desc: t.desc,
+    color,
+    body,
+    bodyAttrs: `class="sf-page sf-${t.plan} sf-tpl-${tid}" data-plan="${t.plan}" data-template="${tid}"`,
+  }));
+}
+
 function notFound(env) {
   return html(
     layout({
@@ -640,12 +767,15 @@ async function apiRegister(request, env) {
   const u = await env.DB.prepare("INSERT INTO users(phone, pass, is_admin, created_at) VALUES(?,?,?,?)").bind(phone, passHash, isAdmin, now()).run();
   const userId = u.meta.last_row_id;
   const slug = await uniqueSlug(env, name);
-  const plan = isAdmin ? "pro" : "essentiel";
+  let plan = isAdmin ? "pro" : (["essentiel", "standard", "pro"].includes(b.plan) ? b.plan : "essentiel");
+  let template = str(b.template || b.modele, 30) || "simple";
+  if (!TEMPLATES[template]) template = plan === "pro" ? "premium" : plan === "standard" ? "vitrine" : "simple";
+  if (!isAdmin && TEMPLATES[template] && TEMPLATES[template].plan !== plan) plan = TEMPLATES[template].plan;
   const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + TRIAL_DAYS * 86400;
   await env.DB.prepare(
-    "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?)"
+    "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, template, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?,?)"
   )
-    .bind(userId, slug, name, str(b.description, 300), phone, plan, paidUntil, now())
+    .bind(userId, slug, name, str(b.description, 300), phone, plan, template, paidUntil, now())
     .run();
   return startSession(request, env, userId);
 }
@@ -695,7 +825,7 @@ async function publicShop(env, shop) {
     id: shop.id, slug: shop.slug, name: shop.name, business_name: shop.business_name || "", brand_name: shop.brand_name || "", slogan: shop.slogan || "", description: shop.description, whatsapp: shop.whatsapp,
     color: shop.color, address: shop.address, maps_url: shop.maps_url, hours: shop.hours, momo: shop.momo,
     logo_id: shop.logo_id, banner_id: shop.banner_id, gallery: parseIds(shop.gallery), theme: shop.theme || "editorial",
-    layout: shop.layout || "grid", plan: shop.plan, status: shop.status,
+    layout: shop.layout || "grid", plan: shop.plan, template: shop.template || "simple", status: shop.status,
     paid_until: shop.paid_until, quick_replies: shop.quick_replies,
   };
 }
@@ -1195,6 +1325,9 @@ async function route(request, env, ctx) {
     return fail("Action inconnue", 404);
   }
 
+  if (method === "GET" && parts[0] === "modele" && parts[1] && /^[a-z0-9-]+$/.test(parts[1])) {
+    return modelDemoPage(request, env, parts[1]);
+  }
   if (method === "GET" && parts.length === 1 && /^[a-z0-9-]+$/.test(parts[0]) && !RESERVED.has(parts[0])) {
     return shopPage(request, env, ctx, parts[0]);
   }
