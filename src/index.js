@@ -384,9 +384,9 @@ async function homePage(request, env) {
         .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`).join("")}</div></section>`
     : "";
 
-  const body = `<header class="hero hero-models"><div class="wrap">
+  const body = `<div class="v2-ribbon">BOUTIKO 2.0 — Modeles de boutiques · Essentiel · Standard · Pro</div><header class="hero hero-models"><div class="wrap">
     <div class="brandline"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span><span>${name}</span></div>
-    <p class="eyebrow">MODELES DE BOUTIQUES PRETS A L'EMPLOI</p>
+    <span class="v2-badge">Version 2.0</span><p class="eyebrow">MODELES DE BOUTIQUES PRETS A L'EMPLOI</p>
     <h1>Ne creez pas seulement une boutique.<br><em>Choisissez un modele.</em></h1>
     <p class="lead">Chaque formule propose des modeles de vitrine prets. Vous selectionnez le design, vous renseignez vos infos et vos photos — votre boutique est en ligne.</p>
     <div class="row"><a class="btn" href="#modeles">Voir les modeles</a><a class="btn ghost" href="/app">Creer ma boutique</a>${contact}</div>
@@ -417,7 +417,7 @@ async function homePage(request, env) {
     color: "#27338f",
     body,
     pwa: true,
-    bodyAttrs: `data-platform="${platformName(env)}" class="home-models"`,
+    bodyAttrs: `data-platform="${platformName(env)}" class="home-models v2"`,
   }));
 }
 

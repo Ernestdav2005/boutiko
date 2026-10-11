@@ -418,3 +418,105 @@ body[data-layout="cards"] .photos{aspect-ratio:4/3}
 .sf-tpl-catalogue .sf-about{order:2}
 .sf-tpl-quartier .sf-infobar{background:color-mix(in srgb,var(--c) 6%,#fff)}
 .sf-tpl-maison .sf-sec h2{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:-.02em}
+/* ========== BOUTIKO 2.0 ========== */
+:root {
+  --v2: #e85d04;
+  --v2-dark: #9d0208;
+  --v2-ink: #1a1a2e;
+  --v2-bg: #fff8f0;
+  --v2-card: #ffffff;
+  --v2-line: #f0e6da;
+  --v2-muted: #6b5e54;
+  --v2-green: #2d6a4f;
+  --sun: #ffb703;
+}
+body.home-models, body.v2 {
+  background: var(--v2-bg) !important;
+  color: var(--v2-ink);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.v2-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--v2); color: #fff; font-weight: 800;
+  font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 999px; margin-bottom: 16px;
+}
+.home-models .hero-models {
+  padding: 56px 0 64px !important;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 40%, #e85d04 160%) !important;
+  color: #fff !important;
+  position: relative; overflow: hidden;
+}
+.home-models .hero-models::after {
+  content: "2.0"; position: absolute; right: -10px; top: 20px;
+  font-size: 8rem; font-weight: 900; opacity: .08; pointer-events: none;
+  letter-spacing: -.05em;
+}
+.home-models .hero-models h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
+  line-height: 1.15 !important; max-width: 14ch !important;
+}
+.home-models .hero-models h1 em {
+  color: var(--sun) !important; font-style: normal;
+  border-bottom: 3px solid var(--sun);
+}
+.model-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 20px !important;
+}
+@media (min-width: 700px) {
+  .model-grid { grid-template-columns: 1fr 1fr !important; }
+}
+.model-card {
+  border: 2px solid var(--v2-line) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 40px rgba(232,93,4,.08) !important;
+  transition: transform .2s, box-shadow .2s;
+  background: #fff !important;
+}
+.model-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(232,93,4,.15) !important;
+  border-color: var(--v2) !important;
+}
+.model-plan-pill {
+  background: var(--v2) !important;
+  color: #fff !important;
+}
+.model-plan-title {
+  font-size: 1.35rem !important;
+  color: var(--v2-ink);
+  border-left: 4px solid var(--v2);
+  padding-left: 12px;
+}
+.model-frame {
+  border: 3px solid #1a1a2e !important;
+  border-radius: 22px !important;
+}
+.btn {
+  background: var(--v2) !important;
+  border-color: var(--v2) !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+}
+.btn.ghost {
+  background: transparent !important;
+  color: inherit !important;
+  border: 2px solid currentColor !important;
+}
+.home-models .hero-models .btn.ghost { color: #fff !important; }
+
+/* Shop v2 polish */
+.sf-page { --c: #e85d04; }
+.sf-pro { --c: #0f3d2e; }
+.sf-name { font-size: 1.75rem !important; letter-spacing: -.02em; }
+.sf-actions .btn { min-height: 48px; font-size: 1rem; }
+
+/* Version ribbon */
+.v2-ribbon {
+  position: sticky; top: 0; z-index: 100;
+  background: #1a1a2e; color: #ffb703;
+  text-align: center; font-size: .8rem; font-weight: 700;
+  padding: 8px 12px; letter-spacing: .04em;
+}
