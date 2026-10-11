@@ -21,13 +21,15 @@ jobs:
               print("Already applied")
               raise SystemExit(0)
 
-          if "clock:" not in src:
-              src = src.replace(
-                  'rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>\',\n};',
-                  'rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>\',\n  clock: \'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>\',\n};',
-                  1,
-              )
-              print("clock")
+          if "clock:" not in src and "lock:" in src:
+              marker = "M8 11V8a4 4 0 0 1 8 0v3"
+              if marker in src:
+                  src = src.replace(
+                      marker + "/>',\n};",
+                      marker + "/>',\n  clock: '<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>',\n};",
+                      1,
+                  )
+                  print("clock added")
 
           reps = [
               ('class="cover has-img"', 'class="discover-cover has-img"'),
@@ -47,25 +49,30 @@ jobs:
               c = src.count(old)
               if c:
                   src = src.replace(old, new)
-                  print(f"ok {old[:30]} x{c}")
+                  print(f"ok {old[:35]} x{c}")
               else:
-                  print(f"skip {old[:30]}")
+                  print(f"skip {old[:35]}")
 
-          if 'discover-section-title' not in src:
-              src = src.replace(
+          if "discover-section-title" not in src:
+              a = src.replace(
                   '<main class="wrap">${many',
                   '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div>${many',
                   1,
               )
-              src = src.replace(
+              if a != src:
+                  src = a
+                  print("products with many")
+              b = src.replace(
                   '<main class="wrap"><div class="empty">',
                   '<section class="discover-products"><div class="wrap"><div class="discover-section-title"><span>Catalogue</span><h2>Nos produits</h2></div><div class="empty">',
                   1,
               )
-              print("product sections")
+              if b != src:
+                  src = b
+                  print("products empty")
 
           Path("src/index.js").write_text(src)
-          print("done", "discover-cover" in src)
+          print("done discover-cover=", "discover-cover" in src)
           PY
           node --check src/index.js
       - name: Append discovery CSS
