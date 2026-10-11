@@ -321,11 +321,11 @@ async function homePage(request, env) {
 <div class="pc"><i style="background:#7fb7a4"></i><b>Sac en tissu</b><span>3 000 FCFA</span><u>Commander</u></div></div></div>`;
   const feat = (ic, t, d) => `<div class="feat"><div class="ic">${icon(ic)}</div><div><b>${t}</b><span class="muted">${d}</span></div></div>`;
   const body = `<header class="hero"><div class="awning"></div><div class="wrap"><div class="brand"><span class="mark">${esc(Array.from((env.PLATFORM_NAME || "Boutiko").trim())[0] || "B").toUpperCase()}</span>${name}</div>
-<div class="heroGrid"><div><h1>Votre boutique en ligne, prête en 2 minutes</h1>
-<p class="lead">Montrez vos produits, vos prix et votre adresse. Vos clients commandent directement sur votre WhatsApp.</p>
+<div class="heroGrid"><div><p class="hero-kicker">VOTRE COMMERCE, EN VERSION NUMÉRIQUE</p><h1>Votre boutique mérite d’être <em>vue.</em></h1>
+<p class="lead">Créez une vitrine élégante à votre image. Présentez vos produits, racontez votre marque et recevez les commandes directement sur WhatsApp.</p>
 <div class="row"><a class="btn" href="/app">Créer ma boutique</a><button class="btn ghost" id="installPwa" type="button">Installer Boutiko</button>${contact}</div>
 <p class="note">${TRIAL_DAYS} jours d'essai. Aucune connaissance technique nécessaire.</p></div>${mock}</div></div></header>
-<main class="wrap"><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
+<main class="wrap"><section class="proof-strip"><div><b>Votre identité</b><span>Nom, marque, slogan et couleurs</span></div><div><b>Vos belles images</b><span>Produits et photos de votre boutique</span></div><div><b>Vos clients</b><span>Un lien facile à partager</span></div></section><section class="sec"><h2>Comment ça marche</h2><ol class="steps">
 <li><b>Créez votre compte</b><span class="muted">Avec votre numéro WhatsApp. Une minute suffit.</span></li>
 <li><b>Ajoutez vos produits</b><span class="muted">Une photo, un nom, un prix. Depuis votre téléphone.</span></li>
 <li><b>Partagez votre lien</b><span class="muted">Sur WhatsApp, Facebook, ou avec le QR code à votre comptoir.</span></li></ol></section>
