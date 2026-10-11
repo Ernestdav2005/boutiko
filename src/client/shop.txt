@@ -3,6 +3,7 @@
   var slug = body.getAttribute("data-slug");
   var shopName = body.getAttribute("data-name") || "";
   var sheetEl = null;
+  var lightEl = null;
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -20,9 +21,41 @@
   function closeSheet() {
     if (sheetEl) { sheetEl.remove(); sheetEl = null; document.body.style.overflow = ""; }
   }
+  function closeLight() {
+    if (lightEl) { lightEl.remove(); lightEl = null; }
+  }
+
+  function openLightbox(urls, startIndex) {
+    closeLight();
+    var idx = startIndex || 0;
+    var o = document.createElement("div");
+    o.className = "lightbox";
+    o.setAttribute("role", "dialog");
+    o.setAttribute("aria-modal", "true");
+    o.setAttribute("aria-label", "Photo en grand");
+    function render() {
+      o.innerHTML =
+        '<button class="lb-x" type="button" data-lb-close aria-label="Fermer">×</button>' +
+        (urls.length > 1
+          ? '<button class="lb-nav lb-prev" type="button" data-lb-prev aria-label="Précédente">‹</button>' +
+            '<button class="lb-nav lb-next" type="button" data-lb-next aria-label="Suivante">›</button>'
+          : "") +
+        '<img src="' + urls[idx] + '" alt="Photo produit">' +
+        (urls.length > 1 ? '<div class="lb-count">' + (idx + 1) + " / " + urls.length + "</div>" : "");
+    }
+    render();
+    document.body.appendChild(o);
+    lightEl = o;
+    o.addEventListener("click", function (e) {
+      if (e.target === o || e.target.closest("[data-lb-close]")) { closeLight(); return; }
+      if (e.target.closest("[data-lb-prev]")) { idx = (idx - 1 + urls.length) % urls.length; render(); }
+      if (e.target.closest("[data-lb-next]")) { idx = (idx + 1) % urls.length; render(); }
+    });
+  }
 
   function openSheet(card) {
     closeSheet();
+    closeLight();
     var id = card.getAttribute("data-id");
     var max = parseInt(card.getAttribute("data-max"), 10) || 20;
     var sold = card.getAttribute("data-sold") === "1";
@@ -32,12 +65,13 @@
     var descEl = card.querySelector(".pdesc");
     var warnEl = card.querySelector(".warn");
     var gallery = ids.length
-      ? '<div class="photos" id="gal">' + ids.map(function (i) {
-          return '<img src="/img/' + i + '" alt="' + esc(name) + '">';
+      ? '<div class="photos" id="gal">' + ids.map(function (i, k) {
+          return '<img src="/img/' + i + '" alt="' + esc(name) + '" data-lb-idx="' + k + '">';
         }).join("") + "</div>" +
         (ids.length > 1 ? '<div class="dots" id="dots">' + ids.map(function (_, k) {
           return "<i" + (k === 0 ? ' class="on"' : "") + "></i>";
-        }).join("") + "</div>" : "")
+        }).join("") + "</div>" : "") +
+        '<p class="photo-hint">Touchez une photo pour l\'agrandir</p>'
       : "";
     var o = document.createElement("div");
     o.className = "overlay";
@@ -56,7 +90,9 @@
     document.body.appendChild(o);
     document.body.style.overflow = "hidden";
     sheetEl = o;
-    o.addEventListener("click", function (e) { if (e.target === o) closeSheet(); });
+    o.addEventListener("click", function (e) {
+      if (e.target === o) closeSheet();
+    });
 
     var gal = o.querySelector("#gal");
     if (gal && ids.length > 1) {
@@ -66,6 +102,18 @@
         for (var j = 0; j < d.length; j++) d[j].className = j === k ? "on" : "";
       });
     }
+
+    if (gal) {
+      gal.addEventListener("click", function (e) {
+        var img = e.target.closest("img");
+        if (!img) return;
+        e.stopPropagation();
+        var urls = ids.map(function (i) { return "/img/" + i; });
+        var start = parseInt(img.getAttribute("data-lb-idx"), 10) || 0;
+        openLightbox(urls, start);
+      });
+    }
+
     o.addEventListener("click", function (e) {
       var q = e.target.closest("[data-q]");
       if (q) {
@@ -107,10 +155,29 @@
     if (first) first.focus();
   }
 
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (lightEl) closeLight();
+      else closeSheet();
+    }
+  });
 
   document.addEventListener("click", function (e) {
-    if (sheetEl) return;
+    var shot = e.target.closest("[data-lightbox]");
+    if (shot) {
+      var url = shot.getAttribute("data-lightbox");
+      var all = document.querySelectorAll("[data-lightbox]");
+      var urls = [];
+      var start = 0;
+      for (var i = 0; i < all.length; i++) {
+        urls.push(all[i].getAttribute("data-lightbox"));
+        if (all[i] === shot) start = i;
+      }
+      openLightbox(urls, start);
+      return;
+    }
+
+    if (sheetEl || lightEl) return;
     var op = e.target.closest("[data-open]");
     if (op) {
       var card = op.closest(".prod");
@@ -127,7 +194,6 @@
     }
   });
 
-  // Recherche (affichée quand la boutique a beaucoup de produits)
   var search = document.getElementById("q");
   if (search) {
     search.addEventListener("input", function () {
@@ -145,7 +211,6 @@
     });
   }
 
-  // Produit partagé (lien avec #p12) : on l'ouvre directement
   if (location.hash && /^#p\d+$/.test(location.hash)) {
     var el = document.querySelector(location.hash);
     if (el) {
