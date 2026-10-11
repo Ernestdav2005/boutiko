@@ -1,0 +1,26 @@
+name: Restore index.js
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/restore-index.yml'
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Restore working index.js from commit 21f23eb
+        run: |
+          git show 21f23eb244e22594449493bce4babbc55f62d45c:src/index.js > src/index.js
+          wc -c src/index.js
+          head -c 80 src/index.js
+          git config user.name "boutiko-restore"
+          git config user.email "noreply@github.com"
+          git add src/index.js
+          git commit -m "Restore index.js from working commit (fix placeholder)" || echo "No change"
+          git push
