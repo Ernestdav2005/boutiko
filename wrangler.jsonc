@@ -9,9 +9,16 @@
     "PLATFORM_NAME": "Boutiko"
   },
   "d1_databases": [
-    { "binding": "DB" }
+    {
+      "binding": "DB",
+      "database_name": "boutiko-db",
+      "database_id": "c221c290-dae8-48a3-84fc-f42b3f530b17"
+    }
   ],
   "r2_buckets": [
-    { "binding": "IMAGES" }
+    {
+      "binding": "IMAGES",
+      "bucket_name": "boutiko-images"
+    }
   ]
 }
