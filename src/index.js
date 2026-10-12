@@ -476,39 +476,108 @@ async function homePage(request, env) {
     : "";
 
   const body = `
-<main class="bk-workspace">
-  <aside class="bk-sidebar">
-    <a class="bk-side-brand" href="/">${brandLogo}<span>${name}</span></a>
-    <p class="bk-side-label">ESPACE COMMERÇANT</p>
-    <a class="bk-side-link active" href="#bk-start"><span>⌂</span> Vue d’ensemble</a>
-    <a class="bk-side-link" href="/app"><span>▦</span> Mes boutiques</a>
-    <a class="bk-side-link" href="#modeles"><span>◫</span> Modèles de boutique</a>
-    <a class="bk-side-link" href="/app"><span>＋</span> Mes produits</a>
-    <div class="bk-side-bottom"><span class="bk-status-dot"></span> Prêt à démarrer</div>
-  </aside>
-  <section class="bk-main" id="bk-start">
-    <div class="bk-topbar"><div><span class="bk-breadcrumb">Boutiko <span>/</span> Espace de travail</span><h1>Construisez votre boutique.</h1><p>Tout ce qu’il faut pour présenter vos produits et recevoir des commandes.</p></div><a class="bk-avatar" href="/app" aria-label="Ouvrir mon compte">↗</a></div>
-    <div class="bk-welcome"><div class="bk-welcome-copy"><span class="bk-kicker">VOTRE ESPACE DE CRÉATION</span><h2>Votre commerce, prêt à passer en ligne.</h2><p>Choisissez un modèle, ajoutez vos produits et partagez votre lien WhatsApp.</p><div class="bk-actions"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">＋ Créer ma boutique</a><a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Explorer les modèles <span>→</span></a></div><div class="bk-meta"><span>✓ Sans code</span><span>✓ 16 modèles inclus</span><span>✓ Essai ${TRIAL_PUBLIC} jours</span></div></div>
-      <div class="bk-preview-window"><div class="bk-window-bar"><i></i><i></i><i></i><span>Aperçu de votre future boutique</span></div><div class="bk-window-body"><div class="bk-preview-banner"><span>BOUTIQUE EN LIGNE</span><strong>Votre marque.<br>Votre univers.</strong><small>Vos produits en quelques clics.</small></div><div class="bk-preview-products"><div><img src="/mode.webp" alt="Modèle mode"><b>Mode & accessoires</b><small>Voir la collection ↗</small></div><div><img src="/beaute.webp" alt="Modèle beauté"><b>Beauté naturelle</b><small>Découvrir ↗</small></div></div><div class="bk-preview-footer"><span>● Boutique en préparation</span><span>WhatsApp intégré</span></div></div></div>
+<nav class="hk-nav" aria-label="Navigation principale">
+  <div class="hk-nav-in hk-shell">
+    <a class="hk-logo" href="/" aria-label="Boutiko accueil">${brandLogo}<span>${name}</span></a>
+    <button class="hk-menu-btn" id="hkMenuBtn" type="button" aria-label="Ouvrir le menu">☰</button>
+    <div class="hk-nav-links">
+      <a href="#fonctionnement">Comment ça marche</a>
+      <a href="#modeles">Modèles</a>
+      <a href="#tarifs">Tarifs</a>
     </div>
-    <div class="bk-section-title"><div><span class="bk-kicker">DÉMARRAGE RAPIDE</span><h2>Que souhaitez-vous faire ?</h2></div><a href="/app">Accéder à mon espace ↗</a></div>
-    <div class="bk-action-grid"><a class="bk-action-card bk-action-primary" href="/app"><span class="bk-action-icon">＋</span><span><b>Créer une boutique</b><small>Nom, contact et style en quelques étapes.</small></span><strong>→</strong></a><a class="bk-action-card" href="/app"><span class="bk-action-icon">▦</span><span><b>Gérer mes produits</b><small>Photos, prix et disponibilité.</small></span><strong>→</strong></a><a class="bk-action-card" href="#modeles"><span class="bk-action-icon">◫</span><span><b>Personnaliser ma page</b><small>Choisissez parmi les 16 modèles.</small></span><strong>→</strong></a></div>
-    <div class="bk-section-title bk-model-heading" id="modeles"><div><span class="bk-kicker">BIBLIOTHÈQUE DE MODÈLES</span><h2>Choisissez votre point de départ.</h2><p>Les 16 modèles sont inclus dès la formule Essentiel à 2 000 FCFA/mois.</p></div><span class="bk-count">16 modèles disponibles</span></div>
-    <div class="bk-template-strip"><a href="/modele/mode"><img src="/mode.webp" alt=""><span><b>Mode & accessoires</b><small>Élégant · Moderne</small></span><em>Voir ↗</em></a><a href="/modele/beaute"><img src="/beaute.webp" alt=""><span><b>Beauté éclatante</b><small>Doux · Naturel</small></span><em>Voir ↗</em></a><a href="/modele/quartier"><img src="/quartier.webp" alt=""><span><b>Marché de proximité</b><small>Local · Accueillant</small></span><em>Voir ↗</em></a><a href="/modele/catalogue"><img src="/catalogue.webp" alt=""><span><b>Tech & électronique</b><small>Net · Contemporain</small></span><em>Voir ↗</em></a></div>
-    <div class="bk-bottom-row"><div><span class="bk-bottom-icon">↗</span><span><b>Votre boutique est partageable partout</b><small>Un lien à envoyer sur WhatsApp, Facebook ou votre statut.</small></span></div><a class="hk-btn hk-btn-primary" href="/app">Commencer maintenant</a></div>
+    <div class="hk-nav-cta">
+      <a class="hk-btn hk-btn-ghost" href="/app">Se connecter</a>
+      <a class="hk-btn hk-btn-primary" href="/app?modele=simple">Inscription</a>
+      <button class="hk-btn hk-btn-soft" id="installPwa" type="button" aria-label="Installer Boutiko sur mon téléphone">Installer l’application</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hk-hero">
+    <div class="hk-shell hk-hero-grid">
+      <div class="hk-hero-copy">
+        <span class="hk-eyebrow">VOTRE COMMERCE, À L’ÈRE DU NUMÉRIQUE</span>
+        <h1>${heroTitle}</h1>
+        <p class="hk-lead">${heroText}</p>
+        <div class="hk-hero-actions">
+          <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Créer ma boutique</a>
+          <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Découvrir les modèles ↓</a>
+        </div>
+        <p class="hk-note">Simple à utiliser sur téléphone · Sans savoir coder · Commandes par WhatsApp</p>
+      </div>
+      <div class="hk-hero-visual" aria-label="Aperçu d’une boutique créée avec Boutiko">
+        <div class="hk-phone">
+          <div class="hk-phone-screen">
+            <div class="hk-phone-top"><span>${name}</span><span>☰</span></div>
+            <div class="hk-phone-cover"><img src="/mode.webp" alt="Exemple de boutique mode"></div>
+            <div class="hk-phone-copy"><small>COLLECTION DU MOMENT</small><h3>Votre marque. Votre style.</h3><p>Découvrez nos nouveautés.</p></div>
+            <div class="hk-phone-items"><img src="/beaute.webp" alt="Exemple beauté"><img src="/catalogue.webp" alt="Exemple électronique"></div>
+            <div class="hk-phone-buy">Contacter sur WhatsApp ↗</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hk-trust">
+    <div class="hk-shell hk-trust-in">
+      <div class="hk-trust-item"><strong>16 modèles</strong><span>pour différents commerces</span></div>
+      <div class="hk-trust-item"><strong>2 000 FCFA/mois</strong><span>formule de départ</span></div>
+      <div class="hk-trust-item"><strong>WhatsApp</strong><span>pour recevoir les commandes</span></div>
+      <div class="hk-trust-item"><strong>Mobile</strong><span>conçu pour votre téléphone</span></div>
+    </div>
+  </section>
+
+  <section class="hk-band" id="fonctionnement">
+    <div class="hk-shell">
+      <div class="hk-section-head"><span class="hk-eyebrow">DÉMARRER EN QUELQUES ÉTAPES</span><h2>Votre boutique en ligne, sans complication.</h2><p class="hk-sub">Pas besoin de maîtriser l’informatique. Vous avancez étape par étape depuis votre téléphone.</p></div>
+      <div class="grid3">
+        <article class="hk-step"><span class="hk-step-n">01</span><h3>Créez votre compte</h3><p>Inscrivez-vous avec votre numéro WhatsApp et choisissez le nom de votre commerce.</p></article>
+        <article class="hk-step"><span class="hk-step-n">02</span><h3>Choisissez votre modèle</h3><p>Sélectionnez un design, ajoutez vos produits, vos prix et vos coordonnées.</p></article>
+        <article class="hk-step"><span class="hk-step-n">03</span><h3>Partagez votre lien</h3><p>Envoyez votre page à vos clients et recevez les demandes et commandes.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="hk-band hk-dark" id="modeles">
+    <div class="hk-shell">
+      <div class="hk-section-head"><span class="hk-eyebrow">16 MODÈLES DISPONIBLES</span><h2>Un style adapté à votre activité.</h2><p class="hk-sub">Mode, beauté, alimentation, électronique, décoration et bien plus. Les 16 modèles sont accessibles dès la formule Essentiel à 2 000 FCFA/mois.</p></div>
+      <div class="tpl-marketplace">${allCards}</div>
+      <div class="center" style="margin-top:30px"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Choisir mon modèle</a></div>
+    </div>
+  </section>
+
+  <section class="hk-band" id="tarifs">
+    <div class="hk-shell">
+      <div class="hk-section-head"><span class="hk-eyebrow">DES FORMULES SIMPLES</span><h2>Choisissez le rythme qui vous convient.</h2><p class="hk-sub">Commencez avec l’essentiel et passez à une formule supérieure lorsque votre activité grandit.</p></div>
+      <div class="grid3 hk-prices">
+        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Page de boutique partageable</li><li>Contact et commandes WhatsApp</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Choisir Essentiel</a></article>
+        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Personnalisation avancée</li><li>Plus de capacité de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?modele=simple">Choisir Standard</a></article>
+        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Personnalisation avancée</li><li>Capacité renforcée</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?modele=simple">Choisir Pro</a></article>
+      </div>
+      <p class="center muted small" style="margin-top:18px">Les fonctionnalités exactes dépendent de la formule et des paramètres actifs de la plateforme.</p>
+    </div>
+  </section>
+
+  <section class="hk-cta">
+    <div class="hk-shell center">
+      <h2>Prêt à mettre votre commerce en ligne ?</h2>
+      <p>Créez votre compte, personnalisez votre page et partagez-la avec vos clients.</p>
+      <div class="hk-hero-actions" style="justify-content:center;margin-top:22px">
+        <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Créer ma boutique</a>
+        <button class="hk-btn hk-btn-ghost hk-btn-lg" id="installPwaBottom" type="button" onclick="document.getElementById('installPwa').click()">Installer sur mon téléphone</button>
+      </div>
+    </div>
   </section>
 </main>
 
-<section class="bk-all-templates" aria-label="Bibliothèque complète de modèles">
-  <div class="bk-all-templates-head">
-    <div><span class="bk-kicker">BIBLIOTHÈQUE</span><h2>Vos 16 modèles, toujours accessibles.</h2><p>Inclus dès la formule Essentiel à 2 000 FCFA/mois.</p></div>
-    <a class="hk-btn hk-btn-ghost" href="/app">Ouvrir mon espace ↗</a>
+<footer class="hk-foot">
+  <div class="hk-shell">
+    <div class="row between"><div><strong>${name}</strong><p class="muted">Une vitrine numérique pour les commerces d’aujourd’hui.</p></div><div class="row"><a href="/app">Se connecter</a><a href="/app?modele=simple">Inscription</a></div></div>
+    <p class="small muted">© ${new Date().getFullYear()} ${name}. Tous droits réservés.</p>
   </div>
-  <details class="bk-all-templates-details">
-    <summary>Afficher les 16 modèles</summary>
-    <div class="tpl-marketplace">${allCards}</div>
-  </details>
-</section>
+</footer>
 <script>
 (function(){
   var btn=document.getElementById('hkMenuBtn');
@@ -516,7 +585,6 @@ async function homePage(request, env) {
   if(btn&&links){btn.addEventListener('click',function(){links.classList.toggle('open');});}
 })();
 </script>
-
 `;
 
   return html(layout({
