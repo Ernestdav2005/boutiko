@@ -1641,3 +1641,51 @@ body.home-models{background:#f1f4fb;color:#18223b}
   #view .lrow>img{width:48px;height:48px;flex-basis:48px}
   .tabs button{font-size:.62rem}
 }
+
+/* BOUTIKO FUTURE CONTROL CENTER — dashboard commerçant accueillant et vivant */
+.bk-control-center{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(170px,.7fr);gap:8px 22px;margin:0 0 22px;padding:clamp(22px,3vw,36px);border:1px solid #dce8e5;border-radius:26px;background:radial-gradient(ellipse at 80% 15%,rgba(81,196,165,.16),transparent 35%),linear-gradient(135deg,#fff 0%,#f2faf7 54%,#f4f4ff 100%);box-shadow:0 18px 50px rgba(22,61,73,.08);animation:bk-rise-in .55s cubic-bezier(.2,.8,.2,1) both}
+.bk-control-center:after{content:"";position:absolute;z-index:-1;left:-80px;bottom:-130px;width:260px;height:260px;border:1px solid #cfe8df;border-radius:50%;box-shadow:0 0 0 24px #dcefe91f,0 0 0 50px #dcefe91a}
+.bk-control-copy{min-width:0;align-self:center}
+.bk-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.67rem;font-weight:900;letter-spacing:.15em;color:#52786c}
+.bk-eyebrow i{width:8px;height:8px;border-radius:50%;background:#27ad7c;box-shadow:0 0 0 4px #27ad7c1c;animation:bk-pulse 2.4s ease-in-out infinite}
+.bk-control-copy h2{font-size:clamp(1.8rem,3.3vw,2.8rem)!important;line-height:1.02;letter-spacing:-.065em;margin:15px 0 12px!important;color:#173c4a!important}
+.bk-control-copy h2 em{font-style:normal;color:#17856a}
+.bk-control-copy>p{max-width:470px;color:#647b7b;line-height:1.65;font-size:.94rem;margin:0}
+.bk-control-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:21px}
+.bk-control-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:12px 16px;border-radius:13px;text-decoration:none;font-weight:800;transition:transform .18s,box-shadow .18s,background .18s}
+.bk-control-actions .btn:hover{transform:translateY(-2px);box-shadow:0 9px 20px #183e4a15}
+.bk-primary-action{background:linear-gradient(135deg,#16785f,#209c7b)!important;color:#fff!important;border:1px solid #16785f!important}
+.bk-secondary-action{background:#fff!important;color:#24566a!important;border:1px solid #d4e4df!important}
+.bk-live-status{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:18px;color:#59766c;font-size:.75rem;font-weight:700}
+.bk-status-dot{width:8px;height:8px;border-radius:50%;background:#d68a36}
+.bk-status-dot.is-live{background:#22a875;box-shadow:0 0 0 4px #22a87518}
+.bk-status-dot.is-off{background:#d68a36}
+.bk-status-sep{color:#a5b9b1}
+.bk-orbit-art{position:relative;min-height:220px;display:grid;place-items:center;align-self:center}
+.bk-orbit-ring{position:absolute;width:185px;height:185px;border:1px solid #8fc8b633;border-radius:50%;transform:rotate(-24deg) scaleY(.64)}
+.bk-orbit-ring.ring-a{animation:bk-orbit 18s linear infinite}
+.bk-orbit-ring.ring-b{width:155px;height:155px;border-color:#7b82cf3d;transform:rotate(52deg) scaleY(.7);animation:bk-orbit 22s linear infinite reverse}
+.bk-orbit-core{position:relative;width:104px;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:29px;background:linear-gradient(145deg,#173c4a,#17856a);color:#fff;box-shadow:0 16px 34px #1b655332, inset 0 1px #ffffff5c;transform:rotate(-5deg)}
+.bk-orbit-core>span{position:absolute;top:10px;right:14px;color:#f7d38b;font-size:1.1rem}
+.bk-orbit-core>b{font-size:2.65rem;line-height:1;font-weight:900;letter-spacing:-.08em}
+.bk-orbit-core>small{font-size:.5rem;letter-spacing:.2em;font-weight:800;margin-top:5px;color:#c7f0e0}
+.bk-orbit-float{position:absolute;display:grid;place-items:center;width:38px;height:38px;border:1px solid #fff;border-radius:13px;background:#fff;color:#168463;font-size:1.1rem;font-weight:900;box-shadow:0 10px 25px #173c4a16;animation:bk-float 4s ease-in-out infinite}
+.bk-orbit-float.float-a{top:24%;right:12%;background:#fff7e9;color:#a86b17;animation-delay:-1.2s}
+.bk-orbit-float.float-b{bottom:20%;left:12%;background:#e5f8ee;color:#168463;animation-delay:-2.4s}
+.bk-command-stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.bk-command-stat{display:flex;align-items:center;gap:11px;min-width:0;padding:13px 14px;border:1px solid #e0ebe6;border-radius:15px;background:#ffffffc9;transition:transform .2s,border-color .2s,box-shadow .2s}
+.bk-command-stat:hover{transform:translateY(-2px);border-color:#b9d9cc;box-shadow:0 8px 20px #183e4a0a}
+.bk-stat-symbol{flex:0 0 35px;width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#e5f5ed;color:#16785f;font-size:1.1rem;font-weight:900}
+.bk-stat-symbol.amber{background:#fff2db;color:#a56a16}
+.bk-stat-symbol.mint{background:#e7f0ff;color:#4e65b1}
+.bk-command-stat>span:nth-child(2){min-width:0;flex:1}
+.bk-command-stat b,.bk-command-stat small{display:block}
+.bk-command-stat b{font-size:1.18rem;line-height:1.2;color:#173c4a}
+.bk-command-stat small{margin-top:3px;color:#6b817a;font-size:.72rem;line-height:1.35}
+.bk-stat-tail{color:#9db5aa;font-weight:900}
+@keyframes bk-rise-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bk-pulse{0%,100%{box-shadow:0 0 0 4px #27ad7c1c}50%{box-shadow:0 0 0 7px #27ad7c0d}}
+@keyframes bk-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(5deg)}}
+@keyframes bk-orbit{from{transform:rotate(0deg) scaleY(.68)}to{transform:rotate(360deg) scaleY(.68)}}
+@media(max-width:680px){.bk-control-center{grid-template-columns:minmax(0,1fr);gap:0;padding:22px 18px;border-radius:22px}.bk-control-copy h2{font-size:2.05rem!important;margin-top:12px!important}.bk-control-copy>p{font-size:.88rem}.bk-control-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:17px}.bk-control-actions .btn{width:100%;min-height:45px}.bk-orbit-art{position:absolute;right:-18px;top:6px;min-height:125px;width:145px;opacity:.17;pointer-events:none;transform:scale(.68);transform-origin:top right}.bk-orbit-core{width:100px;height:100px}.bk-command-stats{grid-template-columns:1fr;gap:8px;margin-top:20px}.bk-command-stat{padding:11px 12px}.bk-command-stat b{font-size:1.05rem}.bk-command-stat small{font-size:.75rem}}
+@media(prefers-reduced-motion:reduce){.bk-control-center,.bk-eyebrow i,.bk-orbit-ring,.bk-orbit-float{animation:none!important}.bk-control-actions .btn,.bk-command-stat{transition:none!important}}
