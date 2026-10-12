@@ -82,6 +82,17 @@ function templateOf(shop) {
   const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
   return TEMPLATES[id] || TEMPLATES.simple;
 }
+const TEMPLATE_IMAGES = {
+  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=82",
+  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1000&q=82",
+  express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1000&q=82",
+  vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1000&q=82",
+  catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=82",
+  mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=82",
+  premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=82",
+  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=82",
+  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1000&q=82",
+};
 const TRIAL_DAYS = 7;
 
 async function platformConfig(env) {
@@ -416,17 +427,7 @@ async function homePage(request, env) {
     : "";
   const wa = !!admin;
 
-  const SHOTS = {
-    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=82",
-    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1000&q=82",
-    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1000&q=82",
-    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1000&q=82",
-    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=82",
-    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=82",
-    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=82",
-    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=82",
-    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1000&q=82",
-  };
+  const SHOTS = TEMPLATE_IMAGES;
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
   const planPrice = { essentiel: PLANS_PUBLIC.essentiel.price, standard: PLANS_PUBLIC.standard.price, pro: PLANS_PUBLIC.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
@@ -890,7 +891,7 @@ async function modelDemoPage(request, env, tid) {
     { id: 2, name: "Coup de cœur", price: 12000, promo_price: 9000, photos: "[]", demoImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=82", stock: 3, active: 1 },
     { id: 3, name: "Nouvelle collection", price: 3000, promo_price: null, photos: "[]", demoImage: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=82", stock: null, active: 1 },
   ];
-  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.45),rgba(16,42,67,.08)),url(${SHOTS[tid]})"></div>`;
+  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.45),rgba(16,42,67,.08)),url(${TEMPLATE_IMAGES[tid]})"></div>`;
   const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
   let hero;
   if (t.plan === "pro") {
