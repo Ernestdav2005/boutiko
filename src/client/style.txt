@@ -1149,3 +1149,89 @@ body.hk-site .hk-foot { padding:44px 0; }
  body.hk-site .tpl-cta .btn { width:100%; }
 }
 @media (prefers-reduced-motion:reduce) { body.hk-site *, body.hk-site *::before, body.hk-site *::after { transition:none!important; scroll-behavior:auto!important; } }
+
+
+/* ===== BOUTIKO HOME REBUILD — stronger art direction and less generic copy ===== */
+body.hk-site { background:#f6f2e9!important; color:#152b3a!important; }
+body.hk-site .hk-nav { background:rgba(250,247,240,.96)!important; border-bottom:1px solid #e5ddce!important; }
+body.hk-site .hk-hero { background:radial-gradient(circle at 88% 14%,rgba(255,107,74,.24),transparent 24%),radial-gradient(circle at 60% 100%,rgba(32,108,105,.28),transparent 34%),linear-gradient(125deg,#102b40 0%,#153e50 58%,#174c4b 100%)!important; }
+body.hk-site .hk-hero-copy h1 { max-width:11ch!important; font-size:clamp(2.65rem,5.4vw,5rem)!important; }
+body.hk-site .hk-hero-copy h1::after { content:""; display:block; width:78px; height:6px; margin-top:22px; border-radius:8px; background:#ff6b4a; }
+body.hk-site .hk-hero-copy .hk-eyebrow { color:#ffc3ad!important; }
+body.hk-site .hk-hero-copy .hk-lead { max-width:43ch; color:#e3edf0!important; }
+body.hk-site .hk-hero .hk-btn-primary { background:#ff6b4a!important; border-color:#ff6b4a!important; color:#fff!important; }
+body.hk-site .hk-hero .hk-btn-ghost { background:rgba(255,255,255,.08)!important; border-color:rgba(255,255,255,.32)!important; color:#fff!important; }
+.hk-hero-visual { position:relative; min-height:420px; display:flex; align-items:center; justify-content:center; isolation:isolate; }
+.hk-showcase-main { width:min(74%,340px); background:#fff; padding:10px 10px 18px; border-radius:22px; transform:rotate(-3deg); box-shadow:0 30px 80px rgba(0,0,0,.3); position:relative; z-index:1; }
+.hk-showcase-main img { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:14px; }
+.hk-showcase-main span { display:block; color:#152b3a; font-size:.9rem; font-weight:800; padding:13px 8px 0; }
+.hk-showcase-card { position:absolute; z-index:2; width:43%; max-width:190px; background:#fff; padding:7px 7px 12px; border-radius:16px; box-shadow:0 18px 44px rgba(0,0,0,.25); }
+.hk-showcase-card img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; }
+.hk-showcase-card span { display:block; color:#152b3a; font-size:.75rem; font-weight:800; padding:8px 5px 0; }
+.hk-showcase-card-top { top:4%; right:-1%; transform:rotate(7deg); }
+.hk-showcase-card-bottom { bottom:3%; left:-1%; transform:rotate(5deg); }
+.hk-showcase-stamp { position:absolute; right:2%; bottom:4%; z-index:3; width:90px; height:90px; border-radius:50%; background:#ff6b4a; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 12px 30px rgba(0,0,0,.2); transform:rotate(8deg); }
+.hk-showcase-stamp strong { font-size:2rem; line-height:1; letter-spacing:-.06em; }
+.hk-showcase-stamp span { font-size:.67rem; font-weight:800; line-height:1.15; text-align:center; margin-top:4px; }
+body.hk-site .hk-trust { background:#fffdf8!important; border-color:#e5ddce!important; }
+body.hk-site .hk-trust-item strong { color:#174c4b!important; }
+body.hk-site #pourquoi { background:#e6f1e9!important; color:#152b3a!important; border:0!important; }
+body.hk-site #pourquoi .hk-section-head h2 { color:#152b3a!important; }
+body.hk-site #pourquoi .hk-eyebrow { color:#c64d34!important; }
+body.hk-site #pourquoi .hk-sub { color:#526b68!important; }
+body.hk-site #pourquoi .hk-pillar { background:#fffdf8!important; border:1px solid #d4e2d8!important; box-shadow:0 12px 30px rgba(22,66,55,.06); }
+body.hk-site #pourquoi .hk-pillar strong { color:#152b3a!important; font-size:1.12rem; }
+body.hk-site #pourquoi .hk-pillar p { color:#5c6e6a!important; }
+.hk-pillar-kicker { display:block; margin-bottom:20px; color:#d95439; font-size:.72rem; font-weight:900; letter-spacing:.1em; }
+body.hk-site #comment { background:#122f42!important; color:#fff!important; }
+body.hk-site #comment .hk-section-head h2 { color:#fff!important; }
+body.hk-site #comment .hk-eyebrow { color:#ffc3ad!important; }
+body.hk-site #comment .hk-step { background:#1b4052!important; border-color:#345567!important; box-shadow:none!important; }
+body.hk-site #comment .hk-step strong { color:#fff!important; }
+body.hk-site #comment .hk-step p { color:#d1dfe2!important; }
+body.hk-site #comment .hk-step-n { background:#ff6b4a!important; color:#fff!important; }
+body.hk-site #modeles { background:#f6f2e9!important; color:#152b3a!important; }
+body.hk-site #modeles .hk-section-head h2 { color:#152b3a!important; }
+body.hk-site #modeles .hk-eyebrow { color:#d95439!important; }
+body.hk-site #modeles .hk-sub { color:#596b70!important; }
+body.hk-site .hk-gallery-note { margin:0 0 26px; padding:15px 18px; border-left:4px solid #ff6b4a; background:#fffdf8; border-radius:0 12px 12px 0; color:#40566a; }
+body.hk-site .hk-gallery-note strong { color:#152b3a; }
+body.hk-site #tarifs { background:#102b40!important; }
+body.hk-site #tarifs .hk-section-head h2 { color:#fff!important; }
+body.hk-site #tarifs .hk-eyebrow { color:#ffc3ad!important; }
+body.hk-site #tarifs .hk-price { background:#17384a!important; border-color:#355466!important; }
+body.hk-site #tarifs .hk-price-feat { background:#fffdf8!important; border:2px solid #ff6b4a!important; }
+body.hk-site #tarifs .hk-price-feat h3, body.hk-site #tarifs .hk-price-feat li { color:#152b3a!important; }
+body.hk-site #tarifs .hk-price-feat .hk-price-num { color:#d95439!important; }
+body.hk-site #tarifs .hk-price-feat .hk-price-num small { color:#596b70!important; }
+body.hk-site #tarifs .hk-price-feat ul { color:#40566a!important; }
+body.hk-site #faq { background:#e6f1e9!important; color:#152b3a!important; border:0!important; }
+body.hk-site #faq .hk-section-head h2 { color:#152b3a!important; }
+body.hk-site #faq .hk-eyebrow { color:#c64d34!important; }
+body.hk-site #faq .hk-faq-item { background:#fffdf8!important; border:1px solid #d4e2d8!important; }
+body.hk-site #faq .hk-faq-item summary { color:#152b3a!important; }
+body.hk-site #faq .hk-faq-item p { color:#596b70!important; }
+body.hk-site .hk-cta { background:#ff6b4a!important; color:#fff!important; }
+body.hk-site .hk-cta h2, body.hk-site .hk-cta p { color:#fff!important; }
+body.hk-site .hk-cta .hk-btn-primary { background:#102b40!important; border-color:#102b40!important; color:#fff!important; }
+body.hk-site .hk-cta .hk-btn-ghost { background:transparent!important; border-color:rgba(255,255,255,.65)!important; color:#fff!important; }
+body.hk-site .hk-foot { background:#0a1c29!important; }
+body.hk-site .hk-foot p { color:#b6c4ca!important; }
+body.hk-site .hk-foot-links a { color:#e3edf0!important; }
+body.hk-site .hk-section-head { margin-bottom:38px; }
+body.hk-site .hk-pillar, body.hk-site .hk-step { min-height:100%; }
+body.hk-site .hk-btn { min-height:48px; }
+@media(max-width:680px) {
+ .hk-hero-visual { min-height:330px; max-width:100%!important; width:100%; margin-top:8px; }
+ .hk-showcase-main { width:66%; max-width:255px; }
+ .hk-showcase-card { width:38%; }
+ .hk-showcase-card-top { right:0; top:2%; }
+ .hk-showcase-card-bottom { left:0; bottom:1%; }
+ .hk-showcase-stamp { width:72px; height:72px; right:0; bottom:0; }
+ .hk-showcase-stamp strong { font-size:1.55rem; }
+ .hk-showcase-stamp span { font-size:.58rem; }
+ body.hk-site .hk-hero-copy h1 { max-width:12ch!important; }
+ body.hk-site .hk-hero-actions { align-items:stretch; }
+ body.hk-site .hk-hero-actions .hk-btn { width:100%; }
+}
+@media(prefers-reduced-motion:reduce) { body.hk-site *, body.hk-site *::before, body.hk-site *::after { transition:none!important; scroll-behavior:auto!important; } }
