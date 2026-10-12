@@ -101,7 +101,7 @@ const PBKDF2_ITER = 10000; // volontairement modéré : limite de 10 ms de calcu
 const MAX_IMG_BYTES = 600 * 1024;
 const MAX_ORDERS_PER_HOUR = 12;
 const RESERVED = new Set([
-  "app", "admin", "api", "img", "qr", "style.css", "app.js", "admin.js", "shop.js", "favicon.ico",
+  "app", "admin", "proprietaire", "owner", "api", "img", "qr", "style.css", "app.js", "admin.js", "shop.js", "favicon.ico",
   "robots.txt", "sitemap.xml", "login", "register", "aide", "modele", "www", "assets", "static",
 ]);
 
@@ -120,7 +120,7 @@ self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promis
 self.addEventListener("fetch",e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=="GET"||u.origin!==self.location.origin)return;
-  if(u.pathname.startsWith("/api/")||u.pathname.startsWith("/img/")||u.pathname.startsWith("/admin"))return;
+  if(u.pathname.startsWith("/api/")||u.pathname.startsWith("/img/")||u.pathname.startsWith("/admin")||u.pathname.startsWith("/proprietaire")||u.pathname.startsWith("/owner"))return;
   if(u.pathname==="/"||u.pathname==="/app"||u.pathname.startsWith("/modele")||e.request.mode==="navigate"){
     e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
     return;
@@ -502,7 +502,7 @@ async function homePage(request, env) {
         <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Creer ma boutique — essai gratuit</a>
         <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Voir les modeles</a>
       </div>
-      <p class="hk-note">${TRIAL_DAYS} jours d'essai · Sans competence technique · Clients sans application a installer</p>
+      <p class="hk-note">${TRIAL_PUBLIC} jours d'essai · Sans competence technique · Clients sans application a installer</p>
     </div>
     <div class="hk-hero-visual" aria-hidden="true">
       <div class="hk-phone">
@@ -614,7 +614,7 @@ ${shops}
     <div class="hk-faq">
       <details class="hk-faq-item" open><summary>Faut-il savoir coder ?</summary><p>Non. Vous choisissez un modele, vous renseignez vos textes et photos. C'est tout.</p></details>
       <details class="hk-faq-item"><summary>Comment mes clients commandent-ils ?</summary><p>Ils ouvrent votre lien boutique, choisissent un produit et envoient la commande sur WhatsApp. Pas d'application a installer pour eux.</p></details>
-      <details class="hk-faq-item"><summary>Puis-je commencer gratuitement ?</summary><p>Oui. ${TRIAL_DAYS} jours d'essai. Vous testez avant de passer a une formule payante.</p></details>
+      <details class="hk-faq-item"><summary>Puis-je commencer gratuitement ?</summary><p>Oui. ${TRIAL_PUBLIC} jours d'essai. Vous testez avant de passer a une formule payante.</p></details>
       <details class="hk-faq-item"><summary>Quelle est la difference entre les formules ?</summary><p>Essentiel pour demarrer (produits limites, modeles simples). Standard pour l'image de marque (logo, banniere). Pro pour les enseignes qui veulent un rendu premium et plus de produits.</p></details>
       <details class="hk-faq-item"><summary>Ca marche sur telephone ?</summary><p>Oui. L'espace commercant et la boutique client sont optimises mobile. Vous pouvez aussi installer Boutiko comme application (PWA).</p></details>
     </div>
@@ -624,7 +624,7 @@ ${shops}
 <section class="hk-cta">
   <div class="hk-shell">
     <h2>Pret a ouvrir votre vitrine ?</h2>
-    <p>Inscrivez-vous, choisissez un modele, publiez. ${TRIAL_DAYS} jours pour tester.</p>
+    <p>Inscrivez-vous, choisissez un modele, publiez. ${TRIAL_PUBLIC} jours pour tester.</p>
     <div class="hk-hero-actions" style="justify-content:center">
       <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">Inscription</a>
       <a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app">Connexion</a>
@@ -1490,9 +1490,11 @@ async function apiAdmin(request, env, auth, parts) {
        FROM shops s ORDER BY s.id DESC`
     ).bind(dayStr(29)).all();
     const tot = await env.DB.prepare("SELECT COALESCE(SUM(bytes),0) n FROM media").first();
-    return json({ shops: r.results, plans: PLANS, totalBytes: tot.n, now: now() });
+    const config = await platformConfig(env);
+    return json({ shops: r.results, plans: config.plans, trialDays: config.trialDays, totalBytes: tot.n, now: now() });
   }
   if (request.method === "GET" && parts[2] === "overview") {
+    const config = await platformConfig(env);
     const t = now();
     const d30 = dayStr(29);
     const q = async (sql, ...b) => (await env.DB.prepare(sql).bind(...b).first()) || {};
@@ -1522,7 +1524,7 @@ async function apiAdmin(request, env, auth, parts) {
       signups14.push({ d: k, n: series[k] || 0 });
     }
     return json({
-      plans: PLANS, trialDays: TRIAL_DAYS, users: users.n, byPlan: byPlan.results, byStatus: byStatus.results, trial: trial.n,
+      plans: config.plans, trialDays: config.trialDays, users: users.n, byPlan: byPlan.results, byStatus: byStatus.results, trial: trial.n,
       signups7: su7.n, signups30: su30.n, signups14, products: prod.n, pendingOrders: pend.n,
       sales30: { n: sales.n, total: sales.total }, visits30: traf.v, clicks30: traf.c, totalBytes: bytes.n, now: t,
     });
