@@ -150,7 +150,8 @@
       "<h1 style=\"margin-top:18px\">" + (reg ? "Créez votre boutique" : "Bon retour") + "</h1>" +
       '<p class="muted">' + (reg ? "Prête en 2 minutes. 7 jours d'essai, sans engagement." : "Entrez votre numéro WhatsApp et votre mot de passe.") + "</p></div>" +
       '<form id="authf" class="card">' +
-      (reg ? '<label class="field"><span>Nom de votre boutique</span><input name="name" maxlength="60" required placeholder="Ex : Mode Cotonou"></label>' +
+      (reg ? '<input type="hidden" name="template" value="' + esc(new URLSearchParams(window.location.search).get("modele") || "simple") + '">' +
+        '<label class="field"><span>Nom de votre boutique</span><input name="name" maxlength="60" required placeholder="Ex : Mode Cotonou"></label>' +
         '<label class="field"><span>Que vendez-vous ? (court)</span><input name="description" maxlength="300" placeholder="Ex : Pagnes, robes et accessoires"></label>' : "") +
       '<label class="field"><span>Numéro WhatsApp</span><input name="phone" inputmode="tel" autocomplete="tel" required placeholder="Ex : 01 97 00 00 00"><small>Avec l\'indicatif du pays si vous n\'êtes pas au Bénin.</small></label>' +
       '<label class="field"><span>Mot de passe</span><span class="pw"><input name="password" id="pwi" type="password" minlength="6" required autocomplete="' + (reg ? "new-password" : "current-password") + '"><button type="button" id="pws">Afficher</button></span><small>' + (reg ? "6 caractères minimum." : "Mot de passe oublié ? Écrivez à l'administrateur sur WhatsApp.") + "</small></label>" +
@@ -177,7 +178,11 @@
   // ---------- Structure principale ----------
   function boot(firstTime) {
     return api("/api/me").then(function (me) {
-      if (me.guest) { renderAuth(); return; }
+      if (me.guest) {
+        var selectedModel = new URLSearchParams(window.location.search).get("modele");
+        renderAuth(selectedModel ? "register" : "login");
+        return;
+      }
       S.me = me;
       S.tab = firstTime ? "products" : S.tab;
       S.loaded = {};
