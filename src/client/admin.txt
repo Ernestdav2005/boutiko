@@ -308,7 +308,7 @@
       '<div class="field"><label for="brandColor">Couleur principale</label><input id="brandColor" name="primaryColor" type="color" value="' + esc(/^#[0-9a-fA-F]{6}$/.test(s.primaryColor || "") ? s.primaryColor : "#102a43") + '" style="height:52px;padding:5px"></div>' +
       '<button class="btn block" type="submit">Enregistrer l’identité</button></form>' +
       '<h2 style="margin-top:20px">Visuels de la plateforme</h2><div class="card"><p class="muted small">Logo affiché dans l’en-tête. Bannière affichée derrière le grand titre de la page d’accueil.</p>' +
-      brandUpload("logo", "Logo de Boutiko", has("logo")) + brandUpload("hero", "Image de couverture", has("hero")) + brandUpload("icon", "Icône / visuel complémentaire", has("icon")) +
+      brandUpload("logo", "Logo de Boutiko", has("logo")) + brandUpload("hero", "Image de couverture", has("hero")) +
       '<p class="muted small">Formats acceptés : JPG, PNG ou WebP. Le remplacement conserve les boutiques et les produits des commerçants.</p></div>';
     $("#brandForm", v).onsubmit = function (e) { e.preventDefault(); var b = Object.fromEntries(new FormData(e.target).entries()); api("/api/admin/branding", "POST", b).then(function () { toast("Identité enregistrée."); load(); }).catch(function (ex) { toast(ex.message); }); };
     v.querySelectorAll("[data-brand-upload]").forEach(function (input) { input.onchange = function () {
