@@ -18,92 +18,67 @@ const PLANS = {
 
 // Catalogue de modèles — extensible : ajouter une entrée ici + style CSS + aperçu /modele/:id
 const TEMPLATES = {
-  simple: {
-    id: "simple", plan: "essentiel", label: "Simple",
-    tagline: "Demarrer en 2 minutes",
-    desc: "Page nette : nom, WhatsApp, produits. Ideal pour vendre depuis chez soi.",
-    tags: ["rapide", "debutant"],
-  },
-  quartier: {
-    id: "quartier", plan: "essentiel", label: "Quartier",
-    tagline: "Commerce de proximite",
-    desc: "Adresse, horaires et contact mis en avant. Parfait pour un petit commerce local.",
-    tags: ["local", "contact"],
-  },
-  express: {
-    id: "express", plan: "essentiel", label: "Express",
-    tagline: "Catalogue minimal",
-    desc: "Grille produits pure, sans superflu. Pour qui veut juste montrer et vendre.",
-    tags: ["produits", "rapide"],
-  },
-  vitrine: {
-    id: "vitrine", plan: "standard", label: "Vitrine",
-    tagline: "Image de marque soignee",
-    desc: "Banniere, logo, section entreprise et catalogue structure.",
-    tags: ["marque", "pro"],
-  },
-  catalogue: {
-    id: "catalogue", plan: "standard", label: "Catalogue",
-    tagline: "Les produits d abord",
-    desc: "Grille moderne, recherche, style catalogue e-commerce.",
-    tags: ["produits", "grille"],
-  },
-  mode: {
-    id: "mode", plan: "standard", label: "Mode",
-    tagline: "Pret-a-porter et accessoires",
-    desc: "Mise en scene textile : lookbook leger, cartes produits elegantes.",
-    tags: ["mode", "lookbook"],
-  },
-  premium: {
-    id: "premium", plan: "pro", label: "Premium",
-    tagline: "Niveau boutique haut de gamme",
-    desc: "Grand hero photo, typographie fine, univers de marque.",
-    tags: ["luxe", "hero"],
-  },
-  maison: {
-    id: "maison", plan: "pro", label: "Maison",
-    tagline: "Maison de marque",
-    desc: "Storytelling d entreprise, galerie d univers, presentation digne d une enseigne.",
-    tags: ["story", "marque"],
-  },
-  flagship: {
-    id: "flagship", plan: "pro", label: "Flagship",
-    tagline: "Vitrine phare",
-    desc: "Experience complete type grande enseigne : hero, univers, catalogue premium.",
-    tags: ["enseigne", "complet"],
-  },
+  simple:{id:"simple",plan:"essentiel",label:"Boutique chaleureuse",tagline:"Une vitrine accueillante",desc:"Design doux et polyvalent pour présenter vos produits.",tags:["polyvalent","simple"]},
+  quartier:{id:"quartier",plan:"essentiel",label:"Marché de proximité",tagline:"Le commerce près de chez vous",desc:"Une vitrine claire pour les commerces locaux et produits du quotidien.",tags:["local","marché"]},
+  express:{id:"express",plan:"essentiel",label:"Boulangerie & frais",tagline:"Le goût du frais",desc:"Une présentation appétissante pour pains, pâtisseries et produits frais.",tags:["boulangerie","alimentaire"]},
+  vitrine:{id:"vitrine",plan:"essentiel",label:"Beauté naturelle",tagline:"L'éclat au naturel",desc:"Un univers doux pour cosmétiques, soins et beauté.",tags:["beauté","soins"]},
+  catalogue:{id:"catalogue",plan:"essentiel",label:"Tech & électronique",tagline:"La technologie au quotidien",desc:"Un catalogue moderne pour téléphones et accessoires.",tags:["tech","électronique"]},
+  mode:{id:"mode",plan:"essentiel",label:"Mode & accessoires",tagline:"Votre style, vos règles",desc:"Une vitrine élégante pour vêtements, sacs et accessoires.",tags:["mode","style"]},
+  premium:{id:"premium",plan:"essentiel",label:"Boutique élégante",tagline:"Le détail fait la différence",desc:"Une présentation raffinée pour les marques et collections.",tags:["élégant","marque"]},
+  maison:{id:"maison",plan:"essentiel",label:"Maison & décoration",tagline:"Un intérieur qui vous ressemble",desc:"Une ambiance chaleureuse pour mobilier et décoration.",tags:["maison","déco"]},
+  flagship:{id:"flagship",plan:"essentiel",label:"Grande vitrine",tagline:"Votre sélection en vedette",desc:"Une mise en page forte pour une boutique généraliste.",tags:["vitrine","catalogue"]},
+  boulangerie:{id:"boulangerie",plan:"essentiel",label:"Boulangerie artisanale",tagline:"Préparé avec soin",desc:"Pour pains, viennoiseries, gâteaux et produits frais.",tags:["pain","frais"]},
+  beaute:{id:"beaute",plan:"essentiel",label:"Beauté éclatante",tagline:"Le soin, autrement",desc:"Pour cosmétiques, huiles naturelles et soins.",tags:["beauté","naturel"]},
+  marche:{id:"marche",plan:"essentiel",label:"Marché en ligne",tagline:"Vos essentiels au même endroit",desc:"Pour épiceries, marchés et commerces de proximité.",tags:["marché","épicerie"]},
+  chaleureux:{id:"chaleureux",plan:"essentiel",label:"Tons chaleureux",tagline:"Une boutique qui donne envie",desc:"Des tons chaleureux pour artisanat, cadeaux et produits maison.",tags:["chaleureux","artisanat"]},
+  lifestyle:{id:"lifestyle",plan:"essentiel",label:"Lifestyle moderne",tagline:"Le quotidien avec style",desc:"Pour accessoires, mode et produits tendance.",tags:["tendance","moderne"]},
+  boutique:{id:"boutique",plan:"essentiel",label:"Boutique prête à vendre",tagline:"Présentez, partagez, vendez",desc:"Un modèle polyvalent pour lancer rapidement votre boutique.",tags:["vente","démarrage"]},
+  collection:{id:"collection",plan:"essentiel",label:"Collection raffinée",tagline:"Une sélection qui vous ressemble",desc:"Pour collections choisies, cadeaux et produits premium.",tags:["collection","sélection"]},
 };
 const TEMPLATES_BY_PLAN = {
-  essentiel: ["simple", "quartier", "express"],
-  standard: ["vitrine", "catalogue", "mode"],
-  pro: ["premium", "maison", "flagship"],
+  essentiel: Object.keys(TEMPLATES),
+  standard: Object.keys(TEMPLATES),
+  pro: Object.keys(TEMPLATES),
 };
 function templateOf(shop) {
   const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
   return TEMPLATES[id] || TEMPLATES.simple;
 }
 const TEMPLATE_IMAGES = {
-  // Photos éditoriales utilisées dans la galerie des modèles (sans modifier les photos réelles des boutiques).
-  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85",
-  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=85",
-  express: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85",
-  vitrine: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85",
-  catalogue: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=85",
-  mode: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85",
-  premium: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85",
-  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
-  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1200&q=85",
+  simple:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85",
+  quartier:"https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=85",
+  express:"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85",
+  vitrine:"https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85",
+  catalogue:"https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=85",
+  mode:"https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85",
+  premium:"https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85",
+  maison:"https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
+  flagship:"https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1200&q=85",
+  boulangerie:"https://images.unsplash.com/photo-1608198093002-ad4e005484c3?auto=format&fit=crop&w=1200&q=85",
+  beaute:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=85",
+  marche:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=85",
+  chaleureux:"https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=1200&q=85",
+  lifestyle:"https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85",
+  boutique:"https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1200&q=85",
+  collection:"https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
 };
 const TEMPLATE_ART = {
-  simple: { bg:"#f4eee5", accent:"#bc7654", ink:"#29251f", title:"ESSENTIEL", subtitle:"La simplicité qui vend", shape:"fashion" },
-  quartier: { bg:"#e8f3e9", accent:"#24704c", ink:"#163d2d", title:"MON COMMERCE", subtitle:"Tout près de vous", shape:"market" },
-  express: { bg:"#fff0d8", accent:"#c85b32", ink:"#512b20", title:"FRAIS DU JOUR", subtitle:"Préparé avec soin", shape:"food" },
-  vitrine: { bg:"#f8e9eb", accent:"#b96e7b", ink:"#4c2933", title:"RITUEL BEAUTÉ", subtitle:"Le soin, autrement", shape:"beauty" },
-  catalogue: { bg:"#e7edf8", accent:"#3158a5", ink:"#16264c", title:"TECH & STYLE", subtitle:"La technologie au quotidien", shape:"tech" },
-  mode: { bg:"#f3e8dc", accent:"#9a543d", ink:"#38241f", title:"NOUVELLE ALLURE", subtitle:"Votre style. Vos règles.", shape:"fashion" },
-  premium: { bg:"#171717", accent:"#d7b46a", ink:"#f7ecd5", title:"ATELIER DORÉ", subtitle:"Le détail fait la différence", shape:"jewelry" },
-  maison: { bg:"#eee7da", accent:"#8b7355", ink:"#3f382f", title:"MAISON CALME", subtitle:"Des espaces qui vous ressemblent", shape:"home" },
-  flagship: { bg:"#e8eef0", accent:"#ef684e", ink:"#18313b", title:"LA SÉLECTION", subtitle:"Tout ce que vous aimez, au même endroit", shape:"market" },
+  simple:{bg:"#f4eee5",accent:"#bc7654",ink:"#29251f",title:"BOUTIQUE CHALEUREUSE",subtitle:"La simplicité qui vend",shape:"fashion"},
+  quartier:{bg:"#e8f3e9",accent:"#24704c",ink:"#163d2d",title:"MON COMMERCE",subtitle:"Tout près de vous",shape:"market"},
+  express:{bg:"#fff0d8",accent:"#c85b32",ink:"#512b20",title:"FRAIS DU JOUR",subtitle:"Préparé avec soin",shape:"food"},
+  vitrine:{bg:"#f8e9eb",accent:"#b96e7b",ink:"#4c2933",title:"RITUEL BEAUTÉ",subtitle:"Le soin, autrement",shape:"beauty"},
+  catalogue:{bg:"#e7edf8",accent:"#3158a5",ink:"#16264c",title:"TECH & STYLE",subtitle:"La technologie au quotidien",shape:"tech"},
+  mode:{bg:"#f3e8dc",accent:"#9a543d",ink:"#38241f",title:"NOUVELLE ALLURE",subtitle:"Votre style. Vos règles.",shape:"fashion"},
+  premium:{bg:"#171717",accent:"#d7b46a",ink:"#f7ecd5",title:"ATELIER DORÉ",subtitle:"Le détail fait la différence",shape:"jewelry"},
+  maison:{bg:"#eee7da",accent:"#8b7355",ink:"#3f382f",title:"MAISON CALME",subtitle:"Des espaces qui vous ressemblent",shape:"home"},
+  flagship:{bg:"#e8eef0",accent:"#ef684e",ink:"#18313b",title:"LA SÉLECTION",subtitle:"Tout ce que vous aimez",shape:"market"},
+  boulangerie:{bg:"#fff0d8",accent:"#c85b32",ink:"#512b20",title:"BOULANGERIE",subtitle:"Le goût du frais",shape:"food"},
+  beaute:{bg:"#f8e9eb",accent:"#b96e7b",ink:"#4c2933",title:"BEAUTÉ NATURELLE",subtitle:"L'éclat au naturel",shape:"beauty"},
+  marche:{bg:"#e8f3e9",accent:"#24704c",ink:"#163d2d",title:"MON MARCHÉ",subtitle:"La fraîcheur près de vous",shape:"market"},
+  chaleureux:{bg:"#f3e8dc",accent:"#9a543d",ink:"#38241f",title:"TONS CHALEUREUX",subtitle:"Une boutique accueillante",shape:"home"},
+  lifestyle:{bg:"#f3e8dc",accent:"#9a543d",ink:"#38241f",title:"LIFESTYLE",subtitle:"Le quotidien avec style",shape:"fashion"},
+  boutique:{bg:"#e7edf8",accent:"#3158a5",ink:"#16264c",title:"PRÊTE À VENDRE",subtitle:"Présentez. Partagez. Vendez.",shape:"market"},
+  collection:{bg:"#171717",accent:"#d7b46a",ink:"#f7ecd5",title:"COLLECTION",subtitle:"Une sélection raffinée",shape:"jewelry"},
 };
 function templateArtwork(id, variant = "cover", item = 0) {
   const a = TEMPLATE_ART[id] || TEMPLATE_ART.simple;
@@ -471,7 +446,7 @@ async function homePage(request, env) {
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
   const planPrice = { essentiel: PLANS_PUBLIC.essentiel.price, standard: PLANS_PUBLIC.standard.price, pro: PLANS_PUBLIC.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
-  // Les neuf modèles sont accessibles avec toutes les formules : le modèle ne fixe pas le prix.
+  // Les 16 modèles sont accessibles dès la formule Essentiel : le modèle ne fixe pas le prix.
   const allCards = Object.keys(TEMPLATES).map((tid) => {
     const t = TEMPLATES[tid];
     const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
@@ -482,7 +457,7 @@ async function homePage(request, env) {
       </a>
       <div class="tpl-meta">
         <div class="tpl-meta-top">
-          <span class="tpl-plan">Disponible avec les 3 formules</span>
+          <span class="tpl-plan">Inclus dès Essentiel</span>
           <div class="tpl-tags">${tags}</div>
         </div>
         <h3>${esc(t.label)}</h3>
@@ -605,7 +580,7 @@ async function homePage(request, env) {
       <div class="hk-price">
         <h3>Essentiel</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.essentiel.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.essentiel.products} produits maximum</li><li>${PLANS_PUBLIC.essentiel.photos} photo(s) maximum par produit</li><li>${PLANS_PUBLIC.essentiel.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
+        <ul><li>${PLANS_PUBLIC.essentiel.products} produits maximum</li><li>${PLANS_PUBLIC.essentiel.photos} photo(s) maximum par produit</li><li>${PLANS_PUBLIC.essentiel.storageMb} Mo de stockage</li><li>Les 16 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price hk-price-feat">
