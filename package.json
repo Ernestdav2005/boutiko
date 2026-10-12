@@ -1,17 +1,40 @@
 {
   "name": "boutiko",
-  "version": "2.7.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Boutiko — Boutique en ligne WhatsApp, modeles pro, pret clients",
+  "description": "Boutiko — plateforme multi-boutiques Cloudflare",
   "main": "src/index.js",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "dev": "wrangler dev --ip 127.0.0.1",
+    "build": "node scripts/build.mjs",
+    "check": "eslint src public/js public/sw.js scripts tests",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "npm run check && npm run typecheck && npm test && npm run build",
+    "deploy": "node scripts/deploy.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "owner": "node scripts/owner.mjs",
+    "test:runtime": "node tests/runtime.mjs",
+    "test:visual": "node tests/runtime.mjs --visual",
+    "typecheck": "tsc --noEmit",
+    "nettoyer-depot": "node scripts/clean-legacy.mjs",
+    "check:package": "node scripts/check-package.mjs",
+    "test:clean-install": "node scripts/clean-install.mjs"
   },
   "dependencies": {
-    "qrcode-generator": "^2.0.4"
+    "qrcode-generator": "2.0.4"
   },
   "devDependencies": {
-    "wrangler": "^4.149.0"
+    "@axe-core/playwright": "4.10.2",
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.64.0",
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.1",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "wrangler": "4.149.0"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24"
   }
 }

@@ -4,14 +4,36 @@
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
-  "observability": { "enabled": true },
+  "observability": {
+    "enabled": true
+  },
   "vars": {
     "PLATFORM_NAME": "Boutiko"
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "boutiko-db", "database_id": "c221c290-dae8-48a3-84fc-f42b3f530b17" }
+    {
+      "binding": "DB",
+      "database_name": "boutiko-db",
+      "database_id": "c221c290-dae8-48a3-84fc-f42b3f530b17"
+    }
   ],
   "r2_buckets": [
-    { "binding": "IMAGES", "bucket_name": "boutiko-photos" }
-  ]
+    {
+      "binding": "IMAGES",
+      "bucket_name": "boutiko-photos"
+    }
+  ],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": false
+  },
+  "triggers": {
+    "crons": [
+      "17 3 * * *"
+    ]
+  }
 }

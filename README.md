@@ -1,69 +1,78 @@
-# Boutiko : plateforme de boutiques en ligne (commande WhatsApp)
+# Boutiko 3.0 — votre commerce, votre boutique en ligne
 
-Une seule application Cloudflare : site public des boutiques, espace du commerçant, espace administrateur.
-Base de données : Cloudflare D1. Photos : Cloudflare R2. Aucun service payant ni extérieur.
+Application complète à installer sur Cloudflare Workers, D1 et R2. Ce dossier contient l’application, ses six modèles, ses photographies de démonstration, les sources, les migrations, les tests et les guides. Aucun compte Cloudflare réel n’a été consulté pendant sa construction et aucun déploiement distant n’a été effectué.
 
-## Fichiers du projet
+## Commencez ici
 
-| Fichier | Rôle |
-|---|---|
-| `wrangler.jsonc` | Réglages Cloudflare (nom de l'application, base de données, photos, nom de la plateforme) |
-| `package.json` et `package-lock.json` | Liste des outils nécessaires (installés automatiquement) |
-| `src/index.js` | Le serveur : comptes, boutiques, produits, photos, commandes, stock, administration |
-| `src/client/app.txt` | Le tableau de bord du commerçant |
-| `src/client/admin.txt` | L'espace administrateur |
-| `src/client/shop.txt` | Le comportement de la page publique d'une boutique |
-| `src/client/style.txt` | L'apparence (couleurs, boutons, mise en page téléphone) |
+**Ouvrez [le guide de déploiement](docs/DEPLOIEMENT_DEBUTANT.md).** Il explique comment mettre les fichiers dans GitHub et déployer depuis l’interface, sans assembler de code.
 
-Les fichiers `.txt` sont du code envoyé au navigateur. Ne pas changer leur extension.
+1. Vérifiez les trois ressources Cloudflare indiquées dans le guide.
+2. Téléversez le contenu de ce dossier à la racine de votre dépôt, en remplaçant les anciens fichiers.
+3. Configurez les deux secrets GitHub, puis lancez l’action « Déployer Boutiko (manuel) ».
+4. Créez votre compte sur le site publié et lancez « Activer le compte propriétaire (manuel) » avec votre numéro.
+5. Ouvrez `/admin` et renseignez le support, l’identité de l’exploitant et vos formules.
 
-## Relier le dépôt GitHub à Cloudflare (une seule fois)
+Les anciens workflows de patch ne doivent pas rester dans votre dépôt : ils pourraient remplacer le nouveau code. La procédure de remplacement est détaillée dans le guide.
 
-1. Dans Cloudflare : **Workers & Pages** → **Create application** → **Import a repository** (ou **Connect to Git**).
-2. Choisir le compte GitHub et le dépôt de ce projet.
-3. **Nom du projet : `boutiko`** (il doit être identique au champ `name` de `wrangler.jsonc`).
-4. Commande de construction : laisser vide. Commande de déploiement : `npx wrangler deploy` (valeur par défaut).
-5. Valider : Cloudflare publie l'application. À chaque nouvelle version envoyée sur GitHub, la publication se refait toute seule.
+## Ce que vous recevez
 
-La base de données `boutiko-db` (D1) et le bucket `boutiko-photos` (R2) existent déjà sur le compte Cloudflare et sont déclarés dans `wrangler.jsonc`. Rien à créer.
-Si le projet est déployé sur un autre compte Cloudflare, créer une base D1 et un bucket R2, puis remplacer `database_id`, `database_name` et `bucket_name` dans `wrangler.jsonc`.
+- Site public de présentation, galerie avec six vrais aperçus et choix ordinateur/téléphone.
+- Inscription, connexion, changement de mot de passe et sessions séparées pour le propriétaire.
+- Tableau de bord commerçant, progression, personnalisation, aperçu privé, publication et partage par lien/QR.
+- Produits, photos, catégories, prix, promotions, stock facultatif et ventes déclarées.
+- Boutiques publiques, fiches produit, catégories, recherche et panier persistant.
+- Commandes intégrées ou WhatsApp enregistrées au serveur, confirmation, préparation, livraison et annulation.
+- Administration des boutiques, formules, quotas, accès, support et journal des actions.
+- Application installable sur Android, avec écran d’information hors connexion. Les opérations nécessitent Internet.
 
-## Premier démarrage et sécurité propriétaire
+**Aucun paiement en ligne n’est connecté.** Les demandes sont non payées. L’IA est facultative et désactivée par défaut ; son périmètre et sa connexion future sont décrits dans [IA_ET_PAIEMENTS.md](docs/IA_ET_PAIEMENTS.md).
 
-1. Ouvrir l'adresse de l'application (de la forme `https://boutiko.xxxxx.workers.dev`) puis `/app`.
-2. Les inscriptions publiques créent uniquement des comptes commerçants : elles ne peuvent pas attribuer le rôle propriétaire.
-3. Pour une **nouvelle base de données uniquement**, créer d'abord le compte propriétaire puis lui attribuer le rôle administrateur depuis la console D1, en remplaçant le numéro d'exemple par le numéro normalisé du compte :
-   `UPDATE users SET is_admin=1 WHERE phone='229XXXXXXXX';`
-4. L'espace propriétaire est à l'adresse `/admin` et utilise maintenant une connexion séparée de l'espace commerçant. L'accès aux données d'administration est contrôlé côté serveur ; cacher le lien ne suffit pas.
+## Les six univers
 
-## Changer le nom de la plateforme
+| Modèle | Commerce | Composition |
+|---|---|---|
+| Épure | Mode et accessoires | Éditorial, photographie verticale et tons terre |
+| Botanica | Beauté et soins | Photographie en arche, sceau et rythme botanique |
+| Pulse | Électronique | Bandeau sombre, contrastes et accents techniques |
+| Terroir | Alimentation et produits locaux | Tons chauds, composition gourmande et catégories |
+| Intérieur | Maison et décoration | Photographie immersive et cartouche éditorial |
+| Atelier | Généraliste et créateurs | Blocs colorés, formes graphiques et esprit atelier |
 
-Dans `wrangler.jsonc`, modifier la valeur de `PLATFORM_NAME` (par exemple `"MonNom"`), puis publier.
+Les aperçus et les boutiques publiées utilisent le même moteur de rendu. Les produits et les prix d’exemple sont explicitement fictifs.
 
-## Formules (réglées dans `src/index.js`, section PLANS)
+## Tester sur un ordinateur
 
-| Formule | Prix | Produits | Photos par produit | Espace photos | Photo/Logo et bannière |
-|---|---|---|---|---|---|
-| Essentiel | 2 000 FCFA | 30 | 1 | 10 Mo | logo ou photo oui; bannière non |
-| Standard | 5 000 FCFA | 100 | 3 | 60 Mo | oui |
-| Pro | 10 000 FCFA | 300 | 3 | 160 Mo | oui, sans mention de la plateforme |
+Installez Node.js 24, ouvrez un terminal dans ce dossier, puis :
 
-Un nouveau commerçant démarre en Essentiel avec 7 jours d'essai. Dans l'espace administrateur : **Paiement reçu +30 jours** prolonge l'abonnement, on peut changer la formule, suspendre ou réactiver une boutique, et créer un mot de passe temporaire si un commerçant a oublié le sien.
+```sh
+npm ci
+npm run verify
+npm run dev
+```
 
-## Limites de l'offre gratuite Cloudflare à surveiller
+Ouvrez l’adresse indiquée, généralement `http://127.0.0.1:8787`. Les données locales sont distinctes de votre base Cloudflare.
 
-- 100 000 requêtes par jour pour toute l'application. Une visite d'une boutique compte une requête pour la page, plus une par photo affichée.
-- 10 millisecondes de calcul par requête.
-- 5 Go de base de données, 10 Go de photos.
+Tests complémentaires :
 
+```sh
+npm run test:runtime
+npx playwright install chromium
+npm run test:visual
+npm run deploy -- --dry-run
+```
 
-## Personnalisation des boutiques
+`verify` exécute le lint, une vérification de types des modules sécurité/configuration/images/modèles, les tests unitaires et la compilation. Le reste du projet demeure en JavaScript ; il n’est pas revendiqué comme intégralement typé.
 
-- Chaque commerçant peut choisir une couleur précise, un style visuel (Marché chic, Minimal, Élégant ou Audacieux) et une disposition des produits (grille, liste ou grandes cartes).
-- La photo du commerçant ou le logo est disponible dans toutes les formules; la bannière reste réservée à Standard et Pro.
-- La galerie de présentation peut contenir jusqu'à 5 photos du commerce, distinctes des photos de produits. Les images sont validées et rattachées au compte propriétaire de la boutique.
-- Les nouvelles colonnes `gallery`, `theme` et `layout` sont ajoutées par migration D1 sans supprimer les boutiques ni les produits existants.
+## Les documents utiles
 
-## Installation sur téléphone
+- [Aperçus des six modèles](docs/APERCUS.md)
+- [Déploiement pour débutant](docs/DEPLOIEMENT_DEBUTANT.md)
+- [Actions exactes à effectuer](docs/ACTIONS_RESTANTES.md)
+- [Fonctions et limites](docs/FONCTIONS_ET_LIMITES.md)
+- [Rapport des tests exécutés](docs/RAPPORT_TESTS.md)
+- [Architecture, données et migration](docs/ARCHITECTURE_ET_MIGRATIONS.md)
+- [Module IA et préparation des paiements](docs/IA_ET_PAIEMENTS.md)
+- [Coûts et quotas Cloudflare](docs/COUTS_ET_QUOTAS.md)
+- [Images et provenance](docs/IMAGES_ET_PROVENANCE.md)
 
-Boutiko est une application web installable (PWA). Depuis l'accueil ou l'espace commerçant, utiliser **Installer Boutiko** / **Installer l'application** si le navigateur propose l'installation. Sur Android, Chrome permet aussi de passer par le menu ⋮ puis **Installer l'application** ou **Ajouter à l'écran d'accueil**. Il ne s'agit pas d'un fichier APK ni d'une application publiée sur le Play Store.
+Les documents placés dans `docs/history` proviennent de l’archive d’origine ou de son inventaire. Leurs anciennes affirmations ne constituent pas une vérification de votre compte actuel.

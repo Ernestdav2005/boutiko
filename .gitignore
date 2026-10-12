@@ -1,4 +1,8 @@
 node_modules/
 .wrangler/
+dist/
+backups/
+test-results/
 .dev.vars
-.DS_Store
+.env*
+*.log
