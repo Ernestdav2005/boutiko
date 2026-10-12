@@ -131,6 +131,8 @@ const SCHEMA = [
   "CREATE INDEX IF NOT EXISTS idx_media_shop ON media(shop_id)",
   "CREATE TABLE IF NOT EXISTS stats(shop_id INTEGER NOT NULL, day TEXT NOT NULL, visits INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, PRIMARY KEY(shop_id, day))",
   "CREATE TABLE IF NOT EXISTS login_fails(phone TEXT PRIMARY KEY, count INTEGER NOT NULL, until INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS platform_settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS platform_assets(kind TEXT PRIMARY KEY, r2_key TEXT NOT NULL, content_type TEXT NOT NULL, updated_at INTEGER NOT NULL)",
 ];
 let schemaReady = null;
 function ensureSchema(env) {
@@ -380,7 +382,16 @@ ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-co
 }
 
 async function homePage(request, env) {
-  const name = platformName(env);
+  const settingsRows = await env.DB.prepare("SELECT key, value FROM platform_settings").all();
+  const brand = Object.fromEntries(settingsRows.results.map((r) => [r.key, r.value]));
+  const assetsRows = await env.DB.prepare("SELECT kind FROM platform_assets").all();
+  const brandAssets = new Set(assetsRows.results.map((r) => r.kind));
+  const name = esc(brand.name || env.PLATFORM_NAME || "Boutiko");
+  const heroTitle = esc(brand.heroTitle || "Ouvrez une boutique en ligne en 5 minutes. Vos clients commandent sur WhatsApp.");
+  const heroText = esc(brand.heroText || "Choisissez un modele pro, ajoutez vos produits et votre logo. Partagez un lien. Recevez les commandes directement sur WhatsApp — sans application pour vos clients.");
+  const brandColor = safeColor(brand.primaryColor || "#102a43");
+  const brandLogo = brandAssets.has("logo") ? `<img class="hk-brand-logo" src="/platform-img/logo" alt="Logo ${name}">` : `<span class="hk-mark">B</span>`;
+  const heroVisual = brandAssets.has("hero") ? `style="background-image:linear-gradient(90deg,rgba(16,42,67,.88),rgba(16,42,67,.18)),url(/platform-img/hero)"` : "";
   const admin = await adminContact(env);
   const pros = await env.DB.prepare(
     "SELECT name, slug FROM shops WHERE plan='pro' AND status='active' ORDER BY id DESC LIMIT 8"
@@ -449,7 +460,7 @@ async function homePage(request, env) {
   const body = `
 <nav class="hk-nav">
   <div class="hk-shell hk-nav-in">
-    <a class="hk-logo" href="/"><span class="hk-mark">B</span> ${name}</a>
+    <a class="hk-logo" href="/">${brandLogo} ${name}</a>
     <div class="hk-nav-links">
       <a href="#comment">Comment ca marche</a>
       <a href="#modeles">Modeles</a>
@@ -466,12 +477,12 @@ async function homePage(request, env) {
   </div>
 </nav>
 
-<header class="hk-hero">
+<header class="hk-hero" ${heroVisual}>
   <div class="hk-shell hk-hero-grid">
     <div class="hk-hero-copy">
       <p class="hk-eyebrow">Pour les commercants &amp; jeunes entrepreneurs</p>
-      <h1>Ouvrez une boutique en ligne en 5 minutes. Vos clients commandent sur WhatsApp.</h1>
-      <p class="hk-lead">Choisissez un modele pro, ajoutez vos produits et votre logo. Partagez un lien. Recevez les commandes directement sur WhatsApp — sans application pour vos clients.</p>
+      <h1>${heroTitle}</h1>
+      <p class="hk-lead">${heroText}</p>
       <div class="hk-hero-actions">
         <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Creer ma boutique — essai gratuit</a>
         <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Voir les modeles</a>
@@ -640,9 +651,9 @@ ${shops}
 `;
 
   return html(layout({
-    title: `${env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
-    desc: "Choisissez un modele de boutique selon votre formule, renseignez vos infos et vendez sur WhatsApp.",
-    color: "#27338f",
+    title: `${brand.name || env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
+    desc: brand.description || "Choisissez un modele de boutique selon votre formule, renseignez vos infos et vendez sur WhatsApp.",
+    color: brandColor,
     body,
     pwa: true,
     bodyAttrs: `data-platform="${platformName(env)}" class="home-models v2 hk-site"`,
@@ -923,6 +934,14 @@ function detectImage(bytes) {
   if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return "image/png";
   if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45) return "image/webp";
   return null;
+}
+async function servePlatformImage(env, kind) {
+  if (!["logo", "hero", "icon"].includes(kind)) return new Response("Not found", { status: 404 });
+  const asset = await env.DB.prepare("SELECT r2_key, content_type FROM platform_assets WHERE kind=?").bind(kind).first();
+  if (!asset) return new Response("Not found", { status: 404 });
+  const obj = await env.IMAGES.get(asset.r2_key);
+  if (!obj) return new Response("Not found", { status: 404 });
+  return new Response(obj.body, { headers: { "content-type": asset.content_type, "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
 }
 async function serveImage(env, idStr) {
   const id = parseInt(idStr, 10);
@@ -1394,8 +1413,44 @@ async function apiExport(env, auth) {
 }
 
 // ---------- API : administration ----------
+async function apiAdminBranding(request, env) {
+  if (request.method === "GET") {
+    const rows = await env.DB.prepare("SELECT key, value FROM platform_settings").all();
+    const settings = Object.fromEntries(rows.results.map((r) => [r.key, r.value]));
+    const assets = await env.DB.prepare("SELECT kind, updated_at FROM platform_assets").all();
+    return json({ settings, assets: assets.results });
+  }
+  if (request.method === "POST" && new URL(request.url).searchParams.has("kind")) {
+    const kind = new URL(request.url).searchParams.get("kind");
+    if (!["logo", "hero", "icon"].includes(kind)) return fail("Type de visuel invalide.");
+    const buf = await request.arrayBuffer();
+    if (!buf.byteLength || buf.byteLength > 2 * 1024 * 1024) return fail("Image vide ou trop lourde (maximum 2 Mo).");
+    const type = detectImage(new Uint8Array(buf.slice(0, 16)));
+    if (!type) return fail("Format accepté : JPG, PNG ou WebP.");
+    const key = "platform/" + kind + "/" + randomHex(12);
+    await env.IMAGES.put(key, buf, { httpMetadata: { contentType: type } });
+    const old = await env.DB.prepare("SELECT r2_key FROM platform_assets WHERE kind=?").bind(kind).first();
+    await env.DB.prepare("INSERT INTO platform_assets(kind,r2_key,content_type,updated_at) VALUES(?,?,?,?) ON CONFLICT(kind) DO UPDATE SET r2_key=excluded.r2_key,content_type=excluded.content_type,updated_at=excluded.updated_at").bind(kind,key,type,now()).run();
+    if (old && old.r2_key) await env.IMAGES.delete(old.r2_key);
+    return json({ ok: true, kind, url: "/platform-img/" + kind });
+  }
+  if (request.method === "POST") {
+    const body = await readJson(request);
+    if (!body) return fail("Réglages invalides.");
+    const allowed = { name: 50, heroTitle: 150, heroText: 300, description: 180, primaryColor: 7 };
+    for (const [key, max] of Object.entries(allowed)) {
+      if (body[key] === undefined) continue;
+      const value = String(body[key]).trim().slice(0, max);
+      if (key === "primaryColor" && !/^#[0-9a-fA-F]{6}$/.test(value)) return fail("La couleur doit être au format #RRGGBB.");
+      await env.DB.prepare("INSERT INTO platform_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(key, value).run();
+    }
+    return json({ ok: true });
+  }
+  return fail("Méthode non permise.", 405);
+}
 async function apiAdmin(request, env, auth, parts) {
   if (!auth.user.is_admin) return fail("Accès refusé", 403);
+  if (parts[2] === "branding") return apiAdminBranding(request, env);
   if (request.method === "GET" && parts[2] === "shops") {
     const r = await env.DB.prepare(
       `SELECT s.id, s.slug, s.name, s.whatsapp, s.plan, s.status, s.paid_until, s.created_at,
@@ -1516,6 +1571,7 @@ async function route(request, env, ctx) {
     if (path === "/robots.txt") return new Response("User-agent: *\nDisallow: /app\nDisallow: /admin\nDisallow: /api/\n", { headers: { "content-type": "text/plain" } });
     if (path === "/favicon.ico") return new Response(null, { status: 204 });
     if (parts[0] === "img" && parts[1]) return serveImage(env, parts[1]);
+    if (parts[0] === "platform-img" && parts[1]) return servePlatformImage(env, parts[1]);
     if (parts[0] === "qr" && parts[1]) {
       const s = await env.DB.prepare("SELECT slug FROM shops WHERE slug=?").bind(parts[1]).first();
       return s ? serveQr(request, env, s.slug) : new Response("Not found", { status: 404 });
