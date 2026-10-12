@@ -605,20 +605,20 @@ async function homePage(request, env) {
       <div class="hk-price">
         <h3>Essentiel</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.essentiel.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.essentiel.products} produits maximum</li><li>${PLANS_PUBLIC.essentiel.photos} photo(s) autorisée(s)</li><li>${PLANS_PUBLIC.essentiel.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
+        <ul><li>${PLANS_PUBLIC.essentiel.products} produits maximum</li><li>${PLANS_PUBLIC.essentiel.photos} photo(s) maximum par produit</li><li>${PLANS_PUBLIC.essentiel.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price hk-price-feat">
         <p class="hk-badge">Recommande</p>
         <h3>Standard</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.standard.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.standard.products} produits maximum</li><li>${PLANS_PUBLIC.standard.photos} photos autorisées</li><li>${PLANS_PUBLIC.standard.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
+        <ul><li>${PLANS_PUBLIC.standard.products} produits maximum</li><li>${PLANS_PUBLIC.standard.photos} photos maximum par produit</li><li>${PLANS_PUBLIC.standard.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-primary" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price">
         <h3>Pro</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.pro.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.pro.products} produits maximum</li><li>${PLANS_PUBLIC.pro.photos} photos autorisées</li><li>${PLANS_PUBLIC.pro.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
+        <ul><li>${PLANS_PUBLIC.pro.products} produits maximum</li><li>${PLANS_PUBLIC.pro.photos} photos maximum par produit</li><li>${PLANS_PUBLIC.pro.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
     </div>
