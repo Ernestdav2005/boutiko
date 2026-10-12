@@ -82,18 +82,46 @@ function templateOf(shop) {
   const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
   return TEMPLATES[id] || TEMPLATES.simple;
 }
-const TEMPLATE_IMAGES = {
-  // Visuels éditoriaux sélectionnés selon l'univers de chaque modèle.
-  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85",
-  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=85",
-  express: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85",
-  vitrine: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85",
-  catalogue: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=85",
-  mode: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85",
-  premium: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85",
-  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
-  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1200&q=85",
+const TEMPLATE_IMAGES = Object.fromEntries(Object.keys(TEMPLATES).map((id) => [id, `/template-img/${id}`]));
+const TEMPLATE_ART = {
+  simple: { bg:"#f4eee5", accent:"#bc7654", ink:"#29251f", title:"ESSENTIEL", subtitle:"La simplicité qui vend", shape:"fashion" },
+  quartier: { bg:"#e8f3e9", accent:"#24704c", ink:"#163d2d", title:"MON COMMERCE", subtitle:"Tout près de vous", shape:"market" },
+  express: { bg:"#fff0d8", accent:"#c85b32", ink:"#512b20", title:"FRAIS DU JOUR", subtitle:"Préparé avec soin", shape:"food" },
+  vitrine: { bg:"#f8e9eb", accent:"#b96e7b", ink:"#4c2933", title:"RITUEL BEAUTÉ", subtitle:"Le soin, autrement", shape:"beauty" },
+  catalogue: { bg:"#e7edf8", accent:"#3158a5", ink:"#16264c", title:"TECH & STYLE", subtitle:"La technologie au quotidien", shape:"tech" },
+  mode: { bg:"#f3e8dc", accent:"#9a543d", ink:"#38241f", title:"NOUVELLE ALLURE", subtitle:"Votre style. Vos règles.", shape:"fashion" },
+  premium: { bg:"#171717", accent:"#d7b46a", ink:"#f7ecd5", title:"ATELIER DORÉ", subtitle:"Le détail fait la différence", shape:"jewelry" },
+  maison: { bg:"#eee7da", accent:"#8b7355", ink:"#3f382f", title:"MAISON CALME", subtitle:"Des espaces qui vous ressemblent", shape:"home" },
+  flagship: { bg:"#e8eef0", accent:"#ef684e", ink:"#18313b", title:"LA SÉLECTION", subtitle:"Tout ce que vous aimez, au même endroit", shape:"market" },
 };
+function templateArtwork(id, variant = "cover", item = 0) {
+  const a = TEMPLATE_ART[id] || TEMPLATE_ART.simple;
+  const productTitles = {
+    simple:["Chemise essentielle","Sac du quotidien","Look de saison"],
+    quartier:["Sélection locale","Produit populaire","Nouveauté du jour"],
+    express:["Pain artisanal","Pâtisserie maison","Panier gourmand"],
+    vitrine:["Soin éclat","Routine beauté","Huile précieuse"],
+    catalogue:["Écouteurs sans fil","Montre connectée","Accessoire tech"],
+    mode:["Tenue signature","Style du jour","Accessoire textile"],
+    premium:["Boucles dorées","Collier signature","Bracelet raffiné"],
+    maison:["Objet décoratif","Vase naturel","Lampe design"],
+    flagship:["Sélection tendance","Accessoire premium","Collection du moment"],
+  };
+  const title = variant === "product" ? (productTitles[id] || productTitles.simple)[item % 3] : a.title;
+  const productShapes = {
+    food:`<ellipse cx="600" cy="390" rx="190" ry="150" fill="#fff9ee"/><ellipse cx="600" cy="390" rx="138" ry="100" fill="#e3ad62"/><path d="M500 385q45-95 100 0t100 0" fill="none" stroke="#9b542f" stroke-width="22" stroke-linecap="round"/><circle cx="560" cy="350" r="13" fill="#9b542f"/><circle cx="650" cy="420" r="13" fill="#9b542f"/>`,
+    beauty:`<rect x="500" y="230" width="170" height="290" rx="30" fill="#f8d8d8"/><rect x="535" y="170" width="100" height="75" rx="12" fill="#d8b8a1"/><rect x="520" y="330" width="130" height="75" rx="8" fill="#fff8f2"/><circle cx="585" cy="366" r="20" fill="#c17b85"/><path d="M710 280q80 100 0 190q-80-90 0-190" fill="#c17b85"/>`,
+    tech:`<rect x="490" y="180" width="190" height="330" rx="34" fill="#172a4a"/><rect x="505" y="200" width="160" height="285" rx="22" fill="#b7d5ee"/><circle cx="585" cy="450" r="12" fill="#172a4a"/><path d="M535 300l45-45 40 45-40 45z" fill="#3158a5"/>`,
+    jewelry:`<circle cx="600" cy="365" r="135" fill="none" stroke="#d7b46a" stroke-width="20"/><circle cx="600" cy="365" r="42" fill="#f7ecd5"/><path d="M600 405l-60 110h120z" fill="#d7b46a"/><circle cx="600" cy="365" r="19" fill="#fff8df"/>`,
+    home:`<path d="M440 350l160-135 160 135v175H440z" fill="#c9b59b"/><rect x="565" y="390" width="70" height="135" fill="#806d56"/><rect x="470" y="380" width="65" height="55" rx="5" fill="#e8dccc"/><rect x="665" y="380" width="65" height="55" rx="5" fill="#e8dccc"/><circle cx="760" cy="280" r="45" fill="#9caa8b"/>`,
+    market:`<path d="M440 320h320l-35-90H475z" fill="#ef684e"/><rect x="470" y="320" width="260" height="200" rx="12" fill="#fff9f1"/><rect x="520" y="375" width="70" height="145" fill="#d6e1d8"/><rect x="615" y="370" width="75" height="65" fill="#c5d9e4"/><path d="M440 320h320" stroke="#18313b" stroke-width="12"/>`,
+    fashion:`<path d="M555 230l45 35 45-35 80 75-55 65-30-25v180H515V345l-30 25-55-65z" fill="#d2a48b"/><path d="M575 250q25 50 50 0" fill="none" stroke="#8e5c4a" stroke-width="9"/><circle cx="600" cy="325" r="15" fill="#f3e8dc"/>`,
+  };
+  const shape = productShapes[a.shape] || productShapes.market;
+  const backdrop = variant === "product" ? `<rect x="0" y="0" width="1000" height="700" fill="${a.bg}"/>` : `<rect width="1000" height="700" fill="${a.bg}"/><circle cx="790" cy="100" r="250" fill="${a.accent}" opacity=".16"/><circle cx="160" cy="620" r="230" fill="${a.accent}" opacity=".12"/>`;
+  const labels = variant === "product" ? `<text x="65" y="600" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="${a.ink}">${title}</text><text x="65" y="650" font-family="Arial,sans-serif" font-size="25" fill="${a.ink}" opacity=".7">Sélection Boutiko</text>` : `<text x="70" y="120" font-family="Arial,sans-serif" font-size="25" letter-spacing="6" fill="${a.accent}" font-weight="700">BOUTIKO  /  MODÈLE</text><text x="70" y="500" font-family="Georgia,serif" font-size="62" font-weight="700" fill="${a.ink}">${title}</text><text x="72" y="550" font-family="Arial,sans-serif" font-size="25" fill="${a.ink}" opacity=".8">${a.subtitle}</text><rect x="70" y="590" width="190" height="5" rx="2" fill="${a.accent}"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" role="img" aria-label="${title}">${backdrop}<g transform="translate(0,0)">${shape}</g>${labels}</svg>`;
+}
 const TRIAL_DAYS = 7;
 
 async function platformConfig(env) {
@@ -776,7 +804,7 @@ async function shopPage(request, env, ctx, slug) {
   // ---- Cover / logo (all tiers) ----
   const cover = (shop.banner_id && plan.custom)
     ? `<div class="sf-cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
-    : `<div class="sf-cover no-img" style="--c:${color}"></div>`;
+    : `<div class="sf-cover no-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.15),rgba(16,42,67,.02)),url(/template-img/${esc(TEMPLATES[shop.template] ? shop.template : "simple")})"></div>`;
   const avatar = shop.logo_id
     ? `<div class="sf-avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
     : `<div class="sf-avatar" aria-hidden="true">${esc((Array.from(shop.name.trim())[0] || "B").toUpperCase())}</div>`;
@@ -888,57 +916,21 @@ async function modelDemoPage(request, env, tid) {
   const name = esc(fakeShop.name);
   const waLink = "https://wa.me/22900000000";
   const DEMO_PRODUCTS = {
-    simple: [
-      ["Chemise essentielle", 6500, "https://images.unsplash.com/photo-1598033129183-c4f50c736f10"],
-      ["Sac du quotidien", 12000, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
-      ["Look de saison", 9000, "https://images.unsplash.com/photo-1483985988355-763728e1935b"],
-    ],
-    quartier: [
-      ["Sélection du commerçant", 3500, "https://images.unsplash.com/photo-1556740738-b6a63e27c4df"],
-      ["Produit populaire", 6000, "https://images.unsplash.com/photo-1472851294608-062f824d29cc"],
-      ["Nouveauté locale", 4500, "https://images.unsplash.com/photo-1542838132-92c53300491e"],
-    ],
-    express: [
-      ["Pain artisanal", 1500, "https://images.unsplash.com/photo-1509440159596-0249088772ff"],
-      ["Pâtisserie maison", 2500, "https://images.unsplash.com/photo-1486427944299-d1955d23e34d"],
-      ["Panier gourmand", 5000, "https://images.unsplash.com/photo-1547592180-85f173990554"],
-    ],
-    vitrine: [
-      ["Soin éclat", 8500, "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b"],
-      ["Routine beauté", 12000, "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8"],
-      ["Huile précieuse", 5500, "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19"],
-    ],
-    catalogue: [
-      ["Écouteurs sans fil", 12500, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"],
-      ["Montre connectée", 18000, "https://images.unsplash.com/photo-1523275335684-37898b6baf30"],
-      ["Accessoire tech", 7500, "https://images.unsplash.com/photo-1468495244123-6c6c332eeece"],
-    ],
-    mode: [
-      ["Tenue signature", 18000, "https://images.unsplash.com/photo-1539109136881-3be0616acf4b"],
-      ["Style du jour", 12000, "https://images.unsplash.com/photo-1483985988355-763728e1935b"],
-      ["Accessoire textile", 6500, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
-    ],
-    premium: [
-      ["Boucles d'oreilles dorées", 15000, "https://images.unsplash.com/photo-1617038220319-276d3cfab638"],
-      ["Collier signature", 25000, "https://images.unsplash.com/photo-1611652022419-a9419f74343d"],
-      ["Bracelet raffiné", 12000, "https://images.unsplash.com/photo-1611591437281-460bfbe1220a"],
-    ],
-    maison: [
-      ["Objet décoratif", 8500, "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace"],
-      ["Décoration naturelle", 12000, "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6"],
-      ["Lampe design", 18000, "https://images.unsplash.com/photo-1507473885765-e6ed057f782c"],
-    ],
-    flagship: [
-      ["Sélection tendance", 6500, "https://images.unsplash.com/photo-1441984904996-e0b241748a7c"],
-      ["Accessoire premium", 12000, "https://images.unsplash.com/photo-1523275335684-37898b6baf30"],
-      ["Collection du moment", 9000, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
-    ],
+    simple: [["Chemise essentielle",6500],["Sac du quotidien",12000],["Look de saison",9000]],
+    quartier: [["Sélection locale",3500],["Produit populaire",6000],["Nouveauté du jour",4500]],
+    express: [["Pain artisanal",1500],["Pâtisserie maison",2500],["Panier gourmand",5000]],
+    vitrine: [["Soin éclat",8500],["Routine beauté",12000],["Huile précieuse",5500]],
+    catalogue: [["Écouteurs sans fil",12500],["Montre connectée",18000],["Accessoire tech",7500]],
+    mode: [["Tenue signature",18000],["Style du jour",12000],["Accessoire textile",6500]],
+    premium: [["Boucles dorées",15000],["Collier signature",25000],["Bracelet raffiné",12000]],
+    maison: [["Objet décoratif",8500],["Vase naturel",12000],["Lampe design",18000]],
+    flagship: [["Sélection tendance",6500],["Accessoire premium",12000],["Collection du moment",9000]],
   };
   const products = (DEMO_PRODUCTS[tid] || DEMO_PRODUCTS.simple).map((p, i) => ({
     id: i + 1, name: p[0], price: p[1], promo_price: i === 1 ? Math.round(p[1] * 0.85) : null,
-    photos: "[]", demoImage: p[2] + "?auto=format&fit=crop&w=800&q=85", stock: i === 2 ? null : 5 - i, active: 1,
+    photos: "[]", demoImage: `/template-product-img/${tid}/${i}`, stock: i === 2 ? null : 5 - i, active: 1,
   }));
-  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.45),rgba(16,42,67,.08)),url(${TEMPLATE_IMAGES[tid]})"></div>`;
+  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
   const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
   let hero;
   if (t.plan === "pro") {
@@ -1638,6 +1630,14 @@ async function route(request, env, ctx) {
     if (js) return new Response(js, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
     if (path === "/robots.txt") return new Response("User-agent: *\nDisallow: /app\nDisallow: /admin\nDisallow: /api/\n", { headers: { "content-type": "text/plain" } });
     if (path === "/favicon.ico") return new Response(null, { status: 204 });
+    if (parts[0] === "template-img" && parts[1]) {
+      if (!TEMPLATES[parts[1]]) return new Response("Not found", { status: 404 });
+      return new Response(templateArtwork(parts[1]), { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff" } });
+    }
+    if (parts[0] === "template-product-img" && parts[1] && parts[2] !== undefined) {
+      if (!TEMPLATES[parts[1]] || !/^\\d+$/.test(parts[2]) || Number(parts[2]) > 2) return new Response("Not found", { status: 404 });
+      return new Response(templateArtwork(parts[1], "product", Number(parts[2])), { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff" } });
+    }
     if (parts[0] === "img" && parts[1]) return serveImage(env, parts[1]);
     if (parts[0] === "platform-img" && parts[1]) return servePlatformImage(env, parts[1]);
     if (parts[0] === "qr" && parts[1]) {
