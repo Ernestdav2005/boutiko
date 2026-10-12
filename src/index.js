@@ -495,36 +495,30 @@ async function homePage(request, env) {
   </div>
 </nav>
 
-<header class="hk-hero" ${heroVisual}>
-  <div class="hk-shell hk-hero-grid">
-    <div class="hk-hero-copy">
-      <p class="hk-eyebrow">Pensé pour les commerçants et entrepreneurs</p>
-      <h1>${heroTitle}</h1>
-      <p class="hk-lead">${heroText}</p>
-      <div class="hk-hero-actions">
-        <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">Créer ma boutique — essai gratuit</a>
-        <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Voir les modeles</a>
-      </div>
-      <p class="hk-note">${TRIAL_PUBLIC} jours d’essai · Sans compétence technique · Aucune application à installer pour vos clients</p>
+<main class="bk-workspace">
+  <aside class="bk-sidebar">
+    <a class="bk-side-brand" href="/">${brandLogo}<span>${name}</span></a>
+    <p class="bk-side-label">ESPACE COMMERÇANT</p>
+    <a class="bk-side-link active" href="#bk-start"><span>⌂</span> Vue d’ensemble</a>
+    <a class="bk-side-link" href="/app"><span>▦</span> Mes boutiques</a>
+    <a class="bk-side-link" href="#modeles"><span>◫</span> Modèles de boutique</a>
+    <a class="bk-side-link" href="/app"><span>＋</span> Mes produits</a>
+    <div class="bk-side-bottom"><span class="bk-status-dot"></span> Prêt à démarrer</div>
+  </aside>
+  <section class="bk-main" id="bk-start">
+    <div class="bk-topbar"><div><span class="bk-breadcrumb">Boutiko <span>/</span> Espace de travail</span><h1>Construisez votre boutique.</h1><p>Tout ce qu’il faut pour présenter vos produits et recevoir des commandes.</p></div><a class="bk-avatar" href="/app" aria-label="Ouvrir mon compte">↗</a></div>
+    <div class="bk-welcome"><div class="bk-welcome-copy"><span class="bk-kicker">VOTRE ESPACE DE CRÉATION</span><h2>Votre commerce, prêt à passer en ligne.</h2><p>Choisissez un modèle, ajoutez vos produits et partagez votre lien WhatsApp.</p><div class="bk-actions"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">＋ Créer ma boutique</a><a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Explorer les modèles <span>→</span></a></div><div class="bk-meta"><span>✓ Sans code</span><span>✓ 16 modèles inclus</span><span>✓ Essai ${TRIAL_PUBLIC} jours</span></div></div>
+      <div class="bk-preview-window"><div class="bk-window-bar"><i></i><i></i><i></i><span>Aperçu de votre future boutique</span></div><div class="bk-window-body"><div class="bk-preview-banner"><span>BOUTIQUE EN LIGNE</span><strong>Votre marque.<br>Votre univers.</strong><small>Vos produits en quelques clics.</small></div><div class="bk-preview-products"><div><img src="/mode.webp" alt="Modèle mode"><b>Mode & accessoires</b><small>Voir la collection ↗</small></div><div><img src="/beaute.webp" alt="Modèle beauté"><b>Beauté naturelle</b><small>Découvrir ↗</small></div></div><div class="bk-preview-footer"><span>● Boutique en préparation</span><span>WhatsApp intégré</span></div></div></div>
     </div>
-    <div class="hk-hero-visual" aria-label="Exemples de boutiques créées avec Boutiko">
-      <div class="hk-showcase-main"><img src="/mode.webp" alt="Exemple de boutique de mode"><span>Votre boutique, votre style</span></div>
-      <div class="hk-showcase-card hk-showcase-card-top"><img src="/beaute.webp" alt="Exemple de boutique beauté"><span>Beauté</span></div>
-      <div class="hk-showcase-card hk-showcase-card-bottom"><img src="/quartier.webp" alt="Exemple de commerce de proximité"><span>Commerce local</span></div>
-      <div class="hk-showcase-stamp"><strong>16</strong><span>modèles<br>inclus</span></div>
-    </div>
-  </div>
-</header>
+    <div class="bk-section-title"><div><span class="bk-kicker">DÉMARRAGE RAPIDE</span><h2>Que souhaitez-vous faire ?</h2></div><a href="/app">Accéder à mon espace ↗</a></div>
+    <div class="bk-action-grid"><a class="bk-action-card bk-action-primary" href="/app"><span class="bk-action-icon">＋</span><span><b>Créer une boutique</b><small>Nom, contact et style en quelques étapes.</small></span><strong>→</strong></a><a class="bk-action-card" href="/app"><span class="bk-action-icon">▦</span><span><b>Gérer mes produits</b><small>Photos, prix et disponibilité.</small></span><strong>→</strong></a><a class="bk-action-card" href="#modeles"><span class="bk-action-icon">◫</span><span><b>Personnaliser ma page</b><small>Choisissez parmi les 16 modèles.</small></span><strong>→</strong></a></div>
+    <div class="bk-section-title bk-model-heading" id="modeles"><div><span class="bk-kicker">BIBLIOTHÈQUE DE MODÈLES</span><h2>Choisissez votre point de départ.</h2><p>Les 16 modèles sont inclus dès la formule Essentiel à 2 000 FCFA/mois.</p></div><span class="bk-count">16 modèles disponibles</span></div>
+    <div class="bk-template-strip"><a href="/modele/mode"><img src="/mode.webp" alt=""><span><b>Mode & accessoires</b><small>Élégant · Moderne</small></span><em>Voir ↗</em></a><a href="/modele/beaute"><img src="/beaute.webp" alt=""><span><b>Beauté éclatante</b><small>Doux · Naturel</small></span><em>Voir ↗</em></a><a href="/modele/quartier"><img src="/quartier.webp" alt=""><span><b>Marché de proximité</b><small>Local · Accueillant</small></span><em>Voir ↗</em></a><a href="/modele/catalogue"><img src="/catalogue.webp" alt=""><span><b>Tech & électronique</b><small>Net · Contemporain</small></span><em>Voir ↗</em></a></div>
+    <div class="bk-bottom-row"><div><span class="bk-bottom-icon">↗</span><span><b>Votre boutique est partageable partout</b><small>Un lien à envoyer sur WhatsApp, Facebook ou votre statut.</small></span></div><a class="hk-btn hk-btn-primary" href="/app">Commencer maintenant</a></div>
+  </section>
+</main>
 
-
-<section class="hk-trust" aria-label="Confiance">
-  <div class="hk-shell hk-trust-in">
-    <div class="hk-trust-item"><strong>7 jours</strong><span>d'essai gratuit</span></div>
-    <div class="hk-trust-item"><strong>WhatsApp</strong><span>commandes directes</span></div>
-    <div class="hk-trust-item"><strong>0 app</strong><span>pour vos clients</span></div>
-    <div class="hk-trust-item"><strong>Mobile</strong><span>et ordinateur</span></div>
-  </div>
-</section>
+<section class="bk-after-workspace" id="pourquoi"><div class="hk-shell"><span class="bk-kicker">SIMPLE À UTILISER</span><h2>Une boutique claire, des commandes directes.</h2><p>Vos clients consultent vos produits et vous contactent directement sur WhatsApp.</p><div class="bk-benefit-row"><span>✓ Photos et prix visibles</span><span>✓ Commandes WhatsApp</span><span>✓ Fonctionne sur téléphone</span></div></div></section>
 
 <section class="hk-band hk-dark" id="pourquoi">
   <div class="hk-shell">
