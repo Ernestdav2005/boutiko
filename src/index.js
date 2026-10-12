@@ -891,14 +891,13 @@ async function modelDemoPage(request, env, tid) {
   const t = TEMPLATES[tid];
   if (!t) return notFound(env);
   const config = await platformConfig(env);
-  const plan = config.plans[t.plan];
-  const color = t.plan === "pro" ? "#0f3d2e" : t.plan === "standard" ? "#4c1d95" : "#0f766e";
+  const color = (TEMPLATE_ART[tid] && TEMPLATE_ART[tid].accent) || "#0f766e";
   const fakeShop = {
     id: 0, slug: "modele-" + tid, name: t.label + " — Exemple", brand_name: "Exemple Boutiko",
     business_name: "", slogan: t.tagline, description: t.desc + " Remplacez ces textes par les vôtres après inscription.",
     whatsapp: "22900000000", color, address: "Cotonou, Bénin", maps_url: "", hours: JSON.stringify({ open: "08:00", close: "19:00", days: [1,2,3,4,5,6] }),
     momo: "", logo_id: null, banner_id: null, gallery: "[]", theme: "editorial", layout: "grid",
-    plan: t.plan, template: tid, status: "active",
+    plan: "essentiel", template: tid, status: "active",
   };
   // Réutilise shopPage logic via query injection: build minimal HTML demo
   const name = esc(fakeShop.name);
@@ -921,11 +920,11 @@ async function modelDemoPage(request, env, tid) {
   const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
   const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
   let hero;
-  if (t.plan === "pro") {
+  if (["premium", "maison", "flagship"].includes(tid)) {
     hero = `<section class="sf-hero sf-pro-hero">${cover}<div class="sf-pro-overlay wrap">
       <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
       <p class="sf-slogan">${esc(t.tagline)}</p>
-      <div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Choisir ce modèle</a>
+      <div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}">Choisir ce modèle</a>
       <a class="btn ghost" href="/#modeles">Autres modèles</a></div></div></section>`;
   } else {
     hero = `<section class="sf-hero">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
@@ -937,7 +936,7 @@ async function modelDemoPage(request, env, tid) {
   const prods = products.map((p) => productCard(p, fakeShop)).join("");
   const body = `${hero}
     <section class="sf-infobar"><div class="wrap"><div class="sf-actions">
-      <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Utiliser ce modèle — ${esc(plan.label)} ${fcfa(plan.price)} F/mois</a>
+      <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Choisir ce modèle</a>
       <a class="btn ghost" href="/#modeles">Voir tous les modèles</a>
     </div></div></section>
     ${about}
@@ -949,7 +948,7 @@ async function modelDemoPage(request, env, tid) {
     desc: t.desc,
     color,
     body,
-    bodyAttrs: `class="sf-page sf-${t.plan} sf-tpl-${tid}" data-plan="${t.plan}" data-template="${tid}"`,
+    bodyAttrs: `class="sf-page sf-tpl-${tid}" data-template="${tid}",
   }));
 }
 
