@@ -1235,3 +1235,200 @@ body.hk-site .hk-btn { min-height:48px; }
  body.hk-site .hk-hero-actions .hk-btn { width:100%; }
 }
 @media(prefers-reduced-motion:reduce) { body.hk-site *, body.hk-site *::before, body.hk-site *::after { transition:none!important; scroll-behavior:auto!important; } }
+
+
+/* ===== BOUTIKO: editorial design pass — typography, section art direction, decorated actions ===== */
+body.hk-site {
+  background:#f3eee4!important;
+  background-image:radial-gradient(rgba(16,42,67,.055) .7px,transparent .7px)!important;
+  background-size:18px 18px!important;
+  color:#122b3d!important;
+}
+body.hk-site .hk-nav {
+  background:rgba(255,251,244,.94)!important;
+  border-bottom:1px solid rgba(16,42,67,.12)!important;
+  box-shadow:0 8px 28px rgba(16,42,67,.08)!important;
+}
+body.hk-site .hk-logo {font-size:1.22rem!important;font-weight:950!important;letter-spacing:-.06em!important}
+body.hk-site .hk-mark {transform:rotate(-5deg);box-shadow:0 7px 0 rgba(16,42,67,.12)!important}
+body.hk-site .hk-nav-links a {font-size:.9rem!important;font-weight:750!important}
+body.hk-site .hk-hero {
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(255,184,92,.18),transparent 33%),
+    radial-gradient(ellipse at 86% 82%,rgba(255,79,50,.22),transparent 28%),
+    linear-gradient(125deg,#0d2639 0%,#123d51 53%,#17534e 100%)!important;
+  border-radius:0 0 34px 34px;
+  box-shadow:0 24px 60px rgba(16,42,67,.17);
+}
+body.hk-site .hk-hero-copy h1 {
+  font-size:clamp(2.8rem,6vw,5.3rem)!important;
+  line-height:.99!important;
+  letter-spacing:-.075em!important;
+  max-width:10ch!important;
+  text-wrap:balance;
+  text-shadow:0 5px 24px rgba(0,0,0,.12);
+}
+body.hk-site .hk-hero-copy h1::after {
+  width:94px!important;height:7px!important;margin-top:25px!important;
+  background:linear-gradient(90deg,#ff4f32,#ffb85c)!important;
+  box-shadow:0 5px 16px rgba(255,79,50,.28);
+}
+body.hk-site .hk-eyebrow {
+  display:inline-flex!important;align-items:center;gap:9px;
+  padding:8px 13px;border-radius:999px;
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.14);
+  letter-spacing:.12em!important;font-size:.7rem!important;
+}
+body.hk-site .hk-hero-copy .hk-lead {
+  font-size:clamp(1.05rem,1.6vw,1.23rem)!important;
+  line-height:1.8!important;max-width:40ch!important;
+}
+body.hk-site .hk-btn {
+  border-radius:13px!important;min-height:50px!important;
+  padding:13px 19px!important;font-weight:850!important;
+  letter-spacing:-.015em!important;
+}
+body.hk-site .hk-btn-primary {
+  background:linear-gradient(135deg,#ff6042,#f0442b)!important;
+  box-shadow:0 10px 0 rgba(151,46,30,.16),0 14px 28px rgba(255,79,50,.23)!important;
+}
+body.hk-site .hk-btn-primary:hover {box-shadow:0 5px 0 rgba(151,46,30,.16),0 18px 32px rgba(255,79,50,.29)!important}
+body.hk-site .hk-btn-ghost {border:1px solid rgba(16,42,67,.18)!important}
+body.hk-site .hk-hero .hk-btn-ghost {border-color:rgba(255,255,255,.3)!important}
+body.hk-site .hk-trust {
+  position:relative;z-index:2;
+  width:min(1120px,calc(100% - 32px));margin:-1px auto 0;
+  padding:18px 24px!important;border:1px solid #e4dacb!important;
+  border-radius:0 0 22px 22px;background:#fffcf6!important;
+  box-shadow:0 16px 34px rgba(16,42,67,.06);
+}
+body.hk-site .hk-trust-item {display:flex;flex-direction:column;gap:2px}
+body.hk-site .hk-trust-item strong {font-size:1.12rem!important;color:#d94a32!important}
+body.hk-site .hk-trust-item span {font-size:.82rem;font-weight:700;color:#607181}
+body.hk-site .hk-band {
+  position:relative;isolation:isolate;
+  padding:clamp(66px,8vw,108px) 0!important;
+  overflow:hidden;
+}
+body.hk-site .hk-band::before {
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:310px;height:310px;right:-170px;top:-150px;
+  border:1px solid rgba(16,42,67,.1);border-radius:50%;
+  box-shadow:0 0 0 28px rgba(16,42,67,.025),0 0 0 58px rgba(16,42,67,.018);
+}
+body.hk-site #pourquoi {
+  background:linear-gradient(135deg,#e1f0e8 0%,#edf4e9 52%,#d5e8e1 100%)!important;
+  color:#122b3d!important;border-radius:28px;margin:30px auto;
+  width:calc(100% - 30px);
+}
+body.hk-site #pourquoi .hk-eyebrow,
+body.hk-site #comment .hk-eyebrow,
+body.hk-site #modeles .hk-eyebrow,
+body.hk-site #tarifs .hk-eyebrow,
+body.hk-site #faq .hk-eyebrow {
+  background:rgba(255,79,50,.08)!important;border:1px solid rgba(255,79,50,.14)!important;
+  color:#cf442d!important;
+}
+body.hk-site .hk-section-head {max-width:790px!important;margin-bottom:46px!important}
+body.hk-site .hk-section-head h2 {
+  font-size:clamp(2rem,4.1vw,3.25rem)!important;
+  font-weight:950!important;line-height:1.02!important;
+  letter-spacing:-.07em!important;text-wrap:balance;
+}
+body.hk-site .hk-section-head .hk-sub {
+  max-width:58ch;margin:18px auto 0!important;
+  font-size:1.05rem!important;line-height:1.8!important;color:#586c79!important;
+}
+body.hk-site #pourquoi .hk-section-head h2 {color:#122b3d!important}
+body.hk-site .hk-pillars {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+body.hk-site .hk-pillar {
+  position:relative;overflow:hidden;
+  background:rgba(255,253,248,.9)!important;
+  border:1px solid rgba(16,42,67,.1)!important;
+  border-radius:22px!important;padding:27px!important;
+  box-shadow:0 12px 34px rgba(16,42,67,.06)!important;
+}
+body.hk-site .hk-pillar::after {
+  content:"";position:absolute;right:-22px;bottom:-34px;width:100px;height:100px;
+  border-radius:50%;background:rgba(216,245,232,.62);pointer-events:none;
+}
+.hk-feature-icon {
+  display:grid;place-items:center;width:54px;height:54px;margin-bottom:22px;
+  border-radius:17px;background:#d8f5e8;color:#174c4b;font-size:1.65rem;font-weight:900;
+  box-shadow:0 6px 0 rgba(16,42,67,.05);
+}
+.hk-feature-kicker {display:block;color:#d95439;font-size:.68rem;font-weight:950;letter-spacing:.14em;margin-bottom:9px}
+body.hk-site .hk-pillar strong {display:block;font-size:1.22rem!important;line-height:1.15!important;letter-spacing:-.04em}
+body.hk-site .hk-pillar p {font-size:.95rem;line-height:1.75;color:#586c79!important;margin-top:12px}
+body.hk-site #comment {
+  background:linear-gradient(135deg,#102b40,#163e52 60%,#184c4a)!important;
+  color:#fff!important;border-radius:30px;margin:26px auto;width:calc(100% - 30px);
+}
+body.hk-site #comment .hk-section-head h2 {color:#fff!important}
+body.hk-site #comment .hk-section-head .hk-eyebrow {color:#cf442d!important}
+body.hk-site #comment .hk-section-head .hk-eyebrow {background:#fff8ef!important}
+body.hk-site .hk-steps {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+body.hk-site .hk-step {
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;
+  background:#fffcf6!important;border:1px solid rgba(255,255,255,.22)!important;
+  border-radius:22px!important;padding:26px!important;box-shadow:0 18px 36px rgba(0,0,0,.12)!important;
+}
+body.hk-site .hk-step-n {width:auto!important;height:auto!important;min-width:46px;padding:8px 12px;margin-bottom:14px!important;border-radius:10px!important;font-size:.8rem!important;letter-spacing:.08em}
+.hk-step-icon {display:grid;place-items:center;width:46px;height:46px;margin-bottom:16px;border-radius:15px;background:#e1f0e8;color:#174c4b;font-size:1.4rem;font-weight:900}
+body.hk-site .hk-step strong {font-size:1.15rem;line-height:1.2;letter-spacing:-.04em}
+body.hk-site .hk-step p {font-size:.94rem;line-height:1.75}
+body.hk-site #modeles {background:#f3eee4!important}
+body.hk-site .hk-gallery-note {
+  width:fit-content;max-width:100%;margin:0 auto 32px!important;padding:16px 22px!important;
+  border:1px solid #e4d8c7;border-left:5px solid #ff4f32!important;
+  border-radius:14px!important;background:#fffcf6!important;
+  box-shadow:0 10px 26px rgba(16,42,67,.05);font-size:.94rem;
+}
+body.hk-site .tpl-card {transition:transform .22s ease,box-shadow .22s ease!important}
+body.hk-site .tpl-card:hover {transform:translateY(-5px)}
+body.hk-site .tpl-meta h3 {font-size:1.25rem!important;letter-spacing:-.04em!important}
+body.hk-site .tpl-tagline {font-weight:800;color:#d95439!important}
+body.hk-site .tpl-desc {font-size:.9rem!important;line-height:1.7!important}
+body.hk-site #tarifs {background:linear-gradient(135deg,#0d2639,#143e51 55%,#174b49)!important;border-radius:30px;margin:26px auto;width:calc(100% - 30px)}
+body.hk-site #tarifs .hk-section-head h2 {color:#fff!important}
+body.hk-site #tarifs .hk-section-head .hk-eyebrow {background:#fff8ef!important}
+body.hk-site .hk-price {border-radius:24px!important;padding:30px!important}
+body.hk-site .hk-price h3 {font-size:1.3rem!important;letter-spacing:-.04em}
+body.hk-site .hk-price-num {font-size:clamp(1.7rem,3vw,2.4rem)!important;line-height:1.15}
+body.hk-site .hk-price ul {line-height:2.1;padding-left:20px}
+body.hk-site .hk-price-feat {transform:translateY(-8px);box-shadow:0 22px 46px rgba(255,79,50,.17)!important}
+body.hk-site #faq {background:linear-gradient(135deg,#e2f0e8,#f0f4e9)!important;border-radius:28px;margin:26px auto;width:calc(100% - 30px)}
+body.hk-site #faq .hk-section-head h2 {color:#122b3d!important}
+body.hk-site .hk-faq {max-width:850px;margin:0 auto}
+body.hk-site .hk-faq-item {background:#fffcf6!important;border:1px solid #d6e1d8!important;border-radius:16px!important;padding:18px 21px!important;box-shadow:0 7px 18px rgba(16,42,67,.035)}
+body.hk-site .hk-faq-item summary {font-weight:850!important;letter-spacing:-.02em;cursor:pointer}
+body.hk-site .hk-faq-item p {color:#586c79!important;line-height:1.8}
+body.hk-site .hk-cta {
+  margin:28px auto;width:calc(100% - 30px);border-radius:28px!important;
+  background:linear-gradient(115deg,#ff5a3d,#ef432b)!important;
+  box-shadow:0 20px 50px rgba(239,67,43,.18);
+  padding:clamp(42px,7vw,76px) 24px!important;text-align:center;
+}
+body.hk-site .hk-cta h2 {font-size:clamp(2rem,4.2vw,3.2rem)!important;font-weight:950!important;line-height:1.03!important;letter-spacing:-.07em!important;max-width:18ch;margin:0 auto 18px!important;text-wrap:balance}
+body.hk-site .hk-cta p {max-width:58ch;margin:0 auto 24px!important;font-size:1.03rem!important;line-height:1.8!important;color:rgba(255,255,255,.9)!important}
+body.hk-site .hk-cta .hk-btn-primary {background:#102b40!important;box-shadow:0 10px 24px rgba(16,42,64,.22)!important}
+body.hk-site .hk-foot {margin-top:28px;padding:48px 0!important}
+body.hk-site .hk-foot strong {font-size:1.25rem;letter-spacing:-.04em}
+body.hk-site .hk-foot p {line-height:1.8}
+body.hk-site .hk-foot-links a {padding:8px 0;font-weight:750}
+@media(max-width:760px) {
+ body.hk-site .hk-hero {border-radius:0 0 24px 24px}
+ body.hk-site .hk-hero-copy h1 {font-size:clamp(2.6rem,11vw,3.7rem)!important;max-width:11ch!important}
+ body.hk-site .hk-trust {width:calc(100% - 24px);padding:14px 10px!important}
+ body.hk-site .hk-trust-item strong {font-size:.95rem!important}
+ body.hk-site .hk-trust-item span {font-size:.69rem}
+ body.hk-site #pourquoi,body.hk-site #comment,body.hk-site #tarifs,body.hk-site #faq,body.hk-site .hk-cta {width:calc(100% - 18px);border-radius:22px;margin:18px auto}
+ body.hk-site .hk-pillars,body.hk-site .hk-steps {grid-template-columns:1fr;gap:13px}
+ body.hk-site .hk-pillar,body.hk-site .hk-step {padding:21px!important}
+ body.hk-site .hk-section-head {margin-bottom:30px!important}
+ body.hk-site .hk-price-feat {transform:none}
+ body.hk-site .hk-price {padding:23px!important}
+ body.hk-site .hk-gallery-note {padding:14px 16px!important}
+}
+@media(prefers-reduced-motion:reduce){body.hk-site .hk-btn,body.hk-site .tpl-card{transition:none!important}}
