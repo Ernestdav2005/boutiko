@@ -30,5 +30,8 @@
     "crons": [
       "17 3 * * *"
     ]
+  },
+  "assets": {
+    "directory": "./boutiko-templates"
   }
 }
