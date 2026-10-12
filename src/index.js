@@ -948,7 +948,7 @@ async function modelDemoPage(request, env, tid) {
     desc: t.desc,
     color,
     body,
-    bodyAttrs: `class="sf-page sf-tpl-${tid}" data-template="${tid}",
+    bodyAttrs: `class="sf-page sf-tpl-${tid}" data-template="${tid}"`,
   }));
 }
 
