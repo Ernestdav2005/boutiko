@@ -83,6 +83,19 @@ function templateOf(shop) {
   return TEMPLATES[id] || TEMPLATES.simple;
 }
 const TRIAL_DAYS = 7;
+
+async function platformConfig(env) {
+  const rows = await env.DB.prepare("SELECT key, value FROM platform_settings").all();
+  const settings = Object.fromEntries(rows.results.map((r) => [r.key, r.value]));
+  const plans = Object.fromEntries(Object.entries(PLANS).map(([k, v]) => [k, { ...v }]));
+  for (const key of Object.keys(plans)) for (const field of ["price", "products", "photos", "storageMb"]) {
+    const raw = settings[field + "_" + key];
+    if (raw !== undefined && raw !== "" && Number.isFinite(Number(raw))) plans[key][field] = Math.max(field === "price" ? 0 : 1, Math.min(field === "price" ? 10000000 : 10000, Math.floor(Number(raw))));
+  }
+  const trialRaw = Number(settings.trialDays);
+  const trialDays = settings.trialDays !== undefined && Number.isFinite(trialRaw) ? Math.max(0, Math.min(60, Math.floor(trialRaw))) : TRIAL_DAYS;
+  return { settings, plans, trialDays };
+}
 const SESSION_DAYS = 30;
 const PBKDF2_ITER = 10000; // volontairement modéré : limite de 10 ms de calcul par requête (offre gratuite)
 const MAX_IMG_BYTES = 600 * 1024;
@@ -382,8 +395,10 @@ ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-co
 }
 
 async function homePage(request, env) {
-  const settingsRows = await env.DB.prepare("SELECT key, value FROM platform_settings").all();
-  const brand = Object.fromEntries(settingsRows.results.map((r) => [r.key, r.value]));
+  const config = await platformConfig(env);
+  const brand = config.settings;
+  const PLANS_PUBLIC = config.plans;
+  const TRIAL_PUBLIC = config.trialDays;
   const assetsRows = await env.DB.prepare("SELECT kind FROM platform_assets").all();
   const brandAssets = new Set(assetsRows.results.map((r) => r.kind));
   const name = esc(brand.name || env.PLATFORM_NAME || "Boutiko");
@@ -413,7 +428,7 @@ async function homePage(request, env) {
     flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?w=900&q=80",
   };
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
-  const planPrice = { essentiel: PLANS.essentiel.price, standard: PLANS.standard.price, pro: PLANS.pro.price };
+  const planPrice = { essentiel: PLANS_PUBLIC.essentiel.price, standard: PLANS_PUBLIC.standard.price, pro: PLANS_PUBLIC.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
   // Galerie type marketplace : tous les modeles, filtres par formule
   const allCards = planOrder.flatMap((pk) =>
@@ -566,21 +581,21 @@ async function homePage(request, env) {
     <div class="hk-prices">
       <div class="hk-price">
         <h3>Essentiel</h3>
-        <div class="hk-price-num">${fcfa(PLANS.essentiel.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS.essentiel.products} produits</li><li>3 modeles</li><li>Ideal pour demarrer</li></ul>
+        <div class="hk-price-num">${fcfa(PLANS_PUBLIC.essentiel.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS_PUBLIC.essentiel.products} produits</li><li>3 modeles</li><li>Ideal pour demarrer</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price hk-price-feat">
         <p class="hk-badge">Recommande</p>
         <h3>Standard</h3>
-        <div class="hk-price-num">${fcfa(PLANS.standard.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS.standard.products} produits</li><li>Logo &amp; banniere</li><li>Image de marque</li></ul>
+        <div class="hk-price-num">${fcfa(PLANS_PUBLIC.standard.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS_PUBLIC.standard.products} produits</li><li>Logo &amp; banniere</li><li>Image de marque</li></ul>
         <a class="hk-btn hk-btn-primary" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price">
         <h3>Pro</h3>
-        <div class="hk-price-num">${fcfa(PLANS.pro.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS.pro.products} produits</li><li>Modeles premium</li><li>Mise en avant</li></ul>
+        <div class="hk-price-num">${fcfa(PLANS_PUBLIC.pro.price)} <small>F/mois</small></div>
+        <ul><li>${PLANS_PUBLIC.pro.products} produits</li><li>Modeles premium</li><li>Mise en avant</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
     </div>
@@ -737,7 +752,8 @@ async function shopPage(request, env, ctx, slug) {
   }
   const prods = await env.DB.prepare("SELECT * FROM products WHERE shop_id=? AND active=1 ORDER BY id DESC").bind(shop.id).all();
   const planKey = ["essentiel", "standard", "pro"].includes(shop.plan) ? shop.plan : "essentiel";
-  const plan = PLANS[planKey] || PLANS.essentiel;
+  const config = await platformConfig(env);
+  const plan = config.plans[planKey] || config.plans.essentiel;
 
   const vcookie = `v${shop.id}`;
   const extraHeaders = {};
@@ -865,7 +881,8 @@ async function shopPage(request, env, ctx, slug) {
 async function modelDemoPage(request, env, tid) {
   const t = TEMPLATES[tid];
   if (!t) return notFound(env);
-  const plan = PLANS[t.plan];
+  const config = await platformConfig(env);
+  const plan = config.plans[t.plan];
   const color = t.plan === "pro" ? "#0f3d2e" : t.plan === "standard" ? "#4c1d95" : "#0f766e";
   const fakeShop = {
     id: 0, slug: "modele-" + tid, name: t.label + " — Exemple", brand_name: "Exemple Boutiko",
@@ -1018,7 +1035,8 @@ async function apiRegister(request, env) {
   let template = str(b.template || b.modele, 30) || "simple";
   if (!TEMPLATES[template]) template = plan === "pro" ? "premium" : plan === "standard" ? "vitrine" : "simple";
   if (!isAdmin && TEMPLATES[template] && TEMPLATES[template].plan !== plan) plan = TEMPLATES[template].plan;
-  const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + TRIAL_DAYS * 86400;
+  const config = await platformConfig(env);
+  const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + config.trialDays * 86400;
   await env.DB.prepare(
     "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, template, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?,?)"
   )
@@ -1078,10 +1096,11 @@ async function publicShop(env, shop) {
 }
 async function apiMe(env, auth) {
   const shop = auth.shop;
-  const out = { user: auth.user, plans: PLANS, trialDays: TRIAL_DAYS, adminPhone: await adminContact(env) };
+  const config = await platformConfig(env);
+  const out = { user: auth.user, plans: config.plans, trialDays: config.trialDays, adminPhone: await adminContact(env) };
   if (shop) {
     out.shop = await publicShop(env, shop);
-    out.limits = PLANS[shop.plan] || PLANS.essentiel;
+    out.limits = config.plans[shop.plan] || config.plans.essentiel;
     out.usage = await usageOf(env, shop);
     const po = await env.DB.prepare("SELECT COUNT(*) n FROM orders WHERE shop_id=? AND status='pending'").bind(shop.id).first();
     out.pending = po.n;
