@@ -325,18 +325,36 @@
   }
 
   // ---------- Réglages ----------
+  function settingInput(name, label, value, type, min) {
+    return '<div class="field"><label for="set-' + name + '">' + label + '</label><input id="set-' + name + '" name="' + name + '" type="' + type + '" min="' + min + '" step="1" value="' + esc(value) + '" required></div>';
+  }
   function viewMore(v) {
-    v.innerHTML = '<h2>Sauvegarde</h2><div class="card"><p class="muted small">Un fichier avec tous les utilisateurs, boutiques, produits et commandes. À télécharger de temps en temps.</p>' +
-      '<a class="btn block" href="/api/admin/export">Télécharger la sauvegarde complète</a></div>' +
+    var s = BRAND.settings || {};
+    var p = BRAND.plans || D.plans || {};
+    v.innerHTML = '<h2>Paramètres de la plateforme</h2><p class="muted">Modifie les règles commerciales de Boutiko ici, sans toucher au code.</p>' +
+      '<form id="platformForm" class="card"><h3>Essai gratuit</h3><div class="field"><label for="trialDays">Durée de l’essai (jours)</label><input id="trialDays" name="trialDays" type="number" min="0" max="60" step="1" value="' + esc(BRAND.trialDays == null ? 7 : BRAND.trialDays) + '" required></div>' +
+      '<h3>Formules commerciales</h3><p class="muted small">Tarifs en FCFA par mois. Les limites sont utilisées dans l’espace commerçant.</p>' +
+      [['essentiel','Essentiel'],['standard','Standard'],['pro','Pro']].map(function (x) {
+        var q = p[x[0]] || {};
+        return '<section class="plan-editor"><h4>' + x[1] + '</h4><div class="settings-grid">' +
+          settingInput('price_' + x[0], 'Prix mensuel (FCFA)', q.price == null ? 0 : q.price, 'number', 0) +
+          settingInput('products_' + x[0], 'Nombre de produits', q.products || 1, 'number', 1) +
+          settingInput('photos_' + x[0], 'Photos par produit', q.photos || 1, 'number', 1) +
+          settingInput('storageMb_' + x[0], 'Stockage (Mo)', q.storageMb || 1, 'number', 1) +
+          '</div></section>';
+      }).join('') +
+      '<button class="btn block" type="submit">Enregistrer les paramètres</button></form>' +
+      '<h2 style="margin-top:22px">Sauvegarde</h2><div class="card"><p class="muted small">Télécharge une copie des utilisateurs, boutiques, produits et commandes.</p><a class="btn block" href="/api/admin/export">Télécharger la sauvegarde complète</a></div>' +
       '<h2 style="margin-top:18px">Accès rapides</h2><div class="card col">' +
-      '<a class="btn ghost block" href="/">Voir la page d\'accueil publique</a>' +
-      '<a class="btn ghost block" href="/app">Mon espace boutique</a>' +
-      '<button class="btn danger block" id="out">Me déconnecter</button></div>' +
-      '<h2 style="margin-top:18px">Formules</h2><div class="card">' + Object.keys(D.plans).map(function (k) {
-        var p = D.plans[k];
-        return '<div class="todo"><div class="t"><b>' + esc(p.label) + " : " + fcfa(p.price) + ' FCFA / mois</b><div class="muted small">' + p.products + " produits · " + p.photos + " photo(s) par produit · " + p.storageMb + " Mo</div></div></div>";
-      }).join("") + '<p class="muted small" style="margin-bottom:0">Les prix et limites se changent dans le code (section PLANS).</p></div>';
-    $("#out").onclick = function () { api("/api/admin/logout", "POST", {}).then(function () { renderLogin(); }); };
+      '<a class="btn ghost block" href="/">Voir la page publique</a>' +
+      '<a class="btn ghost block" href="/app">Espace commerçant</a>' +
+      '<button class="btn danger block" id="out">Me déconnecter</button></div>';
+    $('#platformForm').onsubmit = function (e) {
+      e.preventDefault();
+      var b = Object.fromEntries(new FormData(e.target).entries());
+      api('/api/admin/branding', 'POST', b).then(function () { toast('Paramètres enregistrés et appliqués.'); load(); }).catch(function (ex) { toast(ex.message); });
+    };
+    $('#out').onclick = function () { api('/api/admin/logout', 'POST', {}).then(function () { renderLogin(); }); };
   }
 
   load();
