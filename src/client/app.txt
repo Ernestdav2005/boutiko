@@ -266,7 +266,22 @@
     var lim = S.me.limits, n = S.products.length;
     var h = '<div class="row" style="justify-content:space-between"><b>' + n + " / " + lim.products + ' produits</b>' +
       '<button class="btn small" id="addp">' + ic("plus") + " Ajouter un produit</button></div>";
-    h = checklist() + h;
+    var pendingCount = S.orders && Array.isArray(S.orders.pending) ? S.orders.pending.length : (S.me.pending || 0);
+    var activeCount = S.products.filter(function (p) { return p.active; }).length;
+    var storeUrl = "/" + encodeURIComponent(S.me.shop.slug || "");
+    var commandPanel = '<section class="bk-control-center">' +
+      '<div class="bk-control-copy"><span class="bk-eyebrow"><i></i> VOTRE ESPACE DE PILOTAGE</span>' +
+      '<h2>Votre commerce.<br><em>Vos décisions.</em></h2>' +
+      '<p>Tout est ici pour gérer vos produits, suivre les commandes et faire grandir votre boutique — même si vous débutez.</p>' +
+      '<div class="bk-control-actions"><button class="btn bk-primary-action" id="bkQuickAdd" type="button">' + ic("plus") + ' Ajouter un produit</button>' +
+      '<a class="btn bk-secondary-action" href="' + esc(storeUrl) + '" target="_blank" rel="noopener">' + ic("ext") + ' Voir ma boutique</a></div>' +
+      '<div class="bk-live-status"><span class="bk-status-dot ' + (s.status === "active" ? "is-live" : "is-off") + '"></span>' +
+      (s.status === "active" ? "Votre boutique est active" : "Votre boutique est à vérifier") + '<span class="bk-status-sep">•</span> ' + n + ' produit' + (n > 1 ? "s" : "") + ' enregistré' + (n > 1 ? "s" : "") + '</div></div>' +
+      '<div class="bk-orbit-art" aria-hidden="true"><div class="bk-orbit-ring ring-a"></div><div class="bk-orbit-ring ring-b"></div><div class="bk-orbit-core"><span>✦</span><b>B</b><small>BOUTIKO</small></div><div class="bk-orbit-float float-a">↗</div><div class="bk-orbit-float float-b">✓</div></div>' +
+      '<div class="bk-command-stats"><div class="bk-command-stat"><span class="bk-stat-symbol">▦</span><span><b>' + n + '</b><small>Produits au catalogue</small></span><span class="bk-stat-tail">→</span></div>' +
+      '<div class="bk-command-stat"><span class="bk-stat-symbol amber">↗</span><span><b>' + pendingCount + '</b><small>Commandes à traiter</small></span><span class="bk-stat-tail">→</span></div>' +
+      '<div class="bk-command-stat"><span class="bk-stat-symbol mint">◉</span><span><b>' + activeCount + '</b><small>Produits visibles</small></span><span class="bk-stat-tail">✓</span></div></div></section>';
+    h = commandPanel + checklist() + h;
     if (!n) {
       h += '<div class="empty"><b>Votre vitrine est vide</b>Ajoutez un produit : une photo, un nom, un prix. Cela prend une minute.<div style="margin-top:12px"><button class="btn" id="addp2">' + ic("plus") + " Ajouter mon premier produit</button></div></div>";
     }
@@ -278,6 +293,8 @@
     }).join("");
     v.innerHTML = h;
     $("#addp").onclick = function () { productForm(); };
+    var quickAdd = $("#bkQuickAdd");
+    if (quickAdd) quickAdd.onclick = function () { productForm(); };
     var a2 = $("#addp2"); if (a2) a2.onclick = function () { productForm(); };
     v.querySelectorAll("[data-edit]").forEach(function (b) {
       b.onclick = function () {
