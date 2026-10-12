@@ -534,9 +534,9 @@ async function homePage(request, env) {
       <p class="hk-sub">Une page claire, de belles photos et les prix visibles : vos clients comprennent ce que vous proposez avant même de vous contacter.</p>
     </div>
     <div class="hk-pillars">
-      <div class="hk-pillar"><strong>Vos produits, au bon endroit.</strong><p>Photos, prix et détails sont réunis sur une page que vos clients peuvent parcourir tranquillement.</p></div>
-      <div class="hk-pillar"><strong>La commande reste simple.</strong><p>Un bouton les dirige vers WhatsApp. Vous discutez avec vos clients comme vous en avez l’habitude.</p></div>
-      <div class="hk-pillar"><strong>Un seul lien à envoyer.</strong><p>Placez-le dans votre statut, votre bio ou envoyez-le directement à vos clients.</p></div>
+      <article class="hk-pillar"><span class="hk-feature-icon" aria-hidden="true">✦</span><span class="hk-feature-kicker">VOTRE VITRINE</span><strong>Vos produits, au bon endroit.</strong><p>Photos, prix et détails sont réunis sur une page que vos clients peuvent parcourir tranquillement.</p></article>
+      <article class="hk-pillar"><span class="hk-feature-icon" aria-hidden="true">↗</span><span class="hk-feature-kicker">CONTACT DIRECT</span><strong>La commande reste simple.</strong><p>Un bouton les dirige vers WhatsApp. Vous discutez avec vos clients comme vous en avez l’habitude.</p></article>
+      <article class="hk-pillar"><span class="hk-feature-icon" aria-hidden="true">⌁</span><span class="hk-feature-kicker">UN LIEN UNIQUE</span><strong>Un seul lien à envoyer.</strong><p>Placez-le dans votre statut, votre bio ou envoyez-le directement à vos clients.</p></article>
     </div>
   </div>
 </section>
@@ -549,9 +549,9 @@ async function homePage(request, env) {
       <h2>Pas besoin d’être informaticien.</h2>
     </div>
     <div class="hk-steps">
-      <div class="hk-step"><span class="hk-step-n">1</span><strong>Choisissez l’ambiance</strong><p>Mode, beauté, alimentation, maison ou commerce général : partez d’un modèle qui vous plaît.</p></div>
-      <div class="hk-step"><span class="hk-step-n">2</span><strong>Mettez votre commerce</strong><p>Ajoutez votre nom, votre numéro WhatsApp, vos photos et vos prix.</p></div>
-      <div class="hk-step"><span class="hk-step-n">3</span><strong>Faites circuler le lien</strong><p>Envoyez votre adresse de boutique à vos clients et publiez-la sur vos réseaux.</p></div>
+      <article class="hk-step"><span class="hk-step-n">01</span><span class="hk-step-icon" aria-hidden="true">◈</span><strong>Choisissez l’ambiance</strong><p>Mode, beauté, alimentation, maison ou commerce général : partez d’un modèle qui vous plaît.</p></article>
+      <article class="hk-step"><span class="hk-step-n">02</span><span class="hk-step-icon" aria-hidden="true">✳</span><strong>Mettez votre commerce</strong><p>Ajoutez votre nom, votre numéro WhatsApp, vos photos et vos prix.</p></article>
+      <article class="hk-step"><span class="hk-step-n">03</span><span class="hk-step-icon" aria-hidden="true">↗</span><strong>Faites circuler le lien</strong><p>Envoyez votre adresse de boutique à vos clients et publiez-la sur vos réseaux.</p></article>
     </div>
   </div>
 </section>
