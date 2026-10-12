@@ -9,9 +9,9 @@
   --c:#27338f;
   --ink:#121826;
   --mut:#5b657a;
-  --bg:#f4f5f9;
-  --card:#ffffff;
-  --bd:#e6e8f0;
+  --bg:#f7f2e8;
+  --card:#fffdf8;
+  --bd:#e8e0d2;
   --ok:#128c4a;
   --bad:#c81e1e;
   --warn:#b45309;
