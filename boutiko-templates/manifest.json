@@ -1,0 +1,134 @@
+{
+  "count": 16,
+  "formats": "WebP",
+  "mapping": [
+    {
+      "id": "simple",
+      "file": "simple.webp",
+      "original": "Boutique Boutiko aux tons chaleureux.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 82560
+    },
+    {
+      "id": "quartier",
+      "file": "quartier.webp",
+      "original": "Boutiko, votre marché de proximité en ligne.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 103842
+    },
+    {
+      "id": "express",
+      "file": "express.webp",
+      "original": "Boutiko – Boulangerie et produits frais.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 143392
+    },
+    {
+      "id": "vitrine",
+      "file": "vitrine.webp",
+      "original": "Boutiko — Beauté naturelle éclatante.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 92084
+    },
+    {
+      "id": "catalogue",
+      "file": "catalogue.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_18-5.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 86694
+    },
+    {
+      "id": "mode",
+      "file": "mode.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_25-10.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 88526
+    },
+    {
+      "id": "premium",
+      "file": "premium.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_20-7.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 89944
+    },
+    {
+      "id": "maison",
+      "file": "maison.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_21-8.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 117910
+    },
+    {
+      "id": "flagship",
+      "file": "flagship.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_24-9.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 108164
+    },
+    {
+      "id": "boulangerie",
+      "file": "boulangerie.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_16-3.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 166678
+    },
+    {
+      "id": "beaute",
+      "file": "beaute.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_17-4.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 92850
+    },
+    {
+      "id": "marche",
+      "file": "marche.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_14-2.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 129348
+    },
+    {
+      "id": "chaleureux",
+      "file": "chaleureux.webp",
+      "original": "Boutique en ligne prête à vendre-2.png",
+      "width": 1100,
+      "height": 733,
+      "bytes": 105040
+    },
+    {
+      "id": "lifestyle",
+      "file": "lifestyle.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_12-1.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 72582
+    },
+    {
+      "id": "boutique",
+      "file": "boutique.webp",
+      "original": "Boutiko, votre boutique en ligne prête à vendre-1.png",
+      "width": 1100,
+      "height": 783,
+      "bytes": 89630
+    },
+    {
+      "id": "collection",
+      "file": "collection.webp",
+      "original": "Image ChatGPT 12 oct. 2026, 17_47_19-6.png",
+      "width": 1100,
+      "height": 825,
+      "bytes": 72184
+    }
+  ]
+}
