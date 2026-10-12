@@ -4,6 +4,7 @@
   var O = null;   // vue d'ensemble
   var D = null;   // liste des boutiques
   var tab = "home";
+  var BRAND = { settings: {}, assets: [] };
   var F = { status: "all", plan: "all", q: "" };
 
   function esc(s) {
@@ -66,8 +67,8 @@
 
   // ---------- Chargement ----------
   function load() {
-    Promise.all([api("/api/admin/overview"), api("/api/admin/shops")]).then(function (r) {
-      O = r[0]; D = r[1]; draw();
+    Promise.all([api("/api/admin/overview"), api("/api/admin/shops"), api("/api/admin/branding")]).then(function (r) {
+      O = r[0]; D = r[1]; BRAND = r[2]; draw();
     }).catch(function (ex) {
       if (ex.status === 401 || ex.status === 404) renderLogin();
       else if (ex.status === 403) {
@@ -100,7 +101,7 @@
 
   // ---------- Structure ----------
   function draw() {
-    var tabs = [["home", "home", "Accueil"], ["shops", "shops", "Boutiques"], ["more", "cog", "Réglages"]];
+    var tabs = [["home", "home", "Accueil"], ["shops", "shops", "Boutiques"], ["brand", "cog", "Identité visuelle"], ["more", "cog", "Réglages"]];
     root.innerHTML =
       '<div class="ownbar"><div class="in"><div><small>Plateforme</small><h1>Espace propriétaire</h1></div>' +
       '<a class="btn ghost small" href="/app">Mon espace boutique</a></div></div>' +
@@ -112,7 +113,7 @@
       b.onclick = function () { tab = b.getAttribute("data-tab"); window.scrollTo(0, 0); draw(); };
     });
     var v = $("#view");
-    if (tab === "home") viewHome(v); else if (tab === "shops") viewShops(v); else viewMore(v);
+    if (tab === "home") viewHome(v); else if (tab === "shops") viewShops(v); else if (tab === "brand") viewBrand(v); else viewMore(v);
   }
 
   // ---------- Accueil : chiffres de la plateforme ----------
@@ -293,6 +294,34 @@
     document.body.appendChild(ov);
     $("#pwx", ov).onclick = function () { ov.remove(); };
     $("#pwc", ov).onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(pw).then(function () { toast("Mot de passe copié."); }); };
+  }
+
+  // ---------- Identité visuelle de la plateforme ----------
+  function viewBrand(v) {
+    var s = BRAND.settings || {}; var assets = BRAND.assets || [];
+    function has(k) { return assets.some(function (a) { return a.kind === k; }); }
+    v.innerHTML = '<h2>Identité visuelle de Boutiko</h2><p class="muted">Changez le nom, le message et les visuels de la page publique. Les images doivent faire 2 Mo maximum.</p>' +
+      '<form id="brandForm" class="card"><div class="field"><label for="brandName">Nom de la plateforme</label><input id="brandName" name="name" maxlength="50" value="' + esc(s.name || "Boutiko") + '" required></div>' +
+      '<div class="field"><label for="brandTitle">Titre principal</label><input id="brandTitle" name="heroTitle" maxlength="150" value="' + esc(s.heroTitle || "Ouvrez une boutique en ligne en 5 minutes. Vos clients commandent sur WhatsApp.") + '" required></div>' +
+      '<div class="field"><label for="brandText">Texte de présentation</label><textarea id="brandText" name="heroText" maxlength="300" rows="3" required>' + esc(s.heroText || "Choisissez un modèle pro, ajoutez vos produits et votre logo. Partagez un lien et recevez les commandes sur WhatsApp.") + '</textarea></div>' +
+      '<div class="field"><label for="brandDesc">Description courte</label><input id="brandDesc" name="description" maxlength="180" value="' + esc(s.description || "Créez votre boutique en ligne en quelques minutes.") + '"></div>' +
+      '<div class="field"><label for="brandColor">Couleur principale</label><input id="brandColor" name="primaryColor" type="color" value="' + esc(/^#[0-9a-fA-F]{6}$/.test(s.primaryColor || "") ? s.primaryColor : "#102a43") + '" style="height:52px;padding:5px"></div>' +
+      '<button class="btn block" type="submit">Enregistrer l’identité</button></form>' +
+      '<h2 style="margin-top:20px">Visuels de la plateforme</h2><div class="card"><p class="muted small">Logo affiché dans l’en-tête. Bannière affichée derrière le grand titre de la page d’accueil.</p>' +
+      brandUpload("logo", "Logo de Boutiko", has("logo")) + brandUpload("hero", "Image de couverture", has("hero")) + brandUpload("icon", "Icône / visuel complémentaire", has("icon")) +
+      '<p class="muted small">Formats acceptés : JPG, PNG ou WebP. Le remplacement conserve les boutiques et les produits des commerçants.</p></div>';
+    $("#brandForm", v).onsubmit = function (e) { e.preventDefault(); var b = Object.fromEntries(new FormData(e.target).entries()); api("/api/admin/branding", "POST", b).then(function () { toast("Identité enregistrée."); load(); }).catch(function (ex) { toast(ex.message); }); };
+    v.querySelectorAll("[data-brand-upload]").forEach(function (input) { input.onchange = function () {
+      var file = input.files && input.files[0]; if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { toast("Image trop lourde : maximum 2 Mo."); input.value = ""; return; }
+      var kind = input.getAttribute("data-brand-upload"); input.disabled = true;
+      fetch("/api/admin/branding?kind=" + encodeURIComponent(kind), { method: "POST", headers: { "X-Requested-With": "boutiko" }, credentials: "same-origin", body: file })
+        .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || "Échec de l’envoi."); return d; }); })
+        .then(function () { toast("Visuel mis à jour."); load(); }).catch(function (ex) { toast(ex.message); input.disabled = false; });
+    }; });
+  }
+  function brandUpload(kind, label, exists) {
+    return '<div class="brand-upload"><div><b>' + esc(label) + '</b><div class="muted small">' + (exists ? '<img class="brand-preview" src="/platform-img/' + kind + '?v=' + Date.now() + '" alt="Aperçu du visuel">' : "Aucun visuel personnalisé") + '</div></div><label class="btn ghost small brand-pick">' + (exists ? "Remplacer" : "Ajouter une image") + '<input type="file" accept="image/jpeg,image/png,image/webp" data-brand-upload="' + kind + '" hidden></label></div>';
   }
 
   // ---------- Réglages ----------
