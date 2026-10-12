@@ -1561,3 +1561,83 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .bk-all-templates-details .tpl-cta .btn{min-height:38px;padding:9px 12px;font-size:.78rem}
 @media(max-width:1050px){.bk-workspace{grid-template-columns:205px minmax(0,1fr)}.bk-sidebar{padding:20px 12px}.bk-all-templates-details .tpl-marketplace{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.bk-workspace{display:block;min-height:0}.bk-sidebar{position:relative;top:auto;height:auto;min-height:0;padding:10px 12px;background:#151e3c;border-bottom:1px solid #ffffff20}.bk-side-brand{padding:0 8px 0 0;color:#fff}.bk-side-brand .hk-mark,.bk-side-brand .hk-brand-logo{width:30px;height:30px}.bk-side-link{color:#d2d8ed}.bk-side-link.active{background:#343d76}.bk-main{padding:18px 13px 28px}.bk-all-templates{padding:18px 13px 30px}.bk-all-templates-head{align-items:flex-start;flex-direction:column;padding:17px}.bk-all-templates-head .hk-btn{width:100%}.bk-all-templates-details .tpl-marketplace{grid-template-columns:1fr;gap:10px}.bk-all-templates-details .tpl-card{display:grid;grid-template-columns:115px minmax(0,1fr)}.bk-all-templates-details .tpl-image{height:100%;min-height:165px}.bk-all-templates-details .tpl-meta{padding:10px}.bk-all-templates-details .tpl-cta .btn{width:100%}}
+
+
+/* BOUTIKO — Espace commerçant : interface premium, claire et mobile-first */
+#root:has(.appbar){min-height:100vh;background:linear-gradient(180deg,#f3f7f6 0%,#fbfaf7 360px,#fbfaf7 100%)}
+.appbar{position:relative;isolation:isolate;overflow:hidden;padding:26px clamp(16px,4vw,38px) 30px!important;background:linear-gradient(118deg,#102a43 0%,#174a61 55%,#23766f 100%)!important;color:#fff;box-shadow:0 14px 34px rgba(16,42,67,.16)}
+.appbar:before{content:"";position:absolute;z-index:-1;width:300px;height:300px;right:-80px;top:-190px;border-radius:50%;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 0 32px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025)}
+.appbar .awning{height:4px;position:absolute;left:0;right:0;top:0;background:linear-gradient(90deg,#ff704f 0%,#ffb85c 45%,#d8f5e8 100%);opacity:.95}
+.appbar .in{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+.appbar h1{margin:0;color:#fff!important;font-size:clamp(1.45rem,3.4vw,2.25rem);line-height:1.14;letter-spacing:-.045em;font-weight:850}
+.appbar h1 small{display:block;color:#bce8d9!important;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;margin-bottom:8px}
+.appbar .app-actions{margin:0;gap:9px}
+.appbar .btn{min-height:42px;border-radius:12px;padding:10px 14px;font-size:.86rem;box-shadow:none;white-space:nowrap}
+.appbar .btn.ghost{background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important}
+.appbar .btn.ghost:hover{background:rgba(255,255,255,.18)!important;border-color:rgba(255,255,255,.42)!important}
+#root>.alert{max-width:1124px;margin:18px auto 0;border-radius:14px}
+#view{max-width:1180px;padding:26px clamp(15px,3vw,30px) 116px!important}
+#view>.row{gap:12px;margin:0 0 18px;padding:16px 18px;background:#fff;border:1px solid #e3eae7;border-radius:17px;box-shadow:0 5px 18px rgba(16,42,67,.045)}
+#view>.row>b{font-size:.96rem;color:#344b5d}
+#view>.row .btn{min-height:43px;border-radius:12px}
+#view .card{background:rgba(255,255,255,.94);border-color:#e2e9e6;border-radius:18px;box-shadow:0 7px 24px rgba(16,42,67,.045)}
+#view .todo{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e2e9e6;border-radius:14px;box-shadow:none;padding:14px;margin:9px 0}
+#view .todo .n{flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:#e1f4ec;color:#17664f;display:grid;place-items:center;font-weight:850}
+#view .todo.done .n{background:#18794e;color:#fff}
+#view .todo .t{min-width:0}
+#view .todo .t b{display:block;font-size:.91rem;line-height:1.35}
+#view .progress{height:7px;border-radius:999px;background:#edf1ef;overflow:hidden;margin:12px 0 15px}
+#view .progress i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#18794e,#6cc6a1);transition:width .3s ease}
+#view .lrow{display:flex;gap:14px;align-items:center;padding:15px 2px;border-bottom:1px solid #e9eeeb}
+#view .lrow:last-child{border-bottom:0}
+#view .lrow>img{width:68px;height:68px;flex:0 0 68px;object-fit:cover;border-radius:13px;background:#f0f3f2}
+#view .lrow .t{min-width:0;flex:1}
+#view .lrow .t>b{display:block;font-size:.98rem;line-height:1.35;color:#18364a;overflow-wrap:anywhere}
+#view .lrow .t>div{font-weight:800;color:#17664f;margin:3px 0}
+#view .chipx{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:#edf5f1;color:#28634f;padding:5px 9px;font-size:.74rem;font-weight:800}
+#view .empty{border:1px dashed #c8d8d1;background:linear-gradient(145deg,#fff,#f5faf7);border-radius:20px;padding:36px 22px;color:#617568}
+#view .empty>b{display:block;font-size:1.18rem;color:#18364a;margin-bottom:7px}
+#view .empty .btn{margin-inline:auto}
+#view h2{color:#18364a}
+.tabs{gap:8px;padding:10px max(12px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);border-top:1px solid #e1e9e5;box-shadow:0 -8px 30px rgba(16,42,67,.08)}
+.tabs button{position:relative;min-width:84px;border-radius:13px;padding:9px 14px;color:#718078}
+.tabs button.on{background:#dff4e9;color:#155d48;box-shadow:inset 0 0 0 1px #c7e8d9}
+.tabs button.on:before{content:"";position:absolute;top:-10px;left:25%;right:25%;height:3px;border-radius:0 0 4px 4px;background:#1a8a65}
+.tabs button .i{width:21px;height:21px}
+.toast{box-shadow:0 12px 32px rgba(16,42,67,.22);padding:13px 18px}
+.overlay{padding:16px}
+.sheet{max-height:calc(100dvh - 32px);overflow:auto;border:1px solid rgba(255,255,255,.5);box-shadow:0 24px 80px rgba(16,42,67,.25)}
+@media(min-width:900px){
+  #view{padding-top:30px!important}
+  #view>.row{padding:17px 20px}
+  #view .lrow>img{width:76px;height:76px;flex-basis:76px}
+}
+@media(max-width:680px){
+  .appbar{padding:22px 16px 24px!important;border-radius:0 0 22px 22px}
+  .appbar .in{align-items:flex-start;flex-direction:column;gap:14px}
+  .appbar h1{font-size:1.55rem;max-width:100%;overflow-wrap:anywhere}
+  .appbar .app-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .appbar .app-actions .btn{white-space:normal;text-align:center;font-size:.78rem;min-height:44px;padding:9px 10px}
+  #root>.alert{margin:12px 13px 0}
+  #view{padding:17px 13px calc(104px + env(safe-area-inset-bottom))!important}
+  #view>.row{padding:13px;align-items:stretch}
+  #view>.row>b{align-self:center;font-size:.88rem}
+  #view>.row .btn{max-width:100%;font-size:.82rem;padding:9px 11px}
+  #view .todo{align-items:flex-start;padding:12px}
+  #view .lrow{gap:10px;align-items:center}
+  #view .lrow>img{width:56px;height:56px;flex-basis:56px;border-radius:11px}
+  #view .lrow .btn{font-size:.78rem;padding:8px 10px;min-height:38px}
+  .tabs{justify-content:space-around;gap:2px;padding:8px 7px calc(8px + env(safe-area-inset-bottom))}
+  .tabs button{min-width:0;flex:1;padding:8px 2px;font-size:.68rem;gap:4px}
+  .tabs button .i{width:19px;height:19px}
+  .tabs button.on:before{top:-8px}
+  .overlay{padding:8px}
+  .sheet{max-height:calc(100dvh - 16px);border-radius:19px!important}
+}
+@media(max-width:360px){
+  .appbar .app-actions{grid-template-columns:1fr}
+  #view>.row{flex-direction:column;align-items:stretch}
+  #view>.row>b{align-self:flex-start}
+  #view .lrow>img{width:48px;height:48px;flex-basis:48px}
+  .tabs button{font-size:.62rem}
+}
