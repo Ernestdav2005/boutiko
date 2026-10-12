@@ -1063,3 +1063,14 @@ body:has(.hk-nav){background:var(--bg)}.hk-nav{background:rgba(255,249,241,.95);
  .sf-page[data-template="mode"] .sf-name{font-size:2.1rem}
  .sf-page[data-template="maison"] .sf-about{padding-block:36px}
 }
+
+/* The selected template controls its own accent; merchant data never changes its skeleton. */
+.sf-page[data-template="simple"]{--c:#bc7654}
+.sf-page[data-template="quartier"]{--c:#24704c}
+.sf-page[data-template="express"]{--c:#c85b32}
+.sf-page[data-template="vitrine"]{--c:#b96e7b}
+.sf-page[data-template="catalogue"]{--c:#3158a5}
+.sf-page[data-template="mode"]{--c:#9a543d}
+.sf-page[data-template="premium"]{--c:#b18d4d}
+.sf-page[data-template="maison"]{--c:#8b7355}
+.sf-page[data-template="flagship"]{--c:#ef684e}
