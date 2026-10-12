@@ -390,7 +390,7 @@ function layout(o) {
 ${o.pwa ? '<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml">' : ""}
 ${o.image ? `<meta property="og:image" content="${esc(o.image)}">` : ""}${o.url ? `<meta property="og:url" content="${esc(o.url)}">` : ""}
 ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-color" content="${color}">
-<link rel="stylesheet" href="/style.css?v=${V.css}"><style>:root{--c:${color}}</style></head>
+<style id="boutiko-design-system">${STYLE_CSS}</style><style>:root{--c:${color}}</style></head>
 <body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.pwa ? '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}var ib=document.getElementById("installPwa");if(ib){var dp=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;});ib.addEventListener("click",function(){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;});}else{alert("Sur Android, ouvrez le menu ⋮ de Chrome puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».");}});}</script>' : ""}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
 }
 
@@ -417,15 +417,15 @@ async function homePage(request, env) {
   const wa = !!admin;
 
   const SHOTS = {
-    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&q=80",
-    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=900&q=80",
-    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=900&q=80",
-    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=900&q=80",
-    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=900&q=80",
-    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80",
-    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&q=80",
-    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=900&q=80",
-    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?w=900&q=80",
+    simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=82",
+    quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1000&q=82",
+    express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1000&q=82",
+    vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1000&q=82",
+    catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=82",
+    mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=82",
+    premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=82",
+    maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=82",
+    flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1000&q=82",
   };
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
   const planPrice = { essentiel: PLANS_PUBLIC.essentiel.price, standard: PLANS_PUBLIC.standard.price, pro: PLANS_PUBLIC.pro.price };
@@ -437,19 +437,8 @@ async function homePage(request, env) {
       const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
       return `<article class="tpl-card tpl-${esc(tid)}" data-plan="${esc(pk)}" data-id="${esc(tid)}">
         <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
-          <div class="mock mock-${esc(tid)}" data-plan="${esc(pk)}">
-            <div class="mock-top">
-              <div class="mock-banner"></div>
-              <div class="mock-logo"></div>
-              <div class="mock-name"></div>
-              <div class="mock-line"></div>
-            </div>
-            <div class="mock-body">
-              <div class="mock-sec"></div>
-              <div class="mock-prods"><i></i><i></i><i></i><i></i></div>
-            </div>
-            <span class="tpl-preview-label">Modele ${esc(t.label)}</span>
-          </div>
+          <img class="tpl-image" src="${SHOTS[tid]}" alt="Aperçu du modèle ${esc(t.label)}" loading="lazy">
+          <span class="tpl-preview-label">Aperçu · ${esc(t.label)}</span>
         </a>
         <div class="tpl-meta">
           <div class="tpl-meta-top">
@@ -726,7 +715,9 @@ function productCard(p, shop) {
     : `<b>${fcfa(p.price)} FCFA</b>`;
   const imgs = photos.length
     ? `<div class="photos"><img src="/img/${photos[0]}" loading="lazy" alt="${esc(p.name)}"></div>`
-    : `<div class="photos nophoto"><span>Pas de photo</span></div>`;
+    : p.demoImage
+      ? `<div class="photos"><img src="${esc(p.demoImage)}" loading="lazy" alt="${esc(p.name)}"></div>`
+      : `<div class="photos nophoto"><span>Pas de photo</span></div>`;
   const extra = photos.length > 1 ? `<span class="tag more">${photos.length} photos</span>` : "";
   return `<article class="prod${soldOut ? " out" : ""}" id="p${p.id}" data-id="${p.id}" data-max="${max}" data-photos="${photos.join(",")}" data-sold="${soldOut ? 1 : 0}">
 <div class="tap" data-open>${imgs}${promo ? '<span class="tag promo">Promo</span>' : ""}${soldOut ? '<span class="tag out">Épuisé</span>' : extra}</div>
@@ -895,11 +886,11 @@ async function modelDemoPage(request, env, tid) {
   const name = esc(fakeShop.name);
   const waLink = "https://wa.me/22900000000";
   const products = [
-    { id: 1, name: "Produit exemple 1", price: 6500, promo_price: null, photos: "[]", stock: 5, active: 1 },
-    { id: 2, name: "Produit exemple 2", price: 12000, promo_price: 9000, photos: "[]", stock: 3, active: 1 },
-    { id: 3, name: "Produit exemple 3", price: 3000, promo_price: null, photos: "[]", stock: null, active: 1 },
+    { id: 1, name: "Sélection du moment", price: 6500, promo_price: null, photos: "[]", demoImage: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=82", stock: 5, active: 1 },
+    { id: 2, name: "Coup de cœur", price: 12000, promo_price: 9000, photos: "[]", demoImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=82", stock: 3, active: 1 },
+    { id: 3, name: "Nouvelle collection", price: 3000, promo_price: null, photos: "[]", demoImage: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=82", stock: null, active: 1 },
   ];
-  const cover = `<div class="sf-cover no-img" style="--c:${color}"></div>`;
+  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.45),rgba(16,42,67,.08)),url(${SHOTS[tid]})"></div>`;
   const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
   let hero;
   if (t.plan === "pro") {
