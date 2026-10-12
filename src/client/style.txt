@@ -1074,3 +1074,78 @@ body:has(.hk-nav){background:var(--bg)}.hk-nav{background:rgba(255,249,241,.95);
 .sf-page[data-template="premium"]{--c:#b18d4d}
 .sf-page[data-template="maison"]{--c:#8b7355}
 .sf-page[data-template="flagship"]{--c:#ef684e}
+
+
+/* ===== Accueil Boutiko : finition premium, cohérente et mobile-first ===== */
+body.hk-site { background:#f7f5ef; color:#142b3a; }
+body.hk-site .hk-shell { width:min(1180px, calc(100% - 36px)); margin:0 auto; }
+body.hk-site .hk-logo { gap:10px; font-size:1.12rem; letter-spacing:-.035em; }
+body.hk-site .hk-mark { display:inline-grid; place-items:center; width:38px; height:38px; border-radius:12px; background:#ff6b4a; color:#fff; font-weight:900; box-shadow:0 6px 16px rgba(255,107,74,.25); }
+body.hk-site .hk-nav { box-shadow:0 8px 28px rgba(16,42,67,.07); }
+body.hk-site .hk-nav-links a { transition:background .18s ease,color .18s ease; }
+body.hk-site .hk-hero { position:relative; isolation:isolate; overflow:hidden; padding:clamp(54px,8vw,100px) 0; }
+body.hk-site .hk-hero::after { content:""; position:absolute; z-index:-1; width:540px; height:540px; right:-170px; bottom:-310px; border:1px solid rgba(255,255,255,.13); border-radius:50%; box-shadow:0 0 0 48px rgba(255,255,255,.025),0 0 0 100px rgba(255,255,255,.02); pointer-events:none; }
+body.hk-site .hk-hero-grid { gap:clamp(28px,5vw,72px); }
+body.hk-site .hk-eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:.76rem; }
+body.hk-site .hk-eyebrow::before { content:""; width:22px; height:2px; background:currentColor; border-radius:2px; }
+body.hk-site .hk-hero-copy h1 { font-size:clamp(2.25rem,5.2vw,4.35rem); line-height:1.04; max-width:12ch; }
+body.hk-site .hk-lead { font-size:clamp(1.02rem,1.5vw,1.18rem); line-height:1.75; }
+body.hk-site .hk-hero-actions { gap:10px; }
+body.hk-site .hk-btn { transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease; }
+body.hk-site .hk-btn:hover { transform:translateY(-2px); }
+body.hk-site .hk-btn-primary { box-shadow:0 10px 24px rgba(255,107,74,.24)!important; }
+body.hk-site .hk-phone { max-width:290px; padding:0; transform:rotate(2deg); transition:transform .3s ease; }
+body.hk-site .hk-phone:hover { transform:rotate(0deg) translateY(-4px); }
+body.hk-site .hk-trust { padding:24px 0; }
+body.hk-site .hk-trust-in { gap:18px; }
+body.hk-site .hk-trust-item { padding:8px 10px; }
+body.hk-site .hk-trust-item strong { letter-spacing:-.035em; }
+body.hk-site .hk-band { scroll-margin-top:82px; }
+body.hk-site .hk-section-head h2 { font-size:clamp(1.7rem,3.5vw,2.5rem); line-height:1.12; }
+body.hk-site .hk-sub { line-height:1.75; }
+body.hk-site .hk-pillar, body.hk-site .hk-step { border-radius:20px; padding:clamp(20px,2.5vw,28px); transition:transform .2s ease,box-shadow .2s ease; }
+body.hk-site .hk-pillar:hover, body.hk-site .hk-step:hover { transform:translateY(-3px); box-shadow:0 14px 34px rgba(16,42,67,.09); }
+body.hk-site .hk-step-n { display:inline-grid; place-items:center; width:38px; height:38px; margin-bottom:16px; font-weight:850; }
+body.hk-site .tpl-marketplace { align-items:stretch; gap:24px!important; }
+body.hk-site .tpl-card { border-radius:22px!important; overflow:hidden; }
+body.hk-site .tpl-shot { aspect-ratio:16/10!important; background:#e8e6df!important; }
+body.hk-site .tpl-shot::before { content:none!important; background-image:none!important; }
+body.hk-site .tpl-image { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; object-fit:cover!important; }
+body.hk-site .tpl-preview-label { background:rgba(16,42,67,.92)!important; backdrop-filter:blur(8px); }
+body.hk-site .tpl-meta { padding:22px!important; }
+body.hk-site .tpl-plan { font-size:.74rem; font-weight:800; padding:6px 10px; }
+body.hk-site .tpl-meta h3 { font-size:1.2rem!important; }
+body.hk-site .tpl-desc { line-height:1.65; }
+body.hk-site .tpl-cta { gap:10px; }
+body.hk-site .tpl-cta .btn { min-height:44px; }
+body.hk-site .hk-dark { background:#102a43!important; }
+body.hk-site .hk-price { border-radius:22px; transition:transform .2s ease,box-shadow .2s ease; }
+body.hk-site .hk-price:hover { transform:translateY(-4px); box-shadow:0 18px 36px rgba(0,0,0,.18); }
+body.hk-site .hk-price-feat { box-shadow:0 18px 40px rgba(255,107,74,.12); }
+body.hk-site .hk-badge { display:inline-flex; align-self:flex-start; padding:6px 12px; font-size:.76rem; font-weight:800; }
+body.hk-site .hk-faq { margin:0 auto; }
+body.hk-site .hk-faq-item { transition:border-color .18s ease; }
+body.hk-site .hk-faq-item[open] { border-color:rgba(255,107,74,.55); }
+body.hk-site .hk-cta { position:relative; overflow:hidden; }
+body.hk-site .hk-cta .hk-shell { position:relative; z-index:1; }
+body.hk-site .hk-foot { padding:44px 0; }
+@media (min-width:800px) { body.hk-site .hk-hero-grid { grid-template-columns:minmax(0,1.1fr) minmax(250px,.9fr); } }
+@media (max-width:680px) {
+ body.hk-site .hk-shell { width:calc(100% - 28px); }
+ body.hk-site .hk-nav-in { gap:8px; }
+ body.hk-site .hk-logo { font-size:1rem; }
+ body.hk-site .hk-nav-cta .hk-btn { min-height:40px; padding:8px 10px; font-size:.8rem; }
+ body.hk-site .hk-hero { padding:48px 0 42px; }
+ body.hk-site .hk-hero-copy h1 { font-size:clamp(2.15rem,10vw,3.1rem); max-width:13ch; }
+ body.hk-site .hk-hero-visual { max-width:220px; }
+ body.hk-site .hk-trust-in { gap:8px; }
+ body.hk-site .hk-trust-item { padding:8px 2px; }
+ body.hk-site .hk-trust-item strong { font-size:1rem; }
+ body.hk-site .hk-trust-item span { font-size:.74rem; }
+ body.hk-site .hk-band { padding:48px 0; }
+ body.hk-site .tpl-marketplace { gap:18px!important; }
+ body.hk-site .tpl-meta { padding:18px!important; }
+ body.hk-site .tpl-cta { flex-direction:column; align-items:stretch; }
+ body.hk-site .tpl-cta .btn { width:100%; }
+}
+@media (prefers-reduced-motion:reduce) { body.hk-site *, body.hk-site *::before, body.hk-site *::after { transition:none!important; scroll-behavior:auto!important; } }

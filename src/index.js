@@ -428,8 +428,8 @@ async function homePage(request, env) {
   const assetsRows = await env.DB.prepare("SELECT kind FROM platform_assets").all();
   const brandAssets = new Set(assetsRows.results.map((r) => r.kind));
   const name = esc(brand.name || env.PLATFORM_NAME || "Boutiko");
-  const heroTitle = esc(brand.heroTitle || "Ouvrez une boutique en ligne en 5 minutes. Vos clients commandent sur WhatsApp.");
-  const heroText = esc(brand.heroText || "Choisissez un modele pro, ajoutez vos produits et votre logo. Partagez un lien. Recevez les commandes directement sur WhatsApp — sans application pour vos clients.");
+  const heroTitle = esc(brand.heroTitle || "Votre boutique en ligne, prête à vendre. Vos clients commandent sur WhatsApp.");
+  const heroText = esc(brand.heroText || "Créez une vitrine professionnelle en quelques minutes. Présentez vos produits, partagez un lien unique et recevez les commandes directement sur WhatsApp.");
   const brandColor = safeColor(brand.primaryColor || "#102a43");
   const brandLogo = brandAssets.has("logo") ? `<img class="hk-brand-logo" src="/platform-img/logo" alt="Logo ${name}">` : `<span class="hk-mark">B</span>`;
   const heroVisual = brandAssets.has("hero") ? `style="background-image:linear-gradient(90deg,rgba(16,42,67,.88),rgba(16,42,67,.18)),url(/platform-img/hero)"` : "";
@@ -498,14 +498,14 @@ async function homePage(request, env) {
 <header class="hk-hero" ${heroVisual}>
   <div class="hk-shell hk-hero-grid">
     <div class="hk-hero-copy">
-      <p class="hk-eyebrow">Pour les commercants &amp; jeunes entrepreneurs</p>
+      <p class="hk-eyebrow">Pensé pour les commerçants et entrepreneurs</p>
       <h1>${heroTitle}</h1>
       <p class="hk-lead">${heroText}</p>
       <div class="hk-hero-actions">
-        <a class="hk-btn hk-btn-primary hk-btn-lg" href="#modeles">Creer ma boutique — essai gratuit</a>
+        <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">Créer ma boutique — essai gratuit</a>
         <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Voir les modeles</a>
       </div>
-      <p class="hk-note">${TRIAL_PUBLIC} jours d'essai · Sans competence technique · Clients sans application a installer</p>
+      <p class="hk-note">${TRIAL_PUBLIC} jours d’essai · Sans compétence technique · Aucune application à installer pour vos clients</p>
     </div>
     <div class="hk-hero-visual" aria-hidden="true">
       <div class="hk-phone">
@@ -531,9 +531,9 @@ async function homePage(request, env) {
 <section class="hk-band hk-dark" id="pourquoi">
   <div class="hk-shell">
     <div class="hk-section-head">
-      <p class="hk-eyebrow">Franchise &amp; professionnalisme</p>
-      <h2>Une identite visuelle digne de votre activite</h2>
-      <p class="hk-sub">Pas besoin d'etre une grande enseigne pour paraitre professionnel. Choisissez un modele, renseignez vos infos, ajoutez vos photos : votre boutique est prete.</p>
+      <p class="hk-eyebrow">Votre commerce mérite une belle vitrine</p>
+      <h2>Une vitrine professionnelle, à votre image</h2>
+      <p class="hk-sub">Pas besoin d’être une grande enseigne pour inspirer confiance. Choisissez un modèle, ajoutez vos produits et partagez votre boutique en ligne.</p>
     </div>
     <div class="hk-pillars">
       <div class="hk-pillar"><strong>Toucher plus de clients</strong><p>Partagez un lien clair. Vos clients commandent sur WhatsApp, sans telecharger d'appli.</p></div>
@@ -547,7 +547,7 @@ async function homePage(request, env) {
 <section class="hk-band" id="comment">
   <div class="hk-shell">
     <div class="hk-section-head">
-      <p class="hk-eyebrow">Simple comme Shopify, pense pour WhatsApp</p>
+      <p class="hk-eyebrow">Simple, même sans expérience technique</p>
       <h2>Trois etapes. Votre boutique est en ligne.</h2>
     </div>
     <div class="hk-steps">
@@ -562,10 +562,10 @@ async function homePage(request, env) {
   <div class="hk-shell">
     <div class="hk-section-head">
       <p class="hk-eyebrow">Modeles de boutiques</p>
-      <h2>Choisissez le design. Remplacez seulement vos infos.</h2>
-      <p class="hk-sub">Chaque modele est une vraie structure de boutique. Ouvrez l'exemple, selectionnez-le : votre vitrine prendra ce design.</p>
+      <h2>16 modèles. Une boutique qui vous ressemble.</h2>
+      <p class="hk-sub">Mode, beauté, alimentation, technologie ou maison : choisissez votre style, puis personnalisez-le avec le nom, les photos et les produits de votre commerce.</p>
     </div>
-    <p class="hk-sub">Les neuf designs sont accessibles, quel que soit votre abonnement. La formule limite les quantités et les capacités, pas le choix du modèle.</p>
+    <p class="hk-sub">Les 16 modèles sont inclus dès la formule Essentiel à 2 000 FCFA/mois. Choisissez librement celui qui correspond à votre activité.</p>
     <div class="tpl-marketplace">${allCards}</div>
   </div>
 </section>
@@ -573,8 +573,8 @@ async function homePage(request, env) {
 <section class="hk-band hk-dark" id="tarifs">
   <div class="hk-shell">
     <div class="hk-section-head">
-      <p class="hk-eyebrow">Tarifs clairs</p>
-      <h2>Trois formules, zero surprise</h2>
+      <p class="hk-eyebrow">Un prix simple, sans mauvaise surprise</p>
+      <h2>Choisissez la formule adaptée à votre activité</h2>
     </div>
     <div class="hk-prices">
       <div class="hk-price">
@@ -587,7 +587,7 @@ async function homePage(request, env) {
         <p class="hk-badge">Recommande</p>
         <h3>Standard</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.standard.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.standard.products} produits maximum</li><li>${PLANS_PUBLIC.standard.photos} photos maximum par produit</li><li>${PLANS_PUBLIC.standard.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
+        <ul><li>${PLANS_PUBLIC.standard.products} produits maximum</li><li>${PLANS_PUBLIC.standard.photos} photos maximum par produit</li><li>${PLANS_PUBLIC.standard.storageMb} Mo de stockage</li><li>Les 16 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-primary" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price">
@@ -606,14 +606,14 @@ ${shops}
 <section class="hk-band hk-dark" id="faq">
   <div class="hk-shell">
     <div class="hk-section-head">
-      <p class="hk-eyebrow">Questions frequentes</p>
+      <p class="hk-eyebrow">Besoin de précisions ?</p>
       <h2>Tout ce qu'il faut savoir avant de demarrer</h2>
     </div>
     <div class="hk-faq">
       <details class="hk-faq-item" open><summary>Faut-il savoir coder ?</summary><p>Non. Vous choisissez un modele, vous renseignez vos textes et photos. C'est tout.</p></details>
       <details class="hk-faq-item"><summary>Comment mes clients commandent-ils ?</summary><p>Ils ouvrent votre lien boutique, choisissent un produit et envoient la commande sur WhatsApp. Pas d'application a installer pour eux.</p></details>
       <details class="hk-faq-item"><summary>Puis-je commencer gratuitement ?</summary><p>Oui. ${TRIAL_PUBLIC} jours d'essai. Vous testez avant de passer a une formule payante.</p></details>
-      <details class="hk-faq-item"><summary>Quelle est la différence entre les formules ?</summary><p>Les neuf modèles sont accessibles avec chaque formule. La différence porte sur les plafonds numériques : nombre de produits, photos et espace de stockage.</p></details>
+      <details class="hk-faq-item"><summary>Quelle est la différence entre les formules ?</summary><p>Les 16 modèles sont accessibles avec chaque formule. La différence porte sur le nombre de produits, les photos et l’espace de stockage.</p></details>
       <details class="hk-faq-item"><summary>Ca marche sur telephone ?</summary><p>Oui. L'espace commercant et la boutique client sont optimises mobile. Vous pouvez aussi installer Boutiko comme application (PWA).</p></details>
     </div>
   </div>
@@ -621,8 +621,8 @@ ${shops}
 
 <section class="hk-cta">
   <div class="hk-shell">
-    <h2>Pret a ouvrir votre vitrine ?</h2>
-    <p>Inscrivez-vous, choisissez un modele, publiez. ${TRIAL_PUBLIC} jours pour tester.</p>
+    <h2>Prêt à donner une vitrine à votre commerce ?</h2>
+    <p>Inscrivez-vous, choisissez un modèle et partagez votre lien. Vous disposez de ${TRIAL_PUBLIC} jours pour essayer.</p>
     <div class="hk-hero-actions" style="justify-content:center">
       <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app">Inscription</a>
       <a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app">Connexion</a>
@@ -648,8 +648,8 @@ ${shops}
 `;
 
   return html(layout({
-    title: `${brand.name || env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
-    desc: brand.description || "Choisissez parmi neuf modèles de boutique, puis sélectionnez la formule adaptée à votre activité et vendez sur WhatsApp.",
+    title: `${brand.name || env.PLATFORM_NAME || "Boutiko"} — Créez votre boutique en ligne`,
+    desc: brand.description || "Créez une boutique en ligne professionnelle, choisissez parmi 16 modèles et recevez vos commandes sur WhatsApp.",
     color: brandColor,
     body,
     pwa: true,
