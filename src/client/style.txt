@@ -895,3 +895,56 @@ body.hk-site .sec h2, body.hk-site .h2 { color: #fff; }
 
 body.hk-site .hk-btn-primary { box-shadow: 0 0 0 1px #fff; }
 body.hk-site .hk-hero-copy h1 { max-width: 18ch; }
+
+
+/* ============================================================
+   BOUTIKO 3.0 — PREMIUM VISUAL REFRESH
+   Responsive polish, stronger hierarchy, accessible controls.
+   ============================================================ */
+:root{
+  --c:#102a43;
+  --ink:#152536;
+  --mut:#617184;
+  --bg:#fff9f1;
+  --card:#ffffff;
+  --bd:#e7e5df;
+  --ok:#13795b;
+  --bad:#c63d3d;
+  --warn:#a85a12;
+  --sun:#ff704f;
+  --r:18px;
+  --r-lg:26px;
+  --shadow:0 2px 6px rgba(16,42,67,.045),0 10px 30px rgba(16,42,67,.065);
+  --shadow-md:0 8px 24px rgba(16,42,67,.10);
+  --shadow-lg:0 18px 52px rgba(16,42,67,.14);
+}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.65}
+a{color:#174c70;text-decoration:none}
+a:hover{color:#e85c3e}
+button,.btn,[type=button],[type=submit]{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+button:hover,.btn:hover,[type=button]:hover,[type=submit]:hover{transform:translateY(-1px)}
+.btn{background:#102a43;border-radius:13px;min-height:48px;padding:13px 21px;font-weight:750;box-shadow:0 7px 18px rgba(16,42,67,.16)}
+.btn.primary,.btn-primary,.primary.btn,.cta,.button-primary{background:#ff6347;color:#fff;box-shadow:0 8px 20px rgba(255,99,71,.22)}
+.btn.secondary,.btn-outline{background:#fff;color:#102a43;border:1px solid #d9e1e8;box-shadow:none}
+input,select,textarea{max-width:100%;border:1px solid #d7dee5;border-radius:12px;padding:12px 14px;font:inherit;background:#fff;color:#152536}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(255,112,79,.2);border-color:#ff704f}
+.card{border:1px solid rgba(16,42,67,.09);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.wrap{max-width:1160px;padding:22px 22px}
+header,nav{max-width:100%}
+img{height:auto}
+section{scroll-margin-top:90px}
+@media(min-width:900px){
+  h1{font-size:clamp(2.65rem,4.2vw,4.35rem);line-height:1.05;letter-spacing:-.045em}
+  h2{font-size:clamp(1.7rem,2.5vw,2.45rem);letter-spacing:-.035em}
+  .wrap{padding:28px 28px}
+}
+@media(max-width:640px){
+  body{font-size:15px}
+  h1{font-size:2.1rem;line-height:1.12}
+  h2{font-size:1.55rem}
+  .wrap{padding:16px}
+  .card{padding:17px;border-radius:16px}
+  .btn{width:100%;min-height:48px}
+}
+::selection{background:#d8f5e8;color:#102a43}
