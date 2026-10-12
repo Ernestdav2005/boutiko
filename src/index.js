@@ -635,7 +635,7 @@ ${shops}
 <footer class="hk-foot">
   <div class="hk-shell hk-foot-in">
     <div><strong>${name}</strong><p>Boutiques en ligne pour commercants. Commandes WhatsApp.</p></div>
-    <div class="hk-foot-links"><a href="#modeles">Modeles</a><a href="/app">Espace commercant</a><a href="/admin">Admin</a></div>
+    <div class="hk-foot-links"><a href="#modeles">Modeles</a><a href="/app">Espace commercant</a><a href="/proprietaire">Espace Propriétaire</a></div>
   </div>
 </footer>
 
@@ -1112,7 +1112,8 @@ async function apiShopUpdate(request, env, auth) {
   const shop = auth.shop;
   const b = await readJson(request);
   if (!b) return fail("Requête invalide");
-  const plan = PLANS[shop.plan] || PLANS.essentiel;
+  const config = await platformConfig(env);
+  const plan = config.plans[shop.plan] || config.plans.essentiel;
   const f = {};
   if (b.name !== undefined) {
     f.name = str(b.name, 60);
@@ -1225,7 +1226,8 @@ function productOut(p) {
   };
 }
 async function validateProduct(env, shop, b, existing) {
-  const plan = PLANS[shop.plan] || PLANS.essentiel;
+  const config = await platformConfig(env);
+  const plan = config.plans[shop.plan] || config.plans.essentiel;
   const f = {};
   const name = b.name !== undefined ? str(b.name, 80) : existing?.name;
   if (!name) return { error: "Entrez le nom du produit." };
@@ -1266,7 +1268,8 @@ async function attachPhotos(env, shop, productId, ids) {
 }
 async function apiProducts(request, env, auth, parts) {
   const shop = auth.shop;
-  const plan = PLANS[shop.plan] || PLANS.essentiel;
+  const config = await platformConfig(env);
+  const plan = config.plans[shop.plan] || config.plans.essentiel;
   const method = request.method;
   if (method === "GET" && parts.length === 2) {
     const r = await env.DB.prepare("SELECT * FROM products WHERE shop_id=? ORDER BY id DESC").bind(shop.id).all();
@@ -1316,7 +1319,8 @@ async function apiProducts(request, env, auth, parts) {
 async function apiUpload(request, env, auth) {
   const shop = auth.shop;
   if (!env.IMAGES) return fail("Le stockage des photos n'est pas encore activé.", 503);
-  const plan = PLANS[shop.plan] || PLANS.essentiel;
+  const config = await platformConfig(env);
+  const plan = config.plans[shop.plan] || config.plans.essentiel;
   const kind = new URL(request.url).searchParams.get("kind");
   if (!["product", "logo", "banner", "gallery"].includes(kind)) return fail("Type de photo invalide.");
   if (kind === "banner" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
@@ -1437,7 +1441,8 @@ async function apiAdminBranding(request, env) {
     const rows = await env.DB.prepare("SELECT key, value FROM platform_settings").all();
     const settings = Object.fromEntries(rows.results.map((r) => [r.key, r.value]));
     const assets = await env.DB.prepare("SELECT kind, updated_at FROM platform_assets").all();
-    return json({ settings, assets: assets.results });
+    const config = await platformConfig(env);
+    return json({ settings, assets: assets.results, plans: config.plans, trialDays: config.trialDays });
   }
   if (request.method === "POST" && new URL(request.url).searchParams.has("kind")) {
     const kind = new URL(request.url).searchParams.get("kind");
@@ -1456,11 +1461,14 @@ async function apiAdminBranding(request, env) {
   if (request.method === "POST") {
     const body = await readJson(request);
     if (!body) return fail("Réglages invalides.");
-    const allowed = { name: 50, heroTitle: 150, heroText: 300, description: 180, primaryColor: 7 };
+    const allowed = { name: 50, heroTitle: 150, heroText: 300, description: 180, primaryColor: 7, supportPhone: 20, trialDays: 2, price_essentiel: 8, price_standard: 8, price_pro: 8, products_essentiel: 5, products_standard: 5, products_pro: 5, photos_essentiel: 3, photos_standard: 3, photos_pro: 3, storageMb_essentiel: 5, storageMb_standard: 5, storageMb_pro: 5 };
     for (const [key, max] of Object.entries(allowed)) {
       if (body[key] === undefined) continue;
       const value = String(body[key]).trim().slice(0, max);
       if (key === "primaryColor" && !/^#[0-9a-fA-F]{6}$/.test(value)) return fail("La couleur doit être au format #RRGGBB.");
+      if (key === "trialDays" && (!/^\\d+$/.test(value) || Number(value) > 60)) return fail("La durée d’essai doit être comprise entre 0 et 60 jours.");
+      if (/^(price|products|photos|storageMb)_(essentiel|standard|pro)$/.test(key) && (!/^\\d+$/.test(value) || Number(value) > (key.startsWith("price_") ? 10000000 : 10000) || (!key.startsWith("price_") && Number(value) < 1))) return fail("Valeur de formule invalide.");
+      if (key === "supportPhone" && value && !/^\\+?[0-9]{8,15}$/.test(value.replace(/[ \\-.]/g, ""))) return fail("Numéro de support invalide.");
       await env.DB.prepare("INSERT INTO platform_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(key, value).run();
     }
     return json({ ok: true });
@@ -1574,7 +1582,7 @@ async function route(request, env, ctx) {
   if (method === "GET") {
     if (path === "/") return homePage(request, env);
     if (path === "/app") return appPage(env);
-    if (path === "/admin") return adminPage(env);
+    if (path === "/admin" || path === "/proprietaire" || path === "/owner") return adminPage(env);
     if (path === "/manifest.webmanifest") return new Response(JSON.stringify({
       id: "/", name: env.PLATFORM_NAME || "Boutiko", short_name: "Boutiko",
       description: "Gérez votre boutique en ligne depuis votre téléphone.",
