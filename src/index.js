@@ -1466,9 +1466,9 @@ async function apiAdminBranding(request, env) {
       if (body[key] === undefined) continue;
       const value = String(body[key]).trim().slice(0, max);
       if (key === "primaryColor" && !/^#[0-9a-fA-F]{6}$/.test(value)) return fail("La couleur doit être au format #RRGGBB.");
-      if (key === "trialDays" && (!/^\\d+$/.test(value) || Number(value) > 60)) return fail("La durée d’essai doit être comprise entre 0 et 60 jours.");
-      if (/^(price|products|photos|storageMb)_(essentiel|standard|pro)$/.test(key) && (!/^\\d+$/.test(value) || Number(value) > (key.startsWith("price_") ? 10000000 : 10000) || (!key.startsWith("price_") && Number(value) < 1))) return fail("Valeur de formule invalide.");
-      if (key === "supportPhone" && value && !/^\\+?[0-9]{8,15}$/.test(value.replace(/[ .-]/g, ""))) return fail("Numéro de support invalide.");
+      if (key === "trialDays" && (!/^\d+$/.test(value) || Number(value) > 60)) return fail("La durée d’essai doit être comprise entre 0 et 60 jours.");
+      if (/^(price|products|photos|storageMb)_(essentiel|standard|pro)$/.test(key) && (!/^\d+$/.test(value) || Number(value) > (key.startsWith("price_") ? 10000000 : 10000) || (!key.startsWith("price_") && Number(value) < 1))) return fail("Valeur de formule invalide.");
+      if (key === "supportPhone" && value && !/^\+?[0-9]{8,15}$/.test(value.replace(/[ .-]/g, ""))) return fail("Numéro de support invalide.");
       await env.DB.prepare("INSERT INTO platform_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(key, value).run();
     }
     return json({ ok: true });
