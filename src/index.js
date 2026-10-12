@@ -82,7 +82,18 @@ function templateOf(shop) {
   const id = shop.template || (shop.plan === "pro" ? "premium" : shop.plan === "standard" ? "vitrine" : "simple");
   return TEMPLATES[id] || TEMPLATES.simple;
 }
-const TEMPLATE_IMAGES = Object.fromEntries(Object.keys(TEMPLATES).map((id) => [id, `/template-img/${id}`]));
+const TEMPLATE_IMAGES = {
+  // Photos éditoriales utilisées dans la galerie des modèles (sans modifier les photos réelles des boutiques).
+  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85",
+  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=85",
+  express: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85",
+  vitrine: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85",
+  catalogue: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=85",
+  mode: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85",
+  premium: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85",
+  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
+  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1200&q=85",
+};
 const TEMPLATE_ART = {
   simple: { bg:"#f4eee5", accent:"#bc7654", ink:"#29251f", title:"ESSENTIEL", subtitle:"La simplicité qui vend", shape:"fashion" },
   quartier: { bg:"#e8f3e9", accent:"#24704c", ink:"#163d2d", title:"MON COMMERCE", subtitle:"Tout près de vous", shape:"market" },
@@ -460,32 +471,30 @@ async function homePage(request, env) {
   const planLabel = { essentiel: "Essentiel", standard: "Standard", pro: "Pro" };
   const planPrice = { essentiel: PLANS_PUBLIC.essentiel.price, standard: PLANS_PUBLIC.standard.price, pro: PLANS_PUBLIC.pro.price };
   const planOrder = ["essentiel", "standard", "pro"];
-  // Galerie type marketplace : tous les modeles, filtres par formule
-  const allCards = planOrder.flatMap((pk) =>
-    (TEMPLATES_BY_PLAN[pk] || []).map((tid) => {
-      const t = TEMPLATES[tid];
-      const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
-      return `<article class="tpl-card tpl-${esc(tid)}" data-plan="${esc(pk)}" data-id="${esc(tid)}">
-        <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Apercu ${esc(t.label)}">
-          <img class="tpl-image" src="${SHOTS[tid]}" alt="Aperçu du modèle ${esc(t.label)}" loading="lazy">
-          <span class="tpl-preview-label">Aperçu · ${esc(t.label)}</span>
-        </a>
-        <div class="tpl-meta">
-          <div class="tpl-meta-top">
-            <span class="tpl-plan" data-plan="${esc(pk)}">${esc(planLabel[pk])} · ${fcfa(planPrice[pk])} F/mois</span>
-            <div class="tpl-tags">${tags}</div>
-          </div>
-          <h3>${esc(t.label)}</h3>
-          <p class="tpl-tagline">${esc(t.tagline)}</p>
-          <p class="tpl-desc muted small">${esc(t.desc)}</p>
-          <div class="tpl-cta">
-            <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(pk)}">Utiliser ce modele</a>
-            <a class="btn ghost small" href="/modele/${esc(tid)}">Voir l exemple</a>
-          </div>
+  // Les neuf modèles sont accessibles avec toutes les formules : le modèle ne fixe pas le prix.
+  const allCards = Object.keys(TEMPLATES).map((tid) => {
+    const t = TEMPLATES[tid];
+    const tags = (t.tags || []).map((x) => `<span class="tpl-tag">${esc(x)}</span>`).join("");
+    return `<article class="tpl-card tpl-${esc(tid)}" data-id="${esc(tid)}">
+      <a class="tpl-shot" href="/modele/${esc(tid)}" target="_blank" rel="noopener" aria-label="Aperçu ${esc(t.label)}">
+        <img class="tpl-image" src="${SHOTS[tid]}" alt="Aperçu du modèle ${esc(t.label)}" loading="lazy">
+        <span class="tpl-preview-label">Aperçu · ${esc(t.label)}</span>
+      </a>
+      <div class="tpl-meta">
+        <div class="tpl-meta-top">
+          <span class="tpl-plan">Disponible avec les 3 formules</span>
+          <div class="tpl-tags">${tags}</div>
         </div>
-      </article>`;
-    })
-  ).join("");
+        <h3>${esc(t.label)}</h3>
+        <p class="tpl-tagline">${esc(t.tagline)}</p>
+        <p class="tpl-desc muted small">${esc(t.desc)}</p>
+        <div class="tpl-cta">
+          <a class="btn" href="/app?modele=${esc(tid)}">Choisir ce modèle</a>
+          <a class="btn ghost small" href="/modele/${esc(tid)}">Voir l’exemple</a>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
     const shops = pros.results.length
     ? `<section class="sec wrap"><h2>Boutiques deja en ligne</h2><div class="chips">${pros.results
         .map((s) => `<a class="chip" href="/${esc(s.slug)}">${esc(s.name)}</a>`).join("")}</div></section>`
@@ -581,12 +590,7 @@ async function homePage(request, env) {
       <h2>Choisissez le design. Remplacez seulement vos infos.</h2>
       <p class="hk-sub">Chaque modele est une vraie structure de boutique. Ouvrez l'exemple, selectionnez-le : votre vitrine prendra ce design.</p>
     </div>
-    <div class="tpl-filters" role="tablist">
-      <button type="button" class="on" data-filter="all">Tous</button>
-      <button type="button" data-filter="essentiel">Essentiel</button>
-      <button type="button" data-filter="standard">Standard</button>
-      <button type="button" data-filter="pro">Pro</button>
-    </div>
+    <p class="hk-sub">Les neuf designs sont accessibles, quel que soit votre abonnement. La formule limite les quantités et les capacités, pas le choix du modèle.</p>
     <div class="tpl-marketplace">${allCards}</div>
   </div>
 </section>
@@ -601,20 +605,20 @@ async function homePage(request, env) {
       <div class="hk-price">
         <h3>Essentiel</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.essentiel.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.essentiel.products} produits</li><li>3 modeles</li><li>Ideal pour demarrer</li></ul>
+        <ul><li>${PLANS_PUBLIC.essentiel.products} produits maximum</li><li>${PLANS_PUBLIC.essentiel.photos} photo(s) autorisée(s)</li><li>${PLANS_PUBLIC.essentiel.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price hk-price-feat">
         <p class="hk-badge">Recommande</p>
         <h3>Standard</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.standard.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.standard.products} produits</li><li>Logo &amp; banniere</li><li>Image de marque</li></ul>
+        <ul><li>${PLANS_PUBLIC.standard.products} produits maximum</li><li>${PLANS_PUBLIC.standard.photos} photos autorisées</li><li>${PLANS_PUBLIC.standard.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-primary" href="#modeles">Voir modeles</a>
       </div>
       <div class="hk-price">
         <h3>Pro</h3>
         <div class="hk-price-num">${fcfa(PLANS_PUBLIC.pro.price)} <small>F/mois</small></div>
-        <ul><li>${PLANS_PUBLIC.pro.products} produits</li><li>Modeles premium</li><li>Mise en avant</li></ul>
+        <ul><li>${PLANS_PUBLIC.pro.products} produits maximum</li><li>${PLANS_PUBLIC.pro.photos} photos autorisées</li><li>${PLANS_PUBLIC.pro.storageMb} Mo de stockage</li><li>Les 9 modèles inclus</li></ul>
         <a class="hk-btn hk-btn-ghost" href="#modeles">Voir modeles</a>
       </div>
     </div>
@@ -634,7 +638,7 @@ ${shops}
       <details class="hk-faq-item" open><summary>Faut-il savoir coder ?</summary><p>Non. Vous choisissez un modele, vous renseignez vos textes et photos. C'est tout.</p></details>
       <details class="hk-faq-item"><summary>Comment mes clients commandent-ils ?</summary><p>Ils ouvrent votre lien boutique, choisissent un produit et envoient la commande sur WhatsApp. Pas d'application a installer pour eux.</p></details>
       <details class="hk-faq-item"><summary>Puis-je commencer gratuitement ?</summary><p>Oui. ${TRIAL_PUBLIC} jours d'essai. Vous testez avant de passer a une formule payante.</p></details>
-      <details class="hk-faq-item"><summary>Quelle est la difference entre les formules ?</summary><p>Essentiel pour demarrer (produits limites, modeles simples). Standard pour l'image de marque (logo, banniere). Pro pour les enseignes qui veulent un rendu premium et plus de produits.</p></details>
+      <details class="hk-faq-item"><summary>Quelle est la différence entre les formules ?</summary><p>Les neuf modèles sont accessibles avec chaque formule. La différence porte sur les plafonds numériques : nombre de produits, photos et espace de stockage.</p></details>
       <details class="hk-faq-item"><summary>Ca marche sur telephone ?</summary><p>Oui. L'espace commercant et la boutique client sont optimises mobile. Vous pouvez aussi installer Boutiko comme application (PWA).</p></details>
     </div>
   </div>
@@ -666,27 +670,11 @@ ${shops}
 })();
 </script>
 
-<script>
-(function(){
-  var root=document.querySelector('.tpl-marketplace');
-  if(!root)return;
-  document.querySelectorAll('.tpl-filters button').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      document.querySelectorAll('.tpl-filters button').forEach(function(b){b.classList.remove('on');});
-      btn.classList.add('on');
-      var f=btn.getAttribute('data-filter');
-      root.querySelectorAll('.tpl-card').forEach(function(card){
-        card.hidden=(f!=='all'&&card.getAttribute('data-plan')!==f);
-      });
-    });
-  });
-})();
-</script>
 `;
 
   return html(layout({
     title: `${brand.name || env.PLATFORM_NAME || "Boutiko"} — Modeles de boutiques en ligne`,
-    desc: brand.description || "Choisissez un modele de boutique selon votre formule, renseignez vos infos et vendez sur WhatsApp.",
+    desc: brand.description || "Choisissez parmi neuf modèles de boutique, puis sélectionnez la formule adaptée à votre activité et vendez sur WhatsApp.",
     color: brandColor,
     body,
     pwa: true,
@@ -1062,10 +1050,10 @@ async function apiRegister(request, env) {
   const u = await env.DB.prepare("INSERT INTO users(phone, pass, is_admin, created_at) VALUES(?,?,?,?)").bind(phone, passHash, isAdmin, now()).run();
   const userId = u.meta.last_row_id;
   const slug = await uniqueSlug(env, name);
+  // Le modèle choisi est indépendant de la formule : les limites numériques viennent uniquement du plan.
   let plan = isAdmin ? "pro" : (["essentiel", "standard", "pro"].includes(b.plan) ? b.plan : "essentiel");
   let template = str(b.template || b.modele, 30) || "simple";
-  if (!TEMPLATES[template]) template = plan === "pro" ? "premium" : plan === "standard" ? "vitrine" : "simple";
-  if (!isAdmin && TEMPLATES[template] && TEMPLATES[template].plan !== plan) plan = TEMPLATES[template].plan;
+  if (!TEMPLATES[template]) template = "simple";
   const config = await platformConfig(env);
   const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + config.trialDays * 86400;
   await env.DB.prepare(
