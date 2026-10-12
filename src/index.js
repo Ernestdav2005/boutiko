@@ -83,15 +83,16 @@ function templateOf(shop) {
   return TEMPLATES[id] || TEMPLATES.simple;
 }
 const TEMPLATE_IMAGES = {
-  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=82",
-  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1000&q=82",
-  express: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1000&q=82",
-  vitrine: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1000&q=82",
-  catalogue: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=82",
-  mode: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=82",
-  premium: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=82",
-  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=82",
-  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1000&q=82",
+  // Visuels éditoriaux sélectionnés selon l'univers de chaque modèle.
+  simple: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85",
+  quartier: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=85",
+  express: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85",
+  vitrine: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85",
+  catalogue: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=85",
+  mode: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85",
+  premium: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=85",
+  maison: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
+  flagship: "https://images.unsplash.com/photo-1441984904996-e0b241748a7c?auto=format&fit=crop&w=1200&q=85",
 };
 const TRIAL_DAYS = 7;
 
@@ -886,11 +887,57 @@ async function modelDemoPage(request, env, tid) {
   // Réutilise shopPage logic via query injection: build minimal HTML demo
   const name = esc(fakeShop.name);
   const waLink = "https://wa.me/22900000000";
-  const products = [
-    { id: 1, name: "Sélection du moment", price: 6500, promo_price: null, photos: "[]", demoImage: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=82", stock: 5, active: 1 },
-    { id: 2, name: "Coup de cœur", price: 12000, promo_price: 9000, photos: "[]", demoImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=82", stock: 3, active: 1 },
-    { id: 3, name: "Nouvelle collection", price: 3000, promo_price: null, photos: "[]", demoImage: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=82", stock: null, active: 1 },
-  ];
+  const DEMO_PRODUCTS = {
+    simple: [
+      ["Chemise essentielle", 6500, "https://images.unsplash.com/photo-1598033129183-c4f50c736f10"],
+      ["Sac du quotidien", 12000, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
+      ["Look de saison", 9000, "https://images.unsplash.com/photo-1483985988355-763728e1935b"],
+    ],
+    quartier: [
+      ["Sélection du commerçant", 3500, "https://images.unsplash.com/photo-1556740738-b6a63e27c4df"],
+      ["Produit populaire", 6000, "https://images.unsplash.com/photo-1472851294608-062f824d29cc"],
+      ["Nouveauté locale", 4500, "https://images.unsplash.com/photo-1542838132-92c53300491e"],
+    ],
+    express: [
+      ["Pain artisanal", 1500, "https://images.unsplash.com/photo-1509440159596-0249088772ff"],
+      ["Pâtisserie maison", 2500, "https://images.unsplash.com/photo-1486427944299-d1955d23e34d"],
+      ["Panier gourmand", 5000, "https://images.unsplash.com/photo-1547592180-85f173990554"],
+    ],
+    vitrine: [
+      ["Soin éclat", 8500, "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b"],
+      ["Routine beauté", 12000, "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8"],
+      ["Huile précieuse", 5500, "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19"],
+    ],
+    catalogue: [
+      ["Écouteurs sans fil", 12500, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"],
+      ["Montre connectée", 18000, "https://images.unsplash.com/photo-1523275335684-37898b6baf30"],
+      ["Accessoire tech", 7500, "https://images.unsplash.com/photo-1468495244123-6c6c332eeece"],
+    ],
+    mode: [
+      ["Tenue signature", 18000, "https://images.unsplash.com/photo-1539109136881-3be0616acf4b"],
+      ["Style du jour", 12000, "https://images.unsplash.com/photo-1483985988355-763728e1935b"],
+      ["Accessoire textile", 6500, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
+    ],
+    premium: [
+      ["Boucles d'oreilles dorées", 15000, "https://images.unsplash.com/photo-1617038220319-276d3cfab638"],
+      ["Collier signature", 25000, "https://images.unsplash.com/photo-1611652022419-a9419f74343d"],
+      ["Bracelet raffiné", 12000, "https://images.unsplash.com/photo-1611591437281-460bfbe1220a"],
+    ],
+    maison: [
+      ["Objet décoratif", 8500, "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace"],
+      ["Décoration naturelle", 12000, "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6"],
+      ["Lampe design", 18000, "https://images.unsplash.com/photo-1507473885765-e6ed057f782c"],
+    ],
+    flagship: [
+      ["Sélection tendance", 6500, "https://images.unsplash.com/photo-1441984904996-e0b241748a7c"],
+      ["Accessoire premium", 12000, "https://images.unsplash.com/photo-1523275335684-37898b6baf30"],
+      ["Collection du moment", 9000, "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"],
+    ],
+  };
+  const products = (DEMO_PRODUCTS[tid] || DEMO_PRODUCTS.simple).map((p, i) => ({
+    id: i + 1, name: p[0], price: p[1], promo_price: i === 1 ? Math.round(p[1] * 0.85) : null,
+    photos: "[]", demoImage: p[2] + "?auto=format&fit=crop&w=800&q=85", stock: i === 2 ? null : 5 - i, active: 1,
+  }));
   const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.45),rgba(16,42,67,.08)),url(${TEMPLATE_IMAGES[tid]})"></div>`;
   const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
   let hero;
