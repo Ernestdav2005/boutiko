@@ -187,6 +187,8 @@ function ensureSchema(env) {
       if (!columns.has("slogan")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN slogan TEXT DEFAULT ''").run();
       if (!columns.has("layout")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN layout TEXT DEFAULT 'grid'").run();
       if (!columns.has("template")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN template TEXT DEFAULT 'simple'").run();
+      if (!columns.has("font_family")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN font_family TEXT DEFAULT 'modern'").run();
+      if (!columns.has("text_style")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN text_style TEXT DEFAULT 'normal'").run();
     }).catch((e) => {
       schemaReady = null;
       throw e;
@@ -830,7 +832,7 @@ async function shopPage(request, env, ctx, slug) {
     color,
     body,
     script: `/shop.js?v=${V.shop}`,
-    bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${esc(templateId)} ${tplClass}" data-plan="${planKey}" data-template="${esc(templateId)}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
+    bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${esc(templateId)} ${tplClass}" data-plan="${planKey}" data-template="${esc(templateId)}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}" data-font-family="${["modern","classic","elegant","rounded"].includes(shop.font_family) ? shop.font_family : "modern"}" data-text-style="${["normal","refined","bold"].includes(shop.text_style) ? shop.text_style : "normal"}"`,
   }), 200, extraHeaders);
 }
 
@@ -1090,7 +1092,7 @@ async function publicShop(env, shop) {
     id: shop.id, slug: shop.slug, name: shop.name, business_name: shop.business_name || "", brand_name: shop.brand_name || "", slogan: shop.slogan || "", description: shop.description, whatsapp: shop.whatsapp,
     color: shop.color, address: shop.address, maps_url: shop.maps_url, hours: shop.hours, momo: shop.momo,
     logo_id: shop.logo_id, banner_id: shop.banner_id, gallery: parseIds(shop.gallery), theme: shop.theme || "editorial",
-    layout: shop.layout || "grid", plan: shop.plan, template: shop.template || "simple", status: shop.status,
+    layout: shop.layout || "grid", font_family: shop.font_family || "modern", text_style: shop.text_style || "normal", plan: shop.plan, template: shop.template || "simple", status: shop.status,
     paid_until: shop.paid_until, quick_replies: shop.quick_replies,
   };
 }
@@ -1138,6 +1140,14 @@ async function apiShopUpdate(request, env, auth) {
   if (b.layout !== undefined) {
     if (!["grid", "list", "large"].includes(b.layout)) return fail("Présentation des produits invalide.");
     f.layout = b.layout;
+  }
+  if (b.font_family !== undefined) {
+    if (!["modern", "classic", "elegant", "rounded"].includes(b.font_family)) return fail("Police d’écriture invalide.");
+    f.font_family = b.font_family;
+  }
+  if (b.text_style !== undefined) {
+    if (!["normal", "refined", "bold"].includes(b.text_style)) return fail("Style de texte invalide.");
+    f.text_style = b.text_style;
   }
   if (b.gallery !== undefined) {
     if (!Array.isArray(b.gallery) || b.gallery.length > 5) return fail("Choisissez au maximum 5 photos de présentation.");
