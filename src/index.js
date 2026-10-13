@@ -996,6 +996,9 @@ async function shopPage(request, env, ctx, slug) {
 }
 
 const DEMO_SEED_PRODUCTS = {
+ atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000]],
+ "maison-standard":[["Vase Terre",8500],["Lampe Alba",18000],["Coussin Noma",6500]],
+ eclat:[["Sérum Lumière",8500],["Crème Velours",12000],["Huile Éclat",5500]],
  simple:[["Sac en toile naturel",8500],["Chemise en lin",12000],["Bougie parfumée",4500]],
  quartier:[["Panier de légumes",3000],["Fruits de saison",2500],["Épices du marché",1000]],
  express:[["Pain artisanal",500],["Croissants pur beurre",700],["Brioche maison",1200]],
