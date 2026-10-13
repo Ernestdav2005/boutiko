@@ -563,11 +563,15 @@
         return '<label class="theme-option theme-' + t[0] + '"><input type="radio" name="theme" value="' + t[0] + '" ' + ((s.theme || "editorial") === t[0] ? "checked" : "") + '><span class="theme-preview"></span><b>' + t[1] + '</b><small>' + t[2] + '</small></label>';
       }).join("") + '</div></div>' +
       '<label class="field"><span>Présentation des produits</span><select name="layout"><option value="grid" ' + ((s.layout || "grid") === "grid" ? "selected" : "") + '>Grille classique</option><option value="list" ' + (s.layout === "list" ? "selected" : "") + '>Liste avec grandes photos</option><option value="large" ' + (s.layout === "large" ? "selected" : "") + '>Grandes cartes visuelles</option></select></label>' +
-      '<div class="profile-section-heading"><span>03</span><div><h3>Photos et présentation</h3><p>De belles images donnent du relief à votre vitrine et aident les clients à vous reconnaître.</p></div></div>' +
+      '<div class="profile-section-heading"><span>03</span><div><h3>Caractère des textes</h3><p>Choisissez la police et le ton de vos titres et textes. Le changement est visible dans l’aperçu.</p></div></div>' +
+      '<div class="profile-fields">' +
+      '<label class="field"><span>Police d’écriture</span><select name="font_family"><option value="modern" ' + ((s.font_family || "modern") === "modern" ? "selected" : "") + '>Moderne et lisible</option><option value="classic" ' + (s.font_family === "classic" ? "selected" : "") + '>Classique</option><option value="elegant" ' + (s.font_family === "elegant" ? "selected" : "") + '>Élégante avec empattements</option><option value="rounded" ' + (s.font_family === "rounded" ? "selected" : "") + '>Arrondie et conviviale</option></select></label>' +
+      '<label class="field"><span>Caractère des textes</span><select name="text_style"><option value="normal" ' + ((s.text_style || "normal") === "normal" ? "selected" : "") + '>Naturel</option><option value="refined" ' + (s.text_style === "refined" ? "selected" : "") + '>Raffiné</option><option value="bold" ' + (s.text_style === "bold" ? "selected" : "") + '>Fort et affirmé</option></select></label></div>' +
+      '<div class="profile-section-heading"><span>04</span><div><h3>Photos et présentation</h3><p>De belles images donnent du relief à votre vitrine et aident les clients à vous reconnaître.</p></div></div>' +
       '<div class="field"><span>Logo ou photo du commerçant</span><p class="muted small">Votre visage ou votre logo aide les clients à reconnaître votre boutique.</p><div id="logo"></div></div>' +
       '<div class="field"><span>Bannière</span><div id="banner"></div></div>' +
       '<div class="field"><span>Photos pour présenter votre boutique (5 maximum)</span><p class="muted small">Montrez votre local, votre équipe, votre atelier ou l’ambiance de votre commerce. Ce sont des photos différentes de celles des produits.</p><div id="gallery"></div></div>' +
-      '<div class="profile-section-heading"><span>04</span><div><h3>Informations pratiques</h3><p>Facilitez le contact, la visite et la commande.</p></div></div>' +
+      '<div class="profile-section-heading"><span>05</span><div><h3>Informations pratiques</h3><p>Facilitez le contact, la visite et la commande.</p></div></div>' +
       '<label class="field"><span>Adresse</span><input name="address" maxlength="200" value="' + esc(s.address) + '" placeholder="Ex : Marché Dantokpa, allée B"></label>' +
       '<div class="field"><span>Position sur la carte</span><input name="maps_url" maxlength="500" value="' + esc(s.maps_url) + '" placeholder="Lien Google Maps (facultatif)">' +
       '<button type="button" class="btn ghost small" id="geo" style="margin-top:6px">Utiliser ma position actuelle</button><small>Vos clients verront un bouton « Itinéraire ».</small></div>' +
@@ -654,6 +658,8 @@
       $("#profilePreviewDescription").textContent = val("description") || "Présentez votre univers et vos produits.";
       preview.style.setProperty("--preview-color", color || "#0f766e");
       preview.setAttribute("data-theme", val("theme") || "editorial");
+      preview.setAttribute("data-font-family", val("font_family") || "modern");
+      preview.setAttribute("data-text-style", val("text_style") || "normal");
       var bannerId = pending.banner !== undefined ? pending.banner : s.banner_id;
       var cover = $("#profilePreviewCover");
       if (cover) cover.style.backgroundImage = bannerId && lim.custom ? 'url("/img/' + bannerId + '")' : "";
@@ -668,7 +674,7 @@
         }).join("") || '<div class="profile-preview-product profile-preview-placeholder"><span class="profile-preview-product-art">✦</span><span>Vos produits</span><b>apparaîtront ici</b></div><div class="profile-preview-product profile-preview-placeholder"><span class="profile-preview-product-art">✧</span><span>Vos belles photos</span><b>font la différence</b></div>';
       }
     }
-    v.querySelectorAll('#sf [name="name"], #sf [name="business_name"], #sf [name="brand_name"], #sf [name="slogan"], #sf [name="description"], #sf [name="theme"]').forEach(function (el) {
+    v.querySelectorAll('#sf [name="name"], #sf [name="business_name"], #sf [name="brand_name"], #sf [name="slogan"], #sf [name="description"], #sf [name="theme"], #sf [name="font_family"], #sf [name="text_style"]').forEach(function (el) {
       el.addEventListener("input", refreshProfilePreview);
       el.addEventListener("change", refreshProfilePreview);
     });
@@ -677,7 +683,7 @@
       e.preventDefault();
       var f = formData(e.target), btn = $("#sf button[type=submit]");
       var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
-      var body = { name: f.name, business_name: f.business_name, brand_name: f.brand_name, slogan: f.slogan, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
+      var body = { name: f.name, business_name: f.business_name, brand_name: f.brand_name, slogan: f.slogan, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", font_family: f.font_family || "modern", text_style: f.text_style || "normal", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
         hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
       if (pending.logo !== undefined) body.logo_id = pending.logo;
       if (lim.custom && pending.banner !== undefined) body.banner_id = pending.banner;
