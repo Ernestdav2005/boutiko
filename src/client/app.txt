@@ -272,6 +272,7 @@
   function localStorage_get(k) { try { return localStorage.getItem("bk_" + k); } catch (e) { return null; } }
   function localStorage_set(k, v) { try { localStorage.setItem("bk_" + k, v); } catch (e) {} }
   function viewProducts(v) {
+    var s = S.me.shop;
     var lim = S.me.limits, n = S.products.length;
     var h = '<div class="row" style="justify-content:space-between"><b>' + n + " / " + lim.products + ' produits</b>' +
       '<button class="btn small" id="addp">' + ic("plus") + " Ajouter un produit</button></div>";
