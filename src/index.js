@@ -73,8 +73,8 @@ function composeTemplateSections(templateId, sections) {
   return order.map((key) => sections[key] || "").join("");
 }
 const TEMPLATES_BY_PLAN = {
-  essentiel: Object.keys(TEMPLATES).filter((id) => TEMPLATES[id].plan === "essentiel"),
-  standard: Object.keys(TEMPLATES).filter((id) => ["essentiel", "standard"].includes(TEMPLATES[id].plan)),
+  essentiel: Object.keys(TEMPLATES),
+  standard: Object.keys(TEMPLATES),
   pro: Object.keys(TEMPLATES),
 };
 function templateOf(shop) {
