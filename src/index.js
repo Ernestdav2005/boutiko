@@ -73,8 +73,8 @@ function composeTemplateSections(templateId, sections) {
   return order.map((key) => sections[key] || "").join("");
 }
 const TEMPLATES_BY_PLAN = {
-  essentiel: Object.keys(TEMPLATES),
-  standard: Object.keys(TEMPLATES),
+  essentiel: Object.keys(TEMPLATES).filter((id) => TEMPLATES[id].plan === "essentiel"),
+  standard: Object.keys(TEMPLATES).filter((id) => ["essentiel", "standard"].includes(TEMPLATES[id].plan)),
   pro: Object.keys(TEMPLATES),
 };
 function templateOf(shop) {
@@ -82,6 +82,9 @@ function templateOf(shop) {
   return TEMPLATES[id] || TEMPLATES.simple;
 }
 const TEMPLATE_IMAGES = {
+  atelier:"/mode.webp",
+  "maison-standard":"/maison.webp",
+  eclat:"/beaute.webp",
   simple:"/simple.webp",
   quartier:"/quartier.webp",
   express:"/express.webp",
