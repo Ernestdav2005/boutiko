@@ -247,6 +247,7 @@
           ? '<button class="btn ghost small" data-sus="' + s.id + '" data-to="suspended">Suspendre</button>'
           : '<button class="btn ok small" data-sus="' + s.id + '" data-to="active">' + (s.status === "blocked" ? "Débloquer" : "Réactiver") + "</button>") +
         (s.status !== "blocked" ? '<button class="btn danger small" data-sus="' + s.id + '" data-to="blocked">Bloquer le compte</button>' : "") +
+        '<button class="btn danger small" data-delete="' + s.id + '">Supprimer le compte</button>' +
         "</div>";
     }
     return h + "</div>";
@@ -282,6 +283,21 @@
         api("/api/admin/shops/" + b.getAttribute("data-reset") + "/reset", "POST", {}).then(function (d) {
           showPassword(d.password);
         }).catch(function (ex) { toast(ex.message); });
+      };
+    });
+    v.querySelectorAll("[data-delete]").forEach(function (b) {
+      b.onclick = function () {
+        var shop = D.shops.find(function (item) { return String(item.id) === b.getAttribute("data-delete"); });
+        if (!shop || shop.is_admin) { toast("Le compte administrateur est protégé."); return; }
+        var confirmation = "Supprimer définitivement le compte de " + shop.name + " (+ " + shop.whatsapp + ") ?\n\nCette action effacera sa boutique, ses produits, commandes, statistiques, sessions et photos associées. Elle est irréversible.";
+        if (!confirm(confirmation)) return;
+        var typed = prompt("Pour confirmer, tapez exactement SUPPRIMER.");
+        if (typed !== "SUPPRIMER") { toast("Suppression annulée."); return; }
+        b.disabled = true;
+        api("/api/admin/shops/" + shop.id, "DELETE").then(function () {
+          toast("Compte commerçant et données associées supprimés.");
+          load();
+        }).catch(function (ex) { b.disabled = false; toast(ex.message); });
       };
     });
   }
