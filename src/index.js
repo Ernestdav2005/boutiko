@@ -11,7 +11,7 @@ import SHOP_JS from "./client/shop.txt";
 
 // ---------- Réglages ----------
 const PLANS = {
-  essentiel: { label: "Essentiel", price: 2000, products: 30, photos: 1, storageMb: 10, custom: false },
+  essentiel: { label: "Essentiel", price: 2000, products: 30, photos: 1, storageMb: 10, custom: true },
   standard: { label: "Standard", price: 5000, products: 100, photos: 3, storageMb: 60, custom: true },
   pro: { label: "Pro", price: 10000, products: 300, photos: 3, storageMb: 160, custom: true },
 };
@@ -554,9 +554,9 @@ async function homePage(request, env) {
     <div class="hk-shell">
       <div class="hk-section-head"><span class="hk-eyebrow">DES FORMULES SIMPLES</span><h2>Choisissez le rythme qui vous convient.</h2><p class="hk-sub">Commencez avec l’essentiel et passez à une formule supérieure lorsque votre activité grandit.</p></div>
       <div class="grid3 hk-prices">
-        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Page de boutique partageable</li><li>Contact et commandes WhatsApp</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir Essentiel</a></article>
-        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Personnalisation avancée</li><li>Plus de capacité de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Standard</a></article>
-        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Personnalisation avancée</li><li>Capacité renforcée</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Pro</a></article>
+        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Personnalisation : textes, logo et couverture</li><li>Page partageable et commandes WhatsApp</li><li>1 photo par produit · 10 Mo de stockage</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir Essentiel</a></article>
+        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Jusqu’à 3 photos par produit</li><li>60 Mo de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Standard</a></article>
+        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Jusqu’à 3 photos par produit</li><li>160 Mo de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Pro</a></article>
       </div>
       <p class="center muted small" style="margin-top:18px">Les fonctionnalités exactes dépendent de la formule et des paramètres actifs de la plateforme.</p>
     </div>
