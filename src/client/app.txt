@@ -190,7 +190,16 @@
         render();
         if (firstTime && !S.products.length) setTimeout(function () { productForm(); }, 300);
       });
-    }).catch(function (ex) { if (ex.message === "auth") return; renderAuth(); });
+    }).catch(function (ex) {
+      if (ex.message === "auth") return;
+      if (S.me) {
+        root.innerHTML = '<div class="authwrap"><div class="card"><h2>Votre compte est connecté</h2><p class="muted">La connexion a réussi, mais certaines données de votre espace n’ont pas pu être chargées.</p><div class="alert bad">' + esc(ex.message || "Erreur de chargement.") + '</div><button class="btn block" id="bootRetry" type="button">Réessayer</button><p class="muted small" style="margin-top:10px">Vos informations de compte ne sont pas supprimées. Réessayez dans quelques secondes.</p></div></div>';
+        var retry = $("#bootRetry");
+        if (retry) retry.onclick = function () { boot(firstTime); };
+        return;
+      }
+      renderAuth();
+    });
   }
   function loadProducts() {
     return api("/api/products").then(function (d) { S.products = d.products; });
