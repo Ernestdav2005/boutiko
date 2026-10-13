@@ -305,16 +305,16 @@
   function checklist() {
     var s = S.me.shop;
     var steps = [
-      [S.products.length > 0, "Ajouter votre premier produit", "Photo, nom et prix."],
-      [!!(s.address || s.maps_url), "Indiquer votre adresse", "Pour que vos clients vous trouvent. Onglet Boutique."],
-      [!!localStorage_get("shared"), "Partager votre lien", "Envoyez-le à vos clients sur WhatsApp. Onglet Boutique."]
+      [S.products.length > 0, "Ajouter votre premier produit", "Une photo, un nom et un prix suffisent.", "Ajouter mon produit"],
+      [!!(s.address || s.maps_url), "Compléter ma boutique", "Ajoutez votre adresse pour que les clients vous trouvent.", "Continuer ma boutique"],
+      [!!localStorage_get("shared"), "Partager ma boutique", "Envoyez votre lien à vos clients sur WhatsApp.", "Partager sur WhatsApp"]
     ];
     var done = steps.filter(function (x) { return x[0]; }).length;
     if (done === steps.length) return "";
-    return '<div class="card" style="margin-bottom:12px"><b>Bien démarrer : ' + done + " sur " + steps.length + '</b><div class="progress"><i style="width:' + Math.round(done / steps.length * 100) + '%"></i></div>' +
+    return '<section class="card bk-start-checklist" style="margin-bottom:12px" aria-labelledby="bkStartTitle"><div class="bk-start-heading"><div><span class="bk-eyebrow">ON VOUS GUIDE</span><h2 id="bkStartTitle">Votre boutique, étape par étape</h2><p class="muted small">Pas besoin de tout comprendre maintenant. Faites simplement l’étape suivante.</p></div><strong>' + done + '/' + steps.length + '</strong></div><div class="progress" role="progressbar" aria-label="Progression de la préparation de la boutique" aria-valuemin="0" aria-valuemax="' + steps.length + '" aria-valuenow="' + done + '"><i style="width:' + Math.round(done / steps.length * 100) + '%"></i></div>' +
       steps.map(function (x, i) {
-        return '<div class="todo' + (x[0] ? " done" : "") + '"><span class="n">' + (x[0] ? "✓" : i + 1) + '</span><div class="t"><b>' + x[1] + '</b><div class="muted small">' + x[2] + "</div></div></div>";
-      }).join("") + "</div>";
+        return '<div class="todo' + (x[0] ? " done" : "") + '"><span class="n">' + (x[0] ? "✓" : i + 1) + '</span><div class="t"><b>' + x[1] + '</b><div class="muted small">' + x[2] + '</div>' + (!x[0] ? '<button class="btn small todo-action" type="button" data-setup-action="' + i + '">' + x[3] + '</button>' : '<span class="bk-step-complete">Étape terminée</span>') + '</div></div>';
+      }).join("") + "</section>";
   }
   function localStorage_get(k) { try { return localStorage.getItem("bk_" + k); } catch (e) { return null; } }
   function localStorage_set(k, v) { try { localStorage.setItem("bk_" + k, v); } catch (e) {} }
@@ -349,6 +349,28 @@
         '</div><div><button class="btn ghost small" data-edit="' + p.id + '">Modifier</button></div></div>';
     }).join("");
     v.innerHTML = h;
+    v.querySelectorAll("[data-setup-action]").forEach(function (b) {
+      b.onclick = function () {
+        var step = Number(b.getAttribute("data-setup-action"));
+        if (step === 0) {
+          productForm();
+          return;
+        }
+        if (step === 1) {
+          S.tab = "shop";
+          render();
+          toast("Dans l’aperçu, touchez le texte de l’adresse pour le compléter.");
+          return;
+        }
+        if (step === 2) {
+          S.tab = "shop";
+          render();
+          var share = $("#sharewa");
+          if (share) share.click();
+          else toast("Ouvrez « Boutique », puis touchez « Partager sur WhatsApp ».");
+        }
+      };
+    });
     $("#addp").onclick = function () { productForm(); };
     var quickAdd = $("#bkQuickAdd");
     if (quickAdd) quickAdd.onclick = function () { productForm(); };
