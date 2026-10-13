@@ -1939,3 +1939,20 @@ body.home-models{background:#f1f4fb;color:#18223b}
  .sf-beauty-link{gap:8px;font-size:.75rem}
  .sf-model-vitrine .sf-products .prod,.sf-model-beaute .sf-products .prod,.sf-model-maison .sf-products .prod,.sf-model-chaleureux .sf-products .prod,.sf-model-collection .sf-products .prod{grid-template-columns:1fr}
 }
+
+
+/* ===== Personnalisation de la typographie de chaque boutique ===== */
+.sf-page[data-font-family="modern"]{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+.sf-page[data-font-family="classic"]{font-family:Georgia,"Times New Roman",serif}
+.sf-page[data-font-family="elegant"]{font-family:"Palatino Linotype",Palatino,Georgia,serif}
+.sf-page[data-font-family="rounded"]{font-family:"Trebuchet MS",Arial,sans-serif}
+.sf-page[data-text-style="normal"] .sf-name,.sf-page[data-text-style="normal"] .sf-sec h2,.sf-page[data-text-style="normal"] .pn{letter-spacing:normal;font-weight:700}
+.sf-page[data-text-style="refined"] .sf-name,.sf-page[data-text-style="refined"] .sf-sec h2{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:.025em}
+.sf-page[data-text-style="refined"] .sf-slogan,.sf-page[data-text-style="refined"] .sf-brand{letter-spacing:.045em}
+.sf-page[data-text-style="bold"] .sf-name,.sf-page[data-text-style="bold"] .sf-sec h2,.sf-page[data-text-style="bold"] .pn{font-weight:900;letter-spacing:-.035em}
+.profile-preview[data-font-family="modern"]{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+.profile-preview[data-font-family="classic"]{font-family:Georgia,"Times New Roman",serif}
+.profile-preview[data-font-family="elegant"]{font-family:"Palatino Linotype",Palatino,Georgia,serif}
+.profile-preview[data-font-family="rounded"]{font-family:"Trebuchet MS",Arial,sans-serif}
+.profile-preview[data-text-style="refined"] #profilePreviewName{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:.02em}
+.profile-preview[data-text-style="bold"] #profilePreviewName{font-weight:900;letter-spacing:-.035em}
