@@ -738,7 +738,7 @@ function renderTemplateHero(opts) {
         '<div class="std-atelier-layout"><div class="std-atelier-copy"><span class="sf-kicker">LA NOUVELLE COLLECTION</span>' +
         brand + heading + subline + '<p class="std-hero-description">Des pièces choisies pour affirmer votre allure, au quotidien.</p>' +
         '<a class="btn" href="#catalogue">Découvrir la collection <span aria-hidden="true">↗</span></a><span class="std-hero-index">01 — SÉLECTION SIGNATURE</span></div>' +
-        '<div class="std-atelier-visual">' + cover + '<span class="std-image-caption">IMAGE DE CAMPAGNE À PERSONNALISER</span><span class="std-visual-mark">A.</span></div></div>' +
+        '<div class="std-atelier-visual">' + cover + '' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">IMAGE DE CAMPAGNE À AJOUTER</span>') + '<span class="std-visual-mark">A.</span></div></div>' +
         '<div class="std-atelier-foot"><span>UNE ALLURE QUI VOUS RESSEMBLE</span><span>MODE · ACCESSOIRES · ESSENTIELS</span></div></section>';
     case "maison-standard":
       return '<section class="sf-hero sf-hero-standard sf-hero-maison-standard ' + tplClass + '">' +
@@ -746,11 +746,11 @@ function renderTemplateHero(opts) {
         '<div class="std-maison-layout"><div class="std-maison-copy"><span class="sf-kicker">UN INTÉRIEUR QUI VOUS RESSEMBLE</span>' +
         brand + heading + subline + '<p class="std-hero-description">' + (desc || "Des objets utiles et beaux pour composer un intérieur à votre image.") + '</p>' +
         '<a class="btn" href="#catalogue">Explorer la maison <span aria-hidden="true">↗</span></a><div class="std-maison-note"><span>01</span><span>MATIÈRES NATURELLES · LIGNES CALMES</span></div></div>' +
-        '<div class="std-maison-visual">' + cover + '<span class="std-image-caption">PHOTO D’INTÉRIEUR À PERSONNALISER</span><span class="std-maison-circle">Vivre<br>mieux.</span></div></div></section>';
+        '<div class="std-maison-visual">' + cover + '' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">AJOUTER UNE PHOTO D’INTÉRIEUR</span>') + '<span class="std-maison-circle">Vivre<br>mieux.</span></div></div></section>';
     case "eclat":
       return '<section class="sf-hero sf-hero-standard sf-hero-eclat ' + tplClass + '">' +
         '<div class="std-eclat-top"><span>ÉCLAT — BEAUTÉ & SOINS</span><span>VOTRE MOMENT À VOUS</span></div>' +
-        '<div class="std-eclat-layout"><div class="std-eclat-visual">' + cover + '<span class="std-eclat-seal">LE RITUEL<br>DE BEAUTÉ</span><span class="std-image-caption">PHOTO BEAUTÉ À PERSONNALISER</span></div>' +
+        '<div class="std-eclat-layout"><div class="std-eclat-visual">' + cover + '<span class="std-eclat-seal">LE RITUEL<br>DE BEAUTÉ</span>' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">AJOUTER UNE PHOTO BEAUTÉ</span>') + '</div>' +
         '<div class="std-eclat-copy"><span class="sf-kicker">PRENDRE SOIN DE SOI</span>' + brand + heading + subline +
         '<p class="std-hero-description">Des essentiels beauté sélectionnés pour accompagner votre routine.</p><a class="btn" href="#catalogue">Découvrir les soins <span aria-hidden="true">↗</span></a>' +
         '<div class="std-eclat-promise"><span>✦</span><span>Une routine simple, des essentiels choisis avec attention.</span></div></div></div></section>';
