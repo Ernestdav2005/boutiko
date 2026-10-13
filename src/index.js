@@ -525,7 +525,7 @@ async function homePage(request, env) {
   <section class="hk-trust">
     <div class="hk-shell hk-trust-in">
       <div class="hk-trust-item"><strong>16 modèles</strong><span>pour différents commerces</span></div>
-      <div class="hk-trust-item"><strong>2 000 FCFA/mois</strong><span>formule de départ</span></div>
+      <div class="hk-trust-item"><strong>100 % gratuit pour démarrer</strong><span>inscription, création et personnalisation</span></div>
       <div class="hk-trust-item"><strong>WhatsApp</strong><span>pour recevoir les commandes</span></div>
       <div class="hk-trust-item"><strong>Mobile</strong><span>conçu pour votre téléphone</span></div>
     </div>
@@ -544,7 +544,7 @@ async function homePage(request, env) {
 
   <section class="hk-band hk-dark" id="modeles">
     <div class="hk-shell">
-      <div class="hk-section-head"><span class="hk-eyebrow">16 MODÈLES DISPONIBLES</span><h2>Un style adapté à votre activité.</h2><p class="hk-sub">Mode, beauté, alimentation, électronique, décoration et bien plus. Les 16 modèles sont accessibles dès la formule Essentiel à 2 000 FCFA/mois.</p></div>
+      <div class="hk-section-head"><span class="hk-eyebrow">16 MODÈLES DISPONIBLES</span><h2>Un style adapté à votre activité.</h2><p class="hk-sub">Mode, beauté, alimentation, électronique, décoration et bien plus. Les 16 modèles sont gratuits, tout comme la création et la personnalisation de votre boutique.</p></div>
       <div class="tpl-marketplace">${allCards}</div>
       <div class="center" style="margin-top:30px"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir mon modèle</a></div>
     </div>
@@ -552,13 +552,12 @@ async function homePage(request, env) {
 
   <section class="hk-band" id="tarifs">
     <div class="hk-shell">
-      <div class="hk-section-head"><span class="hk-eyebrow">DES FORMULES SIMPLES</span><h2>Choisissez le rythme qui vous convient.</h2><p class="hk-sub">Commencez avec l’essentiel et passez à une formule supérieure lorsque votre activité grandit.</p></div>
+      <div class="hk-section-head"><span class="hk-eyebrow">DÉMARRAGE GRATUIT</span><h2>Créez votre boutique sans payer.</h2><p class="hk-sub">L’inscription, le choix du modèle, la personnalisation et la publication de votre boutique sont gratuits. Les formules mensuelles et leurs fonctionnalités supplémentaires seront définies séparément plus tard.</p></div>
       <div class="grid3 hk-prices">
-        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Personnalisation : textes, logo et couverture</li><li>Page partageable et commandes WhatsApp</li><li>1 photo par produit · 10 Mo de stockage</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir Essentiel</a></article>
-        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Jusqu’à 3 photos par produit</li><li>60 Mo de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Standard</a></article>
-        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Jusqu’à 3 photos par produit</li><li>160 Mo de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Pro</a></article>
+        <article class="hk-price hk-price-feat"><span class="hk-badge">Gratuit</span><h3>Votre boutique</h3><p class="hk-price-num">0 FCFA <small>pour créer et publier</small></p><ul><li>Inscription et espace commerçant</li><li>Choix parmi les 16 modèles</li><li>Modification des textes et informations</li><li>Remplacement du logo, de la couverture et des images</li><li>Gestion des produits et de leurs prix</li><li>Page publique partageable et contact WhatsApp</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Créer ma boutique gratuitement</a></article>
+        <article class="hk-price"><span class="hk-badge">À définir</span><h3>Formules mensuelles</h3><p class="hk-price-num">Plus tard</p><ul><li>Limites d’utilisation mensuelle à définir</li><li>Fonctionnalités supplémentaires à définir</li><li>Tarifs et conditions annoncés avant leur activation</li></ul></article>
+        <article class="hk-price"><span class="hk-badge">Votre liberté</span><h3>Vous gardez la main</h3><p class="hk-price-num">Sans paiement au démarrage</p><ul><li>Préparez votre boutique à votre rythme</li><li>Personnalisez-la avant de la partager</li><li>Aucun paiement requis pour commencer</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="#fonctionnement">Voir comment ça marche</a></article>
       </div>
-      <p class="center muted small" style="margin-top:18px">Les fonctionnalités exactes dépendent de la formule et des paramètres actifs de la plateforme.</p>
     </div>
   </section>
 
@@ -1051,7 +1050,8 @@ async function apiRegister(request, env) {
   let template = str(b.template || b.modele, 30) || "simple";
   if (!TEMPLATES[template]) template = "simple";
   const config = await platformConfig(env);
-  const paidUntil = isAdmin ? now() + 3650 * 86400 : now() + config.trialDays * 86400;
+  // La création et la publication restent gratuites : aucun délai d’essai ni expiration pour les nouveaux comptes.
+  const paidUntil = isAdmin ? now() + 3650 * 86400 : null;
   await env.DB.prepare(
     "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, template, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?,?)"
   )
