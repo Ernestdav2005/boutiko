@@ -758,7 +758,7 @@ async function shopPage(request, env, ctx, slug) {
       <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker"></span><h1 class="sf-name">${name}</h1>
       <p class="sf-slogan">${slogan}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
       <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
-  } else if (family === "showcase") {
+  } else if (family === "showcase" || family === "luxury") {
     hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span><p class="sf-brand">${brandLabel}</p>
       <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p></div>
       <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div><div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
@@ -800,7 +800,7 @@ async function shopPage(request, env, ctx, slug) {
   // ---- Produits ----
   const productsHtml = productCount
     ? `<section id="catalogue" class="sf-products sf-products-${templateId} ${tplClass}"><div class="wrap">
-      <div class="sf-sec"><span>${family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" ? "LA COLLECTION" : "À DÉCOUVRIR"}</span><h2>${family === "tech" ? "Catalogue produits" : family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "home" ? "Pour votre intérieur" : family === "editorial" ? "Les pièces du moment" : "Nos produits"}${productCount > 1 ? ` <small>(${productCount})</small>` : ""}</h2></div>
+      <div class="sf-sec"><span>${family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" || family === "luxury" ? "LA COLLECTION" : "À DÉCOUVRIR"}</span><h2>${family === "tech" ? "Catalogue produits" : family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "home" ? "Pour votre intérieur" : family === "editorial" || family === "luxury" ? "Les pièces du moment" : "Nos produits"}${productCount > 1 ? ` <small>(${productCount})</small>` : ""}</h2></div>
       ${many ? '<div class="search"><input id="q" type="search" placeholder="Chercher un produit..." aria-label="Chercher un produit" autocomplete="off"></div>' : ""}
       <div class="pgrid pgrid-${templateId}">${prods.results.map((p) => productCard(p, shop)).join("")}</div>
       <p class="hint" id="none" hidden>Aucun produit ne correspond.</p>
@@ -931,7 +931,7 @@ async function modelDemoPage(request, env, tid) {
   const infoBar = '<section class="sf-infobar"><div class="wrap"><div class="sf-actions">' +
     '<a class="btn" href="/app?modele=' + esc(tid) + '&formule=' + esc(t.plan) + '">Choisir ce modèle</a>' +
     '<a class="btn ghost" href="/#modeles">Voir tous les modèles</a></div></div></section>';
-  const productsSection = '<section id="catalogue" class="sf-products sf-products-' + esc(tid) + ' ' + tplClass + '><div class="wrap">' +
+  const productsSection = '<section id="catalogue" class="sf-products sf-products-' + esc(tid) + ' ' + tplClass + '"><div class="wrap">' +
     '<div class="sf-sec"><span>' + (family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" || family === "luxury" ? "LA COLLECTION" : "À DÉCOUVRIR") + '</span>' +
     '<h2>' + (family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" || family === "luxury" ? "Les pièces du moment" : "Nos produits") + ' <small>(exemple)</small></h2></div>' +
     '<div class="pgrid pgrid-' + esc(tid) + '">' + prods + '</div></div></section>';
