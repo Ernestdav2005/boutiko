@@ -18,6 +18,9 @@ const PLANS = {
 
 // Catalogue de modèles — extensible : ajouter une entrée ici + style CSS + aperçu /modele/:id
 const TEMPLATES = {
+  atelier:{id:"atelier",plan:"standard",label:"ATELIER — Mode & accessoires",tagline:"La nouvelle collection",desc:"Une boutique éditoriale pour vêtements, chaussures, sacs et accessoires.",tags:["mode","collection","standard"]},
+  "maison-standard":{id:"maison-standard",plan:"standard",label:"MAISON — Décoration",tagline:"L’art de vivre chez soi",desc:"Une boutique chaleureuse pour la décoration, les meubles et les objets du quotidien.",tags:["maison","décoration","standard"]},
+  eclat:{id:"eclat",plan:"standard",label:"ÉCLAT — Beauté & soins",tagline:"Le rituel qui vous ressemble",desc:"Une boutique lumineuse pour les soins, cosmétiques et essentiels beauté.",tags:["beauté","soins","standard"]},
   simple:{id:"simple",plan:"essentiel",label:"Boutique chaleureuse",tagline:"Une vitrine accueillante",desc:"Design doux et polyvalent pour présenter vos produits.",tags:["polyvalent","simple"]},
   quartier:{id:"quartier",plan:"essentiel",label:"Marché de proximité",tagline:"Le commerce près de chez vous",desc:"Une vitrine claire pour les commerces locaux et produits du quotidien.",tags:["local","marché"]},
   express:{id:"express",plan:"essentiel",label:"Boulangerie & frais",tagline:"Le goût du frais",desc:"Une présentation appétissante pour pains, pâtisseries et produits frais.",tags:["boulangerie","alimentaire"]},
@@ -36,6 +39,7 @@ const TEMPLATES = {
   collection:{id:"collection",plan:"essentiel",label:"Collection raffinée",tagline:"Une sélection qui vous ressemble",desc:"Pour collections choisies, cadeaux et produits premium.",tags:["collection","sélection"]},
 };
 const TEMPLATE_FAMILY = {
+  atelier: "editorial", "maison-standard": "home", eclat: "beauty",
   simple: "classic", quartier: "market", express: "food", vitrine: "beauty",
   catalogue: "tech", mode: "editorial", premium: "luxury", maison: "home",
   flagship: "showcase", boulangerie: "food", beaute: "beauty", marche: "market",
@@ -44,6 +48,9 @@ const TEMPLATE_FAMILY = {
 // Chaque modèle possède son propre ordre de sections. L’aperçu et la boutique publiée
 // utilisent exactement cette même définition structurelle.
 const TEMPLATE_SECTION_ORDER = {
+  atelier: ["hero", "infobar", "collections", "products", "about", "gallery"],
+  "maison-standard": ["hero", "infobar", "about", "collections", "gallery", "products"],
+  eclat: ["hero", "infobar", "collections", "about", "products", "gallery"],
   simple: ["hero", "infobar", "about", "gallery", "products"],
   quartier: ["hero", "infobar", "products", "about", "gallery"],
   express: ["hero", "products", "infobar", "gallery", "about"],
@@ -75,6 +82,9 @@ function templateOf(shop) {
   return TEMPLATES[id] || TEMPLATES.simple;
 }
 const TEMPLATE_IMAGES = {
+  atelier:"/mode.webp",
+  "maison-standard":"/maison.webp",
+  eclat:"/beaute.webp",
   simple:"/simple.webp",
   quartier:"/quartier.webp",
   express:"/express.webp",
@@ -93,6 +103,9 @@ const TEMPLATE_IMAGES = {
   collection:"/collection.webp",
 };
 const TEMPLATE_ART = {
+  atelier:{bg:"#f3eee5",accent:"#6f2438",ink:"#171615",title:"ATELIER",subtitle:"La nouvelle collection",shape:"fashion"},
+  "maison-standard":{bg:"#eee6d9",accent:"#a76f4d",ink:"#302920",title:"MAISON",subtitle:"L’art de vivre chez soi",shape:"home"},
+  eclat:{bg:"#f8e9e9",accent:"#b56e7d",ink:"#432d35",title:"ÉCLAT",subtitle:"Le rituel qui vous ressemble",shape:"beauty"},
   simple:{bg:"#f4eee5",accent:"#bc7654",ink:"#29251f",title:"BOUTIQUE CHALEUREUSE",subtitle:"La simplicité qui vend",shape:"fashion"},
   quartier:{bg:"#e8f3e9",accent:"#24704c",ink:"#163d2d",title:"MON COMMERCE",subtitle:"Tout près de vous",shape:"market"},
   express:{bg:"#fff0d8",accent:"#c85b32",ink:"#512b20",title:"FRAIS DU JOUR",subtitle:"Préparé avec soin",shape:"food"},
@@ -113,6 +126,9 @@ const TEMPLATE_ART = {
 function templateArtwork(id, variant = "cover", item = 0) {
   const a = TEMPLATE_ART[id] || TEMPLATE_ART.simple;
   const productTitles = {
+    atelier:["Veste Sable","Sac Naya","Sneakers Ligne"],
+    "maison-standard":["Vase Terre","Lampe Alba","Coussin Noma"],
+    eclat:["Sérum Lumière","Crème Velours","Huile Éclat"],
     simple:["Chemise essentielle","Sac du quotidien","Look de saison"],
     quartier:["Sélection locale","Produit populaire","Nouveauté du jour"],
     express:["Pain artisanal","Pâtisserie maison","Panier gourmand"],
@@ -714,6 +730,28 @@ function renderTemplateHero(opts) {
   // Les 16 structures sont explicites : le modèle choisit la composition HTML,
   // et non seulement une couleur ou une image.
   switch (templateId) {
+    case "atelier":
+      return '<section class="sf-hero sf-hero-standard sf-hero-atelier ' + tplClass + '">' +
+        '<div class="std-atelier-top"><span>ATELIER / ÉDITION 01</span><span>STYLE · MATIÈRE · ALLURE</span></div>' +
+        '<div class="std-atelier-layout"><div class="std-atelier-copy"><span class="sf-kicker">LA NOUVELLE COLLECTION</span>' +
+        brand + heading + subline + '<p class="std-hero-description">Des pièces choisies pour affirmer votre allure, au quotidien.</p>' +
+        '<a class="btn" href="#catalogue">Découvrir la collection <span aria-hidden="true">↗</span></a><span class="std-hero-index">01 — SÉLECTION SIGNATURE</span></div>' +
+        '<div class="std-atelier-visual">' + cover + '<span class="std-image-caption">IMAGE DE CAMPAGNE À PERSONNALISER</span><span class="std-visual-mark">A.</span></div></div>' +
+        '<div class="std-atelier-foot"><span>UNE ALLURE QUI VOUS RESSEMBLE</span><span>MODE · ACCESSOIRES · ESSENTIELS</span></div></section>';
+    case "maison-standard":
+      return '<section class="sf-hero sf-hero-standard sf-hero-maison-standard ' + tplClass + '">' +
+        '<div class="std-maison-label"><span>MAISON / ART DE VIVRE</span><span>OBJETS CHOISIS AVEC SOIN</span></div>' +
+        '<div class="std-maison-layout"><div class="std-maison-copy"><span class="sf-kicker">UN INTÉRIEUR QUI VOUS RESSEMBLE</span>' +
+        brand + heading + subline + '<p class="std-hero-description">' + (desc || "Des objets utiles et beaux pour composer un intérieur à votre image.") + '</p>' +
+        '<a class="btn" href="#catalogue">Explorer la maison <span aria-hidden="true">↗</span></a><div class="std-maison-note"><span>01</span><span>MATIÈRES NATURELLES · LIGNES CALMES</span></div></div>' +
+        '<div class="std-maison-visual">' + cover + '<span class="std-image-caption">PHOTO D’INTÉRIEUR À PERSONNALISER</span><span class="std-maison-circle">Vivre<br>mieux.</span></div></div></section>';
+    case "eclat":
+      return '<section class="sf-hero sf-hero-standard sf-hero-eclat ' + tplClass + '">' +
+        '<div class="std-eclat-top"><span>ÉCLAT — BEAUTÉ & SOINS</span><span>VOTRE MOMENT À VOUS</span></div>' +
+        '<div class="std-eclat-layout"><div class="std-eclat-visual">' + cover + '<span class="std-eclat-seal">LE RITUEL<br>DE BEAUTÉ</span><span class="std-image-caption">PHOTO BEAUTÉ À PERSONNALISER</span></div>' +
+        '<div class="std-eclat-copy"><span class="sf-kicker">PRENDRE SOIN DE SOI</span>' + brand + heading + subline +
+        '<p class="std-hero-description">Des essentiels beauté sélectionnés pour accompagner votre routine.</p><a class="btn" href="#catalogue">Découvrir les soins <span aria-hidden="true">↗</span></a>' +
+        '<div class="std-eclat-promise"><span>✦</span><span>Une routine simple, des essentiels choisis avec attention.</span></div></div></div></section>';
     case "simple":
       return '<section class="sf-hero sf-hero-classic ' + tplClass + '">' + cover +
         '<div class="sf-identity wrap">' + avatar + '<div class="sf-id-text">' + brand + heading + subline + openBadge +
@@ -784,6 +822,36 @@ function renderTemplateHero(opts) {
       return '<section class="sf-hero sf-hero-classic ' + tplClass + '">' + cover + '<div class="sf-identity wrap">' + avatar +
         '<div class="sf-id-text">' + brand + heading + subline + openBadge + '</div></div></section>';
   }
+}
+
+function standardCollectionSection(templateId) {
+  const sets = {
+    atelier: [
+      ["VÊTEMENTS", "Les pièces qui signent votre style", "01"],
+      ["SACS & ACCESSOIRES", "Les détails qui font la différence", "02"],
+      ["CHAUSSURES", "L’allure jusqu’au bout", "03"],
+    ],
+    "maison-standard": [
+      ["DÉCORATION", "Donner du caractère à vos espaces", "01"],
+      ["LUMINAIRES", "Créer la bonne atmosphère", "02"],
+      ["ART DE LA TABLE", "Les détails du quotidien", "03"],
+    ],
+    eclat: [
+      ["SOINS DU VISAGE", "Votre routine essentielle", "01"],
+      ["CORPS & BIEN-ÊTRE", "Un moment rien qu’à vous", "02"],
+      ["MAQUILLAGE", "Révéler votre éclat", "03"],
+    ],
+  };
+  const cards = sets[templateId];
+  if (!cards) return "";
+  const title = templateId === "atelier" ? "Composer son allure" : templateId === "maison-standard" ? "Les univers de la maison" : "Votre routine, à votre rythme";
+  const kicker = templateId === "atelier" ? "LES UNIVERS" : templateId === "maison-standard" ? "PIÈCES & AMBIANCES" : "LES ESSENTIELS";
+  return '<section class="std-collections std-collections-' + templateId + '"><div class="wrap">' +
+    '<div class="std-section-heading"><div><span>' + kicker + '</span><h2>' + title + '</h2></div><a href="#catalogue">Tout découvrir ↗</a></div>' +
+    '<div class="std-collection-grid">' + cards.map(function (card, i) {
+      return '<a class="std-collection-card std-collection-card-' + (i + 1) + '" href="#catalogue"><span class="std-collection-art" aria-hidden="true"><i></i><b>' + card[2] + '</b></span>' +
+        '<span class="std-collection-meta"><span>' + card[2] + ' / ' + (i + 1) + '</span><strong>' + card[0] + '</strong><small>' + card[1] + '</small><em>Explorer ↗</em></span></a>';
+    }).join("") + '</div></div></section>';
 }
 
 async function shopPage(request, env, ctx, slug) {
@@ -899,7 +967,7 @@ async function shopPage(request, env, ctx, slug) {
   // Le modèle choisi commande l’architecture réelle de la boutique.
   // Les sections sont réutilisées sans perdre leurs données ni leurs actions.
   let body = composeTemplateSections(templateId, {
-    hero, infobar: infoBar, about, gallery, products: productsHtml,
+    hero, infobar: infoBar, about, gallery, products: productsHtml, collections: standardCollectionSection(templateId),
   }) + foot + fab;
 
 
@@ -928,6 +996,9 @@ async function shopPage(request, env, ctx, slug) {
 }
 
 const DEMO_SEED_PRODUCTS = {
+ atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000],["Robe Élise",15000]],
+ "maison-standard":[["Vase Terre",8500],["Lampe Alba",18000],["Coussin Noma",6500]],
+ eclat:[["Sérum Lumière",8500],["Crème Velours",12000],["Huile Éclat",5500]],
  simple:[["Sac en toile naturel",8500],["Chemise en lin",12000],["Bougie parfumée",4500]],
  quartier:[["Panier de légumes",3000],["Fruits de saison",2500],["Épices du marché",1000]],
  express:[["Pain artisanal",500],["Croissants pur beurre",700],["Brioche maison",1200]],
@@ -946,6 +1017,9 @@ const DEMO_SEED_PRODUCTS = {
  collection:[["Collier signature",25000],["Boucles dorées",15000],["Bracelet précieux",18000]]
 };
 const DEMO_PHOTOS = {
+ atelier:["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"],
+ "maison-standard":["https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"],
+ eclat:["https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80"],
  simple:["https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80"],
  quartier:["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80"],
  express:["https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1608198093002-ad4e0054843e?auto=format&fit=crop&w=800&q=80"],
@@ -974,12 +1048,15 @@ async function modelDemoPage(request, env, tid) {
     business_name: "", slogan: t.tagline, description: t.desc + " Remplacez ces textes par les vôtres après inscription.",
     whatsapp: "22900000000", color, address: "Cotonou, Bénin", maps_url: "", hours: JSON.stringify({ open: "08:00", close: "19:00", days: [1,2,3,4,5,6] }),
     momo: "", logo_id: null, banner_id: null, gallery: "[]", theme: "editorial", layout: "grid",
-    plan: "essentiel", template: tid, status: "active",
+    plan: t.plan || "essentiel", template: tid, status: "active",
   };
   // Réutilise shopPage logic via query injection: build minimal HTML demo
   const name = esc(fakeShop.name);
   const waLink = "https://wa.me/22900000000";
   const DEMO_PRODUCTS = {
+    atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000],["Robe Élise",15000]],
+    "maison-standard":[["Vase Terre",8500],["Lampe Alba",18000],["Coussin Noma",6500],["Plateau Sable",9500]],
+    eclat:[["Sérum Lumière",8500],["Crème Velours",12000],["Huile Éclat",5500],["Nettoyant Doux",6500]],
     simple: [["Chemise essentielle",6500],["Sac du quotidien",12000],["Look de saison",9000]],
     quartier: [["Sélection locale",3500],["Produit populaire",6000],["Nouveauté du jour",4500]],
     express: [["Pain artisanal",1500],["Pâtisserie maison",2500],["Panier gourmand",5000]],
@@ -1024,7 +1101,7 @@ async function modelDemoPage(request, env, tid) {
   const about = `<section class="sf-about wrap"><div class="sf-sec"><span>NOTRE UNIVERS</span><h2>À propos de ${name}</h2></div><p class="sf-desc">${esc(t.desc)} Remplacez cette présentation par les informations de votre commerce.</p></section>`;
   // La page d’aperçu applique le même ordre structurel que la boutique publiée.
   const previewBody = composeTemplateSections(tid, {
-    hero, infobar: infoBar, about, gallery: "", products: productsSection,
+    hero, infobar: infoBar, about, gallery: "", products: productsSection, collections: standardCollectionSection(tid),
   });
   const demoNav = '<div class="demo-browser" role="navigation" aria-label="Boutique de démonstration">' +
     '<div class="demo-browser-top"><span class="demo-live-dot"></span><span>BOUTIQUE DE DÉMONSTRATION</span><span class="demo-browser-name">' + esc(t.label) + '</span><a class="demo-browser-back" href="/#modeles">Tous les modèles</a></div></div>';
