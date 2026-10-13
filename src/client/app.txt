@@ -610,8 +610,17 @@
         if (section) { var details = section.closest("details"); if(details) details.open=true; }
         var file = $("#"+(msg.kind==="logo"?"logof":"bannerf"));
         if (file) file.click(); else toast("Ouvrez la section Photos pour modifier cette image.");
-      } else if (msg.type === "products") {
-        S.tab = "products"; render(); toast("Gérez ce produit dans la liste des produits.");
+      } else if (msg.type === "product-text") {
+        var productId = String(msg.id || ""), productFields = {name:80,description:500,price:10,promo_price:10};
+        if (!/^\d+$/.test(productId) || !Object.prototype.hasOwnProperty.call(productFields,msg.field)) return;
+        var productValue = String(msg.value || "").slice(0,productFields[msg.field]);
+        if (msg.field === "name" && productValue.trim().length < 2) return toast("Le nom doit contenir au moins 2 caractères.");
+        if ((msg.field === "price" || msg.field === "promo_price") && (!productValue || Number(productValue) < 0)) return toast("Saisissez un prix valide.");
+        var productPayload = {}; productPayload[msg.field] = (msg.field === "price" || msg.field === "promo_price") ? Number(productValue) : productValue;
+        api("/api/products/" + productId, "PUT", productPayload).then(function(){toast("Modification enregistrée.");if(visualFrame)visualFrame.src="/"+encodeURIComponent(S.me.shop.slug)+"?boutiko_editor=1&refresh="+Date.now();}).catch(function(ex){toast("Enregistrement impossible : "+ex.message);});
+      } else if (msg.type === "product-image" || msg.type === "products") {
+        S.tab = "products";
+        loadProducts().then(function(){var found=S.products.filter(function(p){return String(p.id)===String(msg.id);})[0];render();if(found)productForm(found);else toast("Choisissez un produit pour le modifier.");}).catch(function(ex){toast(ex.message);});
       }
     });
     $("#sharewa").onclick = function () { localStorage_set("shared", "1"); };
