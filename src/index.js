@@ -41,6 +41,30 @@ const TEMPLATE_FAMILY = {
   flagship: "showcase", boulangerie: "food", beaute: "beauty", marche: "market",
   chaleureux: "home", lifestyle: "editorial", boutique: "showcase", collection: "luxury",
 };
+// Chaque modèle possède son propre ordre de sections. L’aperçu et la boutique publiée
+// utilisent exactement cette même définition structurelle.
+const TEMPLATE_SECTION_ORDER = {
+  simple: ["hero", "infobar", "about", "gallery", "products"],
+  quartier: ["hero", "infobar", "products", "about", "gallery"],
+  express: ["hero", "products", "infobar", "gallery", "about"],
+  vitrine: ["hero", "about", "products", "gallery", "infobar"],
+  catalogue: ["hero", "infobar", "products", "gallery", "about"],
+  mode: ["hero", "about", "gallery", "products", "infobar"],
+  premium: ["hero", "about", "products", "infobar", "gallery"],
+  maison: ["hero", "gallery", "about", "products", "infobar"],
+  flagship: ["hero", "products", "gallery", "about", "infobar"],
+  boulangerie: ["hero", "products", "infobar", "about", "gallery"],
+  beaute: ["hero", "gallery", "about", "products", "infobar"],
+  marche: ["hero", "infobar", "products", "gallery", "about"],
+  chaleureux: ["hero", "about", "gallery", "products", "infobar"],
+  lifestyle: ["hero", "gallery", "products", "about", "infobar"],
+  boutique: ["hero", "infobar", "gallery", "products", "about"],
+  collection: ["hero", "about", "gallery", "products", "infobar"],
+};
+function composeTemplateSections(templateId, sections) {
+  const order = TEMPLATE_SECTION_ORDER[templateId] || TEMPLATE_SECTION_ORDER.simple;
+  return order.map((key) => sections[key] || "").join("");
+}
 const TEMPLATES_BY_PLAN = {
   essentiel: Object.keys(TEMPLATES),
   standard: Object.keys(TEMPLATES),
@@ -729,14 +753,14 @@ async function shopPage(request, env, ctx, slug) {
   let hero = "";
   if (family === "editorial") {
     hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}
-      <div class="sf-editorial-copy wrap"><span class="sf-kicker">""</span>
+      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${esc(t.tagline || t.label)}</span>
       <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
       ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
       <div class="sf-actions"><a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Découvrir la collection</a></div></div>
       <div class="sf-editorial-stamp">""</div></section>`;
   } else if (family === "food") {
     hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div>
-      <div class="sf-food-copy wrap"><span class="sf-kicker">""</span>
+      <div class="sf-food-copy wrap"><span class="sf-kicker">${esc(t.tagline || t.label)}</span>
       <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
       <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
   } else if (family === "beauty") {
@@ -815,13 +839,11 @@ async function shopPage(request, env, ctx, slug) {
     : `<footer class="sf-foot"><div class="wrap">Boutique créée avec <a href="/">${platformName(env)}</a></div></footer>`;
   const fab = `<a class="fab" target="_blank" rel="noopener" href="${waLink}" aria-label="Écrire sur WhatsApp">${icon("wa")}</a>`;
 
-  let body;
-  if (family === "food") body = hero + productsHtml + infoBar + about + gallery + foot + fab;
-  else if (family === "editorial" || family === "luxury") body = hero + about + productsHtml + gallery + infoBar + foot + fab;
-  else if (family === "tech") body = hero + infoBar + productsHtml + about + gallery + foot + fab;
-  else if (family === "home") body = hero + gallery + about + productsHtml + infoBar + foot + fab;
-  else if (family === "market") body = hero + infoBar + productsHtml + about + gallery + foot + fab;
-  else body = hero + infoBar + about + gallery + productsHtml + foot + fab;
+  // Le modèle choisi commande l’architecture réelle de la boutique.
+  // Les sections sont réutilisées sans perdre leurs données ni leurs actions.
+  const body = composeTemplateSections(templateId, {
+    hero, infobar: infoBar, about, gallery, products: productsHtml,
+  }) + foot + fab;
 
 
   const visualEditor = url.searchParams.get("boutiko_editor") === "1";
@@ -935,14 +957,10 @@ async function modelDemoPage(request, env, tid) {
     '<div class="sf-sec"><span>' + (family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" || family === "luxury" ? "LA COLLECTION" : "À DÉCOUVRIR") + '</span>' +
     '<h2>' + (family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" || family === "luxury" ? "Les pièces du moment" : "Nos produits") + ' <small>(exemple)</small></h2></div>' +
     '<div class="pgrid pgrid-' + esc(tid) + '">' + prods + '</div></div></section>';
-  // L’aperçu reprend le même ordre de sections que la boutique publiée.
-  let previewBody;
-  if (family === "food") previewBody = hero + productsSection + infoBar + about;
-  else if (family === "editorial" || family === "luxury") previewBody = hero + about + productsSection + infoBar;
-  else if (family === "tech") previewBody = hero + infoBar + productsSection + about;
-  else if (family === "home") previewBody = hero + about + productsSection + infoBar;
-  else if (family === "market") previewBody = hero + infoBar + productsSection + about;
-  else previewBody = hero + infoBar + about + productsSection;
+  // La page d’aperçu applique le même ordre structurel que la boutique publiée.
+  const previewBody = composeTemplateSections(tid, {
+    hero, infobar: infoBar, about, gallery: "", products: productsSection,
+  });
   const body = previewBody + '<footer class="sf-foot"><div class="wrap">Aperçu du modèle <b>' + esc(t.label) + '</b> · <a href="/app?modele=' + esc(tid) + '">Créer ma boutique avec ce modèle</a></div></footer>';
   return html(layout({
     title: `Modèle ${t.label} · ${env.PLATFORM_NAME || "Boutiko"}`,
