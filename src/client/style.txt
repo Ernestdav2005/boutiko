@@ -1982,3 +1982,10 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .bk-optional-content{padding:0 16px 16px}
 .bk-optional .profile-section-heading{margin-top:18px}
 #sf>button[type=submit]{margin-top:18px;min-height:48px;font-size:16px}
+
+/* Les modèles doivent être des structures vierges, sans photos ni textes de démonstration */
+.sf-cover.no-img{background-image:linear-gradient(135deg,color-mix(in srgb,var(--c,#0f766e) 12%,transparent),transparent 68%)!important;background-color:#f4f5f6}
+.sf-cover.no-img:before,.sf-cover.no-img:after{content:none!important}
+.sf-editorial-stamp:empty,.sf-kicker:empty,.sf-brand:empty,.sf-slogan:empty,.sf-home-desc:empty,.sf-tech-live:empty,.sf-beauty-seal:empty,.sf-tech-art span:empty,.sf-showcase-number:empty{display:none!important}
+.sf-page .sf-kicker:empty,.sf-page .sf-editorial-stamp:empty{display:none!important}
+.sf-page .sf-brand:empty,.sf-page .sf-slogan:empty{display:none!important}
