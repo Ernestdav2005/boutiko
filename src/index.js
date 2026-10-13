@@ -824,6 +824,18 @@ async function shopPage(request, env, ctx, slug) {
   else if (family === "market") body = hero + infoBar + productsHtml + about + gallery + foot + fab;
   else body = hero + infoBar + about + gallery + productsHtml + foot + fab;
 
+
+  const visualEditor = url.searchParams.get("boutiko_editor") === "1";
+  if (visualEditor) {
+    body += '<script>(function(){if(window.parent===window)return;function send(d){try{window.parent.postMessage(Object.assign({source:"boutiko-editor"},d),location.origin)}catch(e){}}' +
+      'var map=[[".sf-name","name"],[".sf-brand","brand_name"],[".sf-slogan","slogan"],[".sf-home-desc","description"],[".sf-market-ribbon span:nth-child(2)","address"]];' +
+      'map.forEach(function(p){document.querySelectorAll(p[0]).forEach(function(el){el.setAttribute("data-boutiko-field",p[1]);el.setAttribute("contenteditable","true");el.setAttribute("spellcheck","true");el.setAttribute("title","Touchez pour modifier ce texte");el.addEventListener("click",function(e){e.stopPropagation()});el.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey&&el.tagName!=="P"){e.preventDefault();el.blur()}});el.addEventListener("blur",function(){send({type:"text",field:p[1],value:el.innerText.trim()})})})});' +
+      'document.querySelectorAll(".sf-cover").forEach(function(el){el.setAttribute("data-boutiko-image","banner");el.title="Touchez pour changer la couverture"});document.querySelectorAll(".sf-avatar").forEach(function(el){el.setAttribute("data-boutiko-image","logo");el.title="Touchez pour changer le logo"});' +
+      'document.querySelectorAll(".sf-cover,.sf-avatar").forEach(function(el){el.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();send({type:"image",kind:el.getAttribute("data-boutiko-image")})})});' +
+      'document.querySelectorAll(".pgrid article,.pgrid .product-card,.pgrid .pcard").forEach(function(el){el.title="Touchez pour gérer ce produit";el.setAttribute("data-boutiko-products","1");el.addEventListener("click",function(e){if(e.target.closest("button,a"))return;e.preventDefault();e.stopPropagation();send({type:"products"})})});' +
+      'var css=document.createElement("style");css.textContent="[contenteditable=true]{outline:2px dashed #f5a623!important;outline-offset:4px;cursor:text!important;min-width:1em}[contenteditable=true]:focus{outline:2px solid #0f766e!important;background:rgba(255,255,255,.85);color:#111!important;border-radius:4px}[data-boutiko-image],[data-boutiko-products]{cursor:pointer!important;outline:2px dashed rgba(245,166,35,.85);outline-offset:-3px}body:before{content:\\"MODE ÉDITION — touchez les textes ou les images\\";display:block;position:sticky;top:0;z-index:99999;background:#20284f;color:white;text-align:center;padding:8px 12px;font:600 13px/1.4 system-ui}";document.head.appendChild(css)})();</script>';
+  }
+
   return html(layout({
     title: `${shop.name}${shop.address ? " · " + shop.address : ""}`,
     desc: shop.description || shop.slogan || `Découvrez ${shop.name} et commandez sur WhatsApp.`,
