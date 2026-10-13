@@ -618,10 +618,6 @@
     }
     function uploadShopImage(kind, file) {
       if (!file || busy) return;
-      if (kind === "banner" && !S.me.limits.custom) {
-        toast("La couverture personnalisée est disponible avec une formule supérieure.");
-        return;
-      }
       busy = true;
       toast("Préparation de l’image…");
       compress(file, kind === "logo" ? 400 : 1200, (kind === "logo" ? 120 : 350) * 1024)
