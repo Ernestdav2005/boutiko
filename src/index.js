@@ -48,9 +48,9 @@ const TEMPLATE_FAMILY = {
 // Chaque modèle possède son propre ordre de sections. L’aperçu et la boutique publiée
 // utilisent exactement cette même définition structurelle.
 const TEMPLATE_SECTION_ORDER = {
-  atelier: ["hero", "collections", "products", "about", "gallery", "infobar"],
-  "maison-standard": ["hero", "about", "collections", "gallery", "products", "infobar"],
-  eclat: ["hero", "collections", "about", "products", "gallery", "infobar"],
+  atelier: ["hero", "infobar", "collections", "products", "about", "gallery"],
+  "maison-standard": ["hero", "infobar", "about", "collections", "gallery", "products"],
+  eclat: ["hero", "infobar", "collections", "about", "products", "gallery"],
   simple: ["hero", "infobar", "about", "gallery", "products"],
   quartier: ["hero", "infobar", "products", "about", "gallery"],
   express: ["hero", "products", "infobar", "gallery", "about"],
@@ -996,7 +996,7 @@ async function shopPage(request, env, ctx, slug) {
 }
 
 const DEMO_SEED_PRODUCTS = {
- atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000]],
+ atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000],["Robe Élise",15000]],
  "maison-standard":[["Vase Terre",8500],["Lampe Alba",18000],["Coussin Noma",6500]],
  eclat:[["Sérum Lumière",8500],["Crème Velours",12000],["Huile Éclat",5500]],
  simple:[["Sac en toile naturel",8500],["Chemise en lin",12000],["Bougie parfumée",4500]],
