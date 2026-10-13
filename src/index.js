@@ -1471,6 +1471,29 @@ async function apiAdmin(request, env, auth, parts) {
       headers: { "content-type": "application/json; charset=utf-8", "content-disposition": 'attachment; filename="sauvegarde-complete.json"', "cache-control": "no-store" },
     });
   }
+  if (request.method === "DELETE" && parts[2] === "shops" && parts[3]) {
+    const id = parseInt(parts[3], 10);
+    if (!Number.isSafeInteger(id) || id <= 0) return fail("Boutique introuvable.", 404);
+    const shop = await env.DB.prepare("SELECT * FROM shops WHERE id=?").bind(id).first();
+    if (!shop) return fail("Boutique introuvable.", 404);
+    const owner = await env.DB.prepare("SELECT id, phone, is_admin FROM users WHERE id=?").bind(shop.user_id).first();
+    if (!owner) return fail("Compte commerçant introuvable.", 404);
+    if (owner.is_admin || owner.id === auth.user.id) return fail("Le compte administrateur ne peut pas être supprimé depuis cette action.", 403);
+
+    // Supprimer les fichiers associés avant les lignes de base de données.
+    const media = await env.DB.prepare("SELECT id, r2_key FROM media WHERE shop_id=?").bind(id).all();
+    await deleteMedia(env, media.results || []);
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM orders WHERE shop_id=?").bind(id),
+      env.DB.prepare("DELETE FROM products WHERE shop_id=?").bind(id),
+      env.DB.prepare("DELETE FROM stats WHERE shop_id=?").bind(id),
+      env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(owner.id),
+      env.DB.prepare("DELETE FROM login_fails WHERE phone=?").bind(owner.phone),
+      env.DB.prepare("DELETE FROM shops WHERE id=? AND user_id=?").bind(id, owner.id),
+      env.DB.prepare("DELETE FROM users WHERE id=? AND is_admin=0").bind(owner.id),
+    ]);
+    return json({ ok: true, deleted: true });
+  }
   if (request.method === "POST" && parts[2] === "shops" && parts[3]) {
     const id = parseInt(parts[3], 10);
     const shop = await env.DB.prepare("SELECT * FROM shops WHERE id=?").bind(id).first();
