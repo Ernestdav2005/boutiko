@@ -709,7 +709,7 @@ async function shopPage(request, env, ctx, slug) {
   // ---- Cover / logo (all tiers) ----
   const cover = (shop.banner_id && plan.custom)
     ? `<div class="sf-cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
-    : `<div class="sf-cover no-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.15),rgba(16,42,67,.02)),url(/template-img/${esc(TEMPLATES[shop.template] ? shop.template : "simple")})"></div>`;
+    : `<div class="sf-cover no-img" aria-label="Emplacement de la photo de couverture" style="--c:${color}"></div>`;
   const avatar = shop.logo_id
     ? `<div class="sf-avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
     : `<div class="sf-avatar" aria-hidden="true">${esc((Array.from(shop.name.trim())[0] || "B").toUpperCase())}</div>`;
@@ -730,38 +730,38 @@ async function shopPage(request, env, ctx, slug) {
   let hero = "";
   if (family === "editorial") {
     hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}
-      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${templateId === "mode" ? "NOUVELLE SAISON" : "L'UNIVERS DE LA BOUTIQUE"}</span>
-      <p class="sf-brand">${brandLabel || "Sélection du moment"}</p><h1 class="sf-name">${name}</h1>
+      <div class="sf-editorial-copy wrap"><span class="sf-kicker">""</span>
+      <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
       ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
       <div class="sf-actions"><a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Découvrir la collection</a></div></div>
-      <div class="sf-editorial-stamp">${templateId === "mode" ? "STYLE\n& ALLURE" : "CHOISI\nAVEC SOIN"}</div></section>`;
+      <div class="sf-editorial-stamp">""</div></section>`;
   } else if (family === "food") {
     hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div>
-      <div class="sf-food-copy wrap"><span class="sf-kicker">${templateId === "express" ? "FRAÎCHEMENT PRÉPARÉ" : "LE SAVOIR-FAIRE ARTISANAL"}</span>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Des produits préparés avec soin, chaque jour."}</p>
+      <div class="sf-food-copy wrap"><span class="sf-kicker">""</span>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
       <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
   } else if (family === "beauty") {
-    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker">VOTRE RITUEL, VOTRE ÉCLAT</span>
-      <p class="sf-brand">${brandLabel || "Beauté & bien-être"}</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan || "Prenez un moment pour vous."}</p><a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
-      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal">BEAUTÉ<br/>NATURELLE</span></div></section>`;
+    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker"></span>
+      <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan}</p><a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
+      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal"></span></div></section>`;
   } else if (family === "tech") {
-    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">TECH STORE / ${esc(shop.address || "BÉNIN")}</span><span class="sf-tech-live">● DISPONIBLE SUR WHATSAPP</span></div>
-      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">${brandLabel || "TECHNOLOGIE & ACCESSOIRES"}</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan || "Les équipements utiles, au même endroit."}</p><a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
+    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">${shop.address ? "TECH STORE / " + esc(shop.address) : ""}</span><span class="sf-tech-live">● </span></div>
+      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan}</p><a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
   } else if (family === "home") {
-    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy"><span class="sf-kicker">UN ART DE VIVRE</span>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Des objets choisis pour votre quotidien."}</p>
-      <p class="sf-home-desc">${desc || "Découvrez une sélection pensée pour apporter du caractère à votre intérieur."}</p>
+    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy"><span class="sf-kicker"></span>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
+      <p class="sf-home-desc">${desc}</p>
       <a class="btn" href="#catalogue">Découvrir la sélection</a></div></section>`;
   } else if (family === "market") {
-    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span>BIENVENUE CHEZ VOUS</span><span>${esc(shop.address || "Votre commerce de proximité")}</span></div>
-      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">PROCHE DE VOUS, CHAQUE JOUR</span><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan || "Vos essentiels, simplement."}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
+    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span></span><span>${esc(shop.address || "Votre commerce de proximité")}</span></div>
+      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker"></span><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
       <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
   } else if (family === "showcase") {
-    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span><p class="sf-brand">${brandLabel || "Boutique indépendante"}</p>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Découvrez les incontournables du moment."}</p></div>
+    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span><p class="sf-brand">${brandLabel}</p>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p></div>
       <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div><div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
   } else {
     hero = `<section class="sf-hero sf-hero-classic ${tplClass}">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
