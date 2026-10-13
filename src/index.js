@@ -926,7 +926,7 @@ async function shopPage(request, env, ctx, slug) {
   }), 200, extraHeaders);
 }
 
-async const DEMO_SEED_PRODUCTS = {
+const DEMO_SEED_PRODUCTS = {
  simple:[["Sac en toile naturel",8500],["Chemise en lin",12000],["Bougie parfumée",4500]],
  quartier:[["Panier de légumes",3000],["Fruits de saison",2500],["Épices du marché",1000]],
  express:[["Pain artisanal",500],["Croissants pur beurre",700],["Brioche maison",1200]],
@@ -963,7 +963,7 @@ const DEMO_PHOTOS = {
  collection:["https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80"]
 };
 
-function modelDemoPage(request, env, tid) {
+async function modelDemoPage(request, env, tid) {
   const t = TEMPLATES[tid];
   if (!t) return notFound(env);
   const config = await platformConfig(env);
