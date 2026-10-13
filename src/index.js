@@ -693,6 +693,97 @@ ${soldOut ? "" : `<button class="btn block buy" type="button" data-open>${icon("
 </div></article>`;
 }
 
+function renderTemplateHero(opts) {
+  const {
+    templateId, family, tplClass, cover, avatar = "", openBadge = "",
+    brandLabel = "", name, slogan = "", desc = "", address = "",
+    waLink, preview = false, tagline = "",
+  } = opts;
+  const actionHref = preview ? "/app?modele=" + encodeURIComponent(templateId) : waLink;
+  const action = preview
+    ? '<a class="btn" href="' + actionHref + '">Choisir ce modèle</a>'
+    : '<a class="btn" target="_blank" rel="noopener" href="' + waLink + '">' + icon("wa") + ' Commander sur WhatsApp</a>';
+  const heading = '<h1 class="sf-name">' + name + '</h1>';
+  const brand = brandLabel ? '<p class="sf-brand">' + brandLabel + '</p>' : "";
+  const subline = slogan ? '<p class="sf-slogan">' + slogan + '</p>' : "";
+  const location = address ? esc(address) : "Votre commerce";
+  // Les 16 structures sont explicites : le modèle choisit la composition HTML,
+  // et non seulement une couleur ou une image.
+  switch (templateId) {
+    case "simple":
+      return '<section class="sf-hero sf-hero-classic ' + tplClass + '">' + cover +
+        '<div class="sf-identity wrap">' + avatar + '<div class="sf-id-text">' + brand + heading + subline + openBadge +
+        '<p class="sf-template-note">Une boutique simple, claire et accueillante.</p></div></div></section>';
+    case "quartier":
+      return '<section class="sf-hero sf-hero-market ' + tplClass + '"><div class="sf-market-ribbon"><span>LE COMMERCE PRÈS DE CHEZ VOUS</span><span>' + location + '</span></div>' +
+        '<div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">LES ESSENTIELS DU QUARTIER</span>' + heading + subline +
+        '<div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits ↓</a></div></div><div class="sf-market-cover">' + cover + '</div></div>' +
+        '<div class="sf-market-benefits"><span>✓ Proche de vous</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>';
+    case "express":
+      return '<section class="sf-hero sf-hero-food ' + tplClass + '"><div class="sf-food-art">' + cover + '</div><div class="sf-food-copy wrap">' +
+        '<span class="sf-kicker">' + esc(tagline || "LE GOÛT DU FRAIS") + '</span>' + heading + subline +
+        '<div class="sf-food-proof"><span>✦ Fraîcheur</span><span>✦ Préparé avec soin</span></div>' + action + '</div></section>';
+    case "vitrine":
+      return '<section class="sf-hero sf-hero-beauty ' + tplClass + '"><div class="sf-beauty-copy"><span class="sf-kicker">VOTRE RITUEL BEAUTÉ</span>' +
+        brand + heading + subline + '<a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>' +
+        '<div class="sf-beauty-visual">' + cover + '<span class="sf-beauty-seal">BEAUTÉ<br>AU NATUREL</span></div></section>';
+    case "catalogue":
+      return '<section class="sf-hero sf-hero-tech ' + tplClass + '"><div class="sf-tech-top"><span class="sf-tech-label">TECH STORE / ' + location + '</span><span class="sf-tech-live">● CATALOGUE</span></div>' +
+        '<div class="sf-tech-grid"><div class="sf-tech-copy">' + brand + heading + subline + '<a class="btn" href="#catalogue">Explorer le catalogue ↓</a></div>' +
+        '<div class="sf-tech-art">' + cover + '<span>TECH<br>ESSENTIALS</span></div></div></section>';
+    case "mode":
+      return '<section class="sf-hero sf-hero-editorial ' + tplClass + '">' + cover + '<div class="sf-editorial-copy wrap"><span class="sf-kicker">NOUVELLE ALLURE</span>' +
+        brand + heading + subline + '<div class="sf-actions">' + action + '</div></div><div class="sf-editorial-stamp">STYLE<br>& ALLURE</div></section>';
+    case "premium":
+      return '<section class="sf-hero sf-hero-showcase ' + tplClass + '"><div class="sf-showcase-heading"><span class="sf-kicker">SÉLECTION SIGNATURE</span>' +
+        brand + heading + subline + '</div><div class="sf-showcase-art">' + cover + '<span class="sf-showcase-number">01 — SIGNATURE</span></div>' +
+        '<div class="sf-showcase-footer"><span>LE DÉTAIL FAIT LA DIFFÉRENCE</span><a href="#catalogue">Découvrir ↓</a></div></section>';
+    case "maison":
+      return '<section class="sf-hero sf-hero-home ' + tplClass + '"><div class="sf-home-image">' + cover + '</div><div class="sf-home-copy">' +
+        '<span class="sf-kicker">MAISON & ART DE VIVRE</span>' + heading + subline + '<p class="sf-home-desc">' + desc + '</p>' +
+        '<a class="btn" href="#catalogue">Découvrir la décoration</a></div></section>';
+    case "flagship":
+      return '<section class="sf-hero sf-hero-showcase ' + tplClass + '"><div class="sf-showcase-heading"><span class="sf-kicker">LA GRANDE VITRINE</span>' +
+        brand + heading + subline + '<p class="sf-template-note">Toute votre sélection, au même endroit.</p></div>' +
+        '<div class="sf-showcase-art">' + cover + '<span class="sf-showcase-number">LA SÉLECTION</span></div>' +
+        '<div class="sf-showcase-footer"><span>À VOUS DE DÉCOUVRIR</span><a href="#catalogue">Voir les produits ↓</a></div></section>';
+    case "boulangerie":
+      return '<section class="sf-hero sf-hero-food ' + tplClass + '"><div class="sf-food-art sf-bakery-art">' + cover + '</div><div class="sf-food-copy wrap">' +
+        '<span class="sf-kicker">DU FOUR À VOTRE TABLE</span>' + heading + subline +
+        '<div class="sf-food-proof"><span>✦ Fait maison</span><span>✦ Fraîcheur du jour</span><span>✦ Artisanat</span></div>' + action + '</div></section>';
+    case "beaute":
+      return '<section class="sf-hero sf-hero-beauty ' + tplClass + '"><div class="sf-beauty-copy"><span class="sf-kicker">LE SOIN, AUTREMENT</span>' +
+        brand + heading + subline + '<p class="sf-template-note">Des essentiels pour votre rituel quotidien.</p><a class="sf-beauty-link" href="#catalogue">Trouver mes essentiels ↘</a></div>' +
+        '<div class="sf-beauty-visual">' + cover + '<span class="sf-beauty-seal">ÉCLAT<br>NATUREL</span></div></section>';
+    case "marche":
+      return '<section class="sf-hero sf-hero-market ' + tplClass + '"><div class="sf-market-ribbon"><span>MARCHÉ EN LIGNE</span><span>' + location + '</span></div>' +
+        '<div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">LES BONS PRODUITS, AU MÊME ENDROIT</span>' + heading + subline +
+        '<div class="sf-actions"><a class="btn" href="#catalogue">Faire mon choix ↓</a></div></div><div class="sf-market-cover">' + cover + '</div></div>' +
+        '<div class="sf-market-benefits"><span>✓ Produits du quotidien</span><span>✓ Contact direct</span><span>✓ Commande WhatsApp</span></div></section>';
+    case "chaleureux":
+      return '<section class="sf-hero sf-hero-home ' + tplClass + '"><div class="sf-home-image">' + cover + '</div><div class="sf-home-copy">' +
+        '<span class="sf-kicker">FAIT AVEC ATTENTION</span>' + heading + subline + '<p class="sf-home-desc">' + desc + '</p>' +
+        '<div class="sf-template-note">Des objets choisis pour apporter chaleur et personnalité.</div><a class="btn" href="#catalogue">Découvrir mes coups de cœur</a></div></section>';
+    case "lifestyle":
+      return '<section class="sf-hero sf-hero-editorial ' + tplClass + '">' + cover + '<div class="sf-editorial-copy wrap"><span class="sf-kicker">LE QUOTIDIEN AVEC STYLE</span>' +
+        brand + heading + subline + '<p class="sf-template-note">Les détails qui font votre style.</p><div class="sf-actions">' + action + '</div></div>' +
+        '<div class="sf-editorial-stamp">LIVE<br>YOUR STYLE</div></section>';
+    case "boutique":
+      return '<section class="sf-hero sf-hero-showcase ' + tplClass + '"><div class="sf-showcase-heading"><span class="sf-kicker">PRÉSENTEZ · PARTAGEZ · VENDEZ</span>' +
+        brand + heading + subline + '<div class="sf-actions">' + action + '</div></div><div class="sf-showcase-art">' + cover +
+        '<span class="sf-showcase-number">VOTRE BOUTIQUE</span></div><div class="sf-showcase-footer"><span>VOTRE SÉLECTION EN UN LIEN</span><a href="#catalogue">Explorer ↓</a></div></section>';
+    case "collection":
+      return '<section class="sf-hero sf-hero-showcase ' + tplClass + '"><div class="sf-showcase-heading"><span class="sf-kicker">COLLECTION PRIVILÉGIÉE</span>' +
+        brand + heading + subline + '</div><div class="sf-showcase-art">' + cover + '<span class="sf-showcase-number">ÉDITION / SÉLECTION</span></div>' +
+        '<div class="sf-showcase-footer"><span>UNE SÉLECTION QUI VOUS RESSEMBLE</span><a href="#catalogue">Voir la collection ↓</a></div></section>';
+    case "chaleureux":
+      return '<section class="sf-hero sf-hero-home ' + tplClass + '">' + cover + '<div class="sf-home-copy">' + heading + subline + '</div></section>';
+    default:
+      return '<section class="sf-hero sf-hero-classic ' + tplClass + '">' + cover + '<div class="sf-identity wrap">' + avatar +
+        '<div class="sf-id-text">' + brand + heading + subline + openBadge + '</div></div></section>';
+  }
+}
+
 async function shopPage(request, env, ctx, slug) {
   const shop = await env.DB.prepare("SELECT * FROM shops WHERE slug=?").bind(slug).first();
   if (!shop) return notFound(env);
@@ -750,48 +841,12 @@ async function shopPage(request, env, ctx, slug) {
   const templateId = TEMPLATES[shop.template] ? shop.template : "simple";
   const family = TEMPLATE_FAMILY[templateId] || "classic";
   const tplClass = "sf-layout-" + family + " sf-model-" + templateId;
-  let hero = "";
-  if (family === "editorial") {
-    hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}
-      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${esc(TEMPLATES[templateId].tagline || TEMPLATES[templateId].label)}</span>
-      <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
-      ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
-      <div class="sf-actions"><a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Découvrir la collection</a></div></div>
-      <div class="sf-editorial-stamp">""</div></section>`;
-  } else if (family === "food") {
-    hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div>
-      <div class="sf-food-copy wrap"><span class="sf-kicker">${esc(TEMPLATES[templateId].tagline || TEMPLATES[templateId].label)}</span>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
-      <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
-  } else if (family === "beauty") {
-    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker"></span>
-      <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan}</p><a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
-      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal"></span></div></section>`;
-  } else if (family === "tech") {
-    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">${shop.address ? "TECH STORE / " + esc(shop.address) : ""}</span><span class="sf-tech-live">● </span></div>
-      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan}</p><a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
-  } else if (family === "home") {
-    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy"><span class="sf-kicker"></span>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
-      <p class="sf-home-desc">${desc}</p>
-      <a class="btn" href="#catalogue">Découvrir la sélection</a></div></section>`;
-  } else if (family === "market") {
-    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span></span><span>${esc(shop.address || "Votre commerce de proximité")}</span></div>
-      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker"></span><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${slogan}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
-      <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
-  } else if (family === "showcase" || family === "luxury") {
-    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span><p class="sf-brand">${brandLabel}</p>
-      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p></div>
-      <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div><div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
-  } else {
-    hero = `<section class="sf-hero sf-hero-classic ${tplClass}">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
-      ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}<h1 class="sf-name">${name}</h1>
-      ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}${openBadge}</div></div></section>`;
-  }
+  let hero = renderTemplateHero({
+    templateId, family, tplClass, cover, avatar, openBadge, brandLabel, name, slogan, desc,
+    address: shop.address || "", waLink, tagline: TEMPLATES[templateId].tagline,
+  });
   if (planKey === "pro") hero = hero.replace('class="sf-hero ', 'class="sf-hero sf-pro-tier ');
+
   // ---- Infobar (actions + infos pratiques) ----
   const infoItems = [];
   if (shop.address) infoItems.push(`<span class="sf-info">${icon("pin")}<span>${esc(shop.address)}</span></span>`);
@@ -910,45 +965,12 @@ async function modelDemoPage(request, env, tid) {
   const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
   const family = TEMPLATE_FAMILY[tid] || "classic";
   const tplClass = "sf-layout-" + family + " sf-model-" + tid;
-  let hero;
-  if (family === "editorial") {
-    hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}<div class="sf-editorial-copy wrap">
-      <span class="sf-kicker">L'UNIVERS DE LA BOUTIQUE</span><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${esc(t.tagline)}</p><div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}">Découvrir la collection</a></div></div>
-      <div class="sf-editorial-stamp">${tid === "mode" ? "STYLE\\n& ALLURE" : "CHOISI\\nAVEC SOIN"}</div></section>`;
-  } else if (family === "food") {
-    hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div><div class="sf-food-copy wrap">
-      <span class="sf-kicker">FRAÎCHEMENT PRÉPARÉ</span><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
-      <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
-  } else if (family === "beauty") {
-    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker">VOTRE RITUEL, VOTRE ÉCLAT</span>
-      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
-      <a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
-      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal">BEAUTÉ<br/>NATURELLE</span></div></section>`;
-  } else if (family === "tech") {
-    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">TECH STORE / BÉNIN</span><span class="sf-tech-live">● DISPONIBLE SUR WHATSAPP</span></div>
-      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
-      <a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
-  } else if (family === "home") {
-    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy">
-      <span class="sf-kicker">UN ART DE VIVRE</span><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
-      <p class="sf-home-desc">${esc(t.desc)}</p><a class="btn" href="#catalogue">Découvrir la sélection</a></div></section>`;
-  } else if (family === "market") {
-    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span>BIENVENUE CHEZ VOUS</span><span>COTONOU, BÉNIN</span></div>
-      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">PROCHE DE VOUS, CHAQUE JOUR</span><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${esc(t.tagline)}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
-      <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
-  } else if (family === "showcase" || family === "luxury") {
-    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span>
-      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p></div>
-      <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div>
-      <div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
-  } else {
-    hero = `<section class="sf-hero sf-hero-classic ${tplClass}">${cover}<div class="sf-identity wrap"><div class="sf-avatar" aria-hidden="true">B</div>
-      <div class="sf-id-text"><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p></div></div></section>`;
-  }
-  const about = `<section class="sf-about wrap"><div class="sf-sec"><span>L'entreprise</span><h2>Qui sommes-nous</h2></div>
-    <p class="sf-desc">${esc(t.desc)} Ceci est un aperçu : vos textes et photos remplaceront cet exemple.</p></section>`;
+  const avatar = '<div class="sf-avatar" aria-hidden="true">B</div>';
+  const hero = renderTemplateHero({
+    templateId: tid, family, tplClass, cover, avatar, openBadge: "",
+    brandLabel: "Exemple Boutiko", name, slogan: esc(t.tagline),
+    desc: esc(t.desc), address: fakeShop.address, waLink, preview: true, tagline: t.tagline,
+  });
   const prods = products.map((p) => productCard(p, fakeShop)).join("");
   const infoBar = '<section class="sf-infobar"><div class="wrap"><div class="sf-actions">' +
     '<a class="btn" href="/app?modele=' + esc(tid) + '&formule=' + esc(t.plan) + '">Choisir ce modèle</a>' +
