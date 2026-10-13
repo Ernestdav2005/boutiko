@@ -555,6 +555,16 @@
       '<label class="field"><span>Description</span><textarea name="description" maxlength="300">' + esc(s.description) + "</textarea></label>" +
       '<label class="field"><span>Numéro WhatsApp qui reçoit les commandes</span><input name="whatsapp" inputmode="tel" required value="' + esc(s.whatsapp) + '"></label>' +
       '<div class="profile-section-heading"><span>02</span><div><h3>Ambiance visuelle</h3><p>Choisissez une couleur et un style cohérents avec vos produits.</p></div></div>' +
+      '<div class="field bk-style-presets"><span>Choisissez une ambiance prête à l’emploi</span><p class="muted small">Touchez simplement le style qui vous plaît. Boutiko harmonise automatiquement la couleur, les textes et la présentation.</p><div class="bk-preset-grid">' +
+      [
+        {id:"warm",name:"Chaleureux",desc:"Accueillant et naturel",color:"#0f766e",theme:"editorial",font:"rounded",text:"normal",layout:"grid"},
+        {id:"chic",name:"Élégant",desc:"Raffiné et soigné",color:"#7c3aed",theme:"elegant",font:"elegant",text:"refined",layout:"large"},
+        {id:"clean",name:"Moderne",desc:"Simple et épuré",color:"#2563eb",theme:"minimal",font:"modern",text:"normal",layout:"grid"},
+        {id:"vivid",name:"Audacieux",desc:"Visible et dynamique",color:"#e11d48",theme:"bold",font:"rounded",text:"bold",layout:"large"}
+      ].map(function(p) {
+        var active = (s.color || "#0f766e") === p.color && (s.theme || "editorial") === p.theme && (s.font_family || "modern") === p.font && (s.text_style || "normal") === p.text && (s.layout || "grid") === p.layout;
+        return '<button type="button" class="bk-style-preset' + (active ? ' is-selected' : '') + '" data-preset="' + p.id + '"><span class="bk-preset-art preset-' + p.id + '" style="--preset-color:' + p.color + '"><i></i><i></i><i></i></span><b>' + p.name + '</b><small>' + p.desc + '</small><em>Choisir ce style</em></button>';
+      }).join("") + '</div></div>' +
       '<div class="field"><span>Couleur principale</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
         return '<button type="button" class="sw ' + (c === s.color ? "on" : "") + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur ' + c + '"></button>';
       }).join("") + '</div><label class="color-picker"><span>Ou choisissez votre propre couleur</span><input type="color" id="customColor" value="' + esc(s.color || "#0f766e") + '"></label></div>' +
@@ -589,7 +599,34 @@
     if (customColor) customColor.oninput = function () {
       color = customColor.value;
       v.querySelectorAll(".sw").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-c") === color); });
+      refreshProfilePreview();
     };
+    var presets = {
+      warm: {color:"#0f766e",theme:"editorial",font:"rounded",text:"normal",layout:"grid"},
+      chic: {color:"#7c3aed",theme:"elegant",font:"elegant",text:"refined",layout:"large"},
+      clean: {color:"#2563eb",theme:"minimal",font:"modern",text:"normal",layout:"grid"},
+      vivid: {color:"#e11d48",theme:"bold",font:"rounded",text:"bold",layout:"large"}
+    };
+    v.querySelectorAll("[data-preset]").forEach(function (b) {
+      b.onclick = function () {
+        var p = presets[b.getAttribute("data-preset")];
+        if (!p) return;
+        color = p.color;
+        if (customColor) customColor.value = p.color;
+        ["theme","font_family","text_style","layout"].forEach(function (key, i) {
+          var el = $("#sf [name=" + key + "]");
+          if (el) el.value = [p.theme,p.font,p.text,p.layout][i];
+        });
+        v.querySelectorAll(".sw").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-c") === color); });
+        v.querySelectorAll("[name=theme]").forEach(function (x) { x.checked = x.value === p.theme; });
+        v.querySelectorAll("[data-preset]").forEach(function (x) { x.classList.toggle("is-selected", x === b); });
+        refreshProfilePreview();
+        toast("Style choisi. Appuyez sur « Enregistrer » pour le publier.");
+      };
+    });
+    v.querySelectorAll('[name="theme"], [name="layout"], [name="font_family"], [name="text_style"]').forEach(function (el) {
+      el.addEventListener("change", function () { v.querySelectorAll("[data-preset]").forEach(function (x) { x.classList.remove("is-selected"); }); refreshProfilePreview(); });
+    });
     $("#geo").onclick = function () {
       if (!navigator.geolocation) return toast("Position indisponible sur cet appareil.");
       toast("Recherche de votre position…");
