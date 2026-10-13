@@ -1972,3 +1972,13 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .bk-style-preset>em{font-size:11px;font-style:normal;font-weight:700;color:var(--preset-color,#0f766e);margin-top:auto}
 .bk-style-preset.is-selected>em:before{content:"✓ ";font-weight:900}
 @media(max-width:620px){.bk-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bk-preset-art{height:64px}.bk-style-preset{padding:9px}.bk-style-preset.is-selected{padding:8px}}
+
+/* Simplified merchant setup: optional controls stay out of the way */
+.bk-optional{margin:14px 0;border:1px solid var(--line,#e5e7eb);border-radius:14px;background:var(--card,#fff);overflow:hidden}
+.bk-optional>summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:650;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bk-optional>summary::-webkit-details-marker{display:none}
+.bk-optional>summary:after{content:"＋";font-size:18px;opacity:.7}
+.bk-optional[open]>summary:after{content:"−"}
+.bk-optional-content{padding:0 16px 16px}
+.bk-optional .profile-section-heading{margin-top:18px}
+#sf>button[type=submit]{margin-top:18px;min-height:48px;font-size:16px}
