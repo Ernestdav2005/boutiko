@@ -222,6 +222,7 @@ function ensureSchema(env) {
       if (!columns.has("template")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN template TEXT DEFAULT 'simple'").run();
       if (!columns.has("font_family")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN font_family TEXT DEFAULT 'modern'").run();
       if (!columns.has("text_style")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN text_style TEXT DEFAULT 'normal'").run();
+      if (!columns.has("template_seeded")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN template_seeded INTEGER DEFAULT 0").run();
     }).catch((e) => {
       schemaReady = null;
       throw e;
@@ -1156,6 +1157,7 @@ async function apiRegister(request, env) {
     await env.DB.prepare("INSERT INTO products(shop_id,name,description,price,promo_price,stock,active,photos,demo_image_url,created_at) VALUES(?,?,?, ?,NULL,NULL,1,'[]',?,?)")
       .bind(shopId, examples[i][0], "Produit exemple : remplacez ce nom, ce prix et cette photo.", examples[i][1], photos[i] || photos[0], now()).run();
   }
+  await env.DB.prepare("UPDATE shops SET template_seeded=1 WHERE id=?").bind(shopId).run();
     return startSession(request, env, userId);
 }
 async function startSession(request, env, userId) {
@@ -1212,6 +1214,18 @@ async function apiMe(env, auth) {
   const shop = auth.shop;
   const config = await platformConfig(env);
   const out = { user: auth.user, plans: config.plans, trialDays: config.trialDays, adminPhone: await adminContact(env) };
+  if (shop && !shop.template_seeded) {
+    const count = await env.DB.prepare("SELECT COUNT(*) n FROM products WHERE shop_id=?").bind(shop.id).first();
+    if (!count.n) {
+      const examples = DEMO_SEED_PRODUCTS[shop.template] || DEMO_SEED_PRODUCTS.simple;
+      const photos = DEMO_PHOTOS[shop.template] || DEMO_PHOTOS.simple;
+      for (let i = 0; i < examples.length; i++) {
+        await env.DB.prepare("INSERT INTO products(shop_id,name,description,price,promo_price,stock,active,photos,demo_image_url,created_at) VALUES(?,?,?, ?,NULL,NULL,1,\'[]\',?,?)")
+          .bind(shop.id, examples[i][0], "Produit exemple : remplacez ce nom, ce prix et cette photo.", examples[i][1], photos[i] || photos[0], now()).run();
+      }
+    }
+    await env.DB.prepare("UPDATE shops SET template_seeded=1 WHERE id=?").bind(shop.id).run();
+  }
   if (shop) {
     out.shop = await publicShop(env, shop);
     out.limits = config.plans[shop.plan] || config.plans.essentiel;
