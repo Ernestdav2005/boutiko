@@ -141,6 +141,16 @@
   }
 
   // ---------- Connexion / inscription ----------
+  var SHOP_TEMPLATES = [
+    ["simple","Boutique chaleureuse","Polyvalent"],["quartier","Marché de proximité","Commerce local"],
+    ["express","Boulangerie & frais","Alimentaire"],["vitrine","Beauté naturelle","Beauté"],
+    ["catalogue","Tech & électronique","Technologie"],["mode","Mode & accessoires","Mode"],
+    ["premium","Boutique élégante","Premium"],["maison","Maison & décoration","Maison"],
+    ["flagship","Grande vitrine","Catalogue"],["boulangerie","Boulangerie artisanale","Artisanat"],
+    ["beaute","Beauté éclatante","Soins"],["marche","Marché en ligne","Épicerie"],
+    ["chaleureux","Tons chaleureux","Artisanat"],["lifestyle","Lifestyle moderne","Tendance"],
+    ["boutique","Boutique prête à vendre","Généraliste"],["collection","Collection raffinée","Collection"]
+  ];
   function renderAuth(mode) {
     mode = mode || "login";
     var name = document.body.getAttribute("data-platform") || "Boutiko";
@@ -150,8 +160,11 @@
       "<h1 style=\"margin-top:18px\">" + (reg ? "Créez votre boutique" : "Bon retour") + "</h1>" +
       '<p class="muted">' + (reg ? "Prête en 2 minutes. 7 jours d'essai, sans engagement." : "Entrez votre numéro WhatsApp et votre mot de passe.") + "</p></div>" +
       '<form id="authf" class="card">' +
-      (reg ? '<input type="hidden" name="template" value="' + esc(new URLSearchParams(window.location.search).get("modele") || "simple") + '">' +
-        '<label class="field"><span>Nom de votre boutique</span><input name="name" maxlength="60" required placeholder="Ex : Mode Cotonou"></label>' +
+      (reg ? '<input type="hidden" id="chosenTemplate" name="template" value="">' +
+        '<section class="bk-template-choice"><h2>1. Choisissez le modèle de votre boutique</h2><p class="muted small">Touchez un modèle pour voir le design qui servira de base à votre boutique. Vous pourrez ensuite remplacer les images, les produits, les prix et les textes.</p>' +
+        '<div class="bk-template-grid">' + SHOP_TEMPLATES.map(function (t) { return '<button type="button" class="bk-template-option" data-template-choice="' + t[0] + '" aria-pressed="false"><img src="/template-img/' + t[0] + '" alt="" loading="lazy"><span class="bk-template-option-name">' + esc(t[1]) + '</span><small>' + esc(t[2]) + '</small><span class="bk-template-selected">✓ Modèle choisi</span></button>'; }).join("") + '</div>' +
+        '<p id="templateChoiceHint" class="alert warn" role="status">Choisissez un modèle avant de créer votre compte.</p></section>' +
+        '<label class="field"><span>2. Nom de votre boutique</span><input name="name" maxlength="60" required placeholder="Ex : Mode Cotonou"></label>' +
         '<label class="field"><span>Que vendez-vous ? (court)</span><input name="description" maxlength="300" placeholder="Ex : Pagnes, robes et accessoires"></label>' : "") +
       '<label class="field"><span>Numéro WhatsApp</span><input name="phone" inputmode="tel" autocomplete="tel" required placeholder="Ex : 01 97 00 00 00"><small>Avec l\'indicatif du pays si vous n\'êtes pas au Bénin.</small></label>' +
       '<label class="field"><span>Mot de passe</span><span class="pw"><input name="password" id="pwi" type="password" minlength="6" required autocomplete="' + (reg ? "new-password" : "current-password") + '"><button type="button" id="pws">Afficher</button></span><small>' + (reg ? "6 caractères minimum." : "Mot de passe oublié ? Écrivez à l'administrateur sur WhatsApp.") + "</small></label>" +
@@ -160,12 +173,42 @@
       '<p class="center" style="margin-top:14px"><a href="#" id="swap">' + (reg ? "J'ai déjà un compte" : "Créer ma boutique") + "</a></p></div>";
     $("#pws").onclick = function () { var i = $("#pwi"), h = i.type === "password"; i.type = h ? "text" : "password"; this.textContent = h ? "Masquer" : "Afficher"; };
     $("#swap").onclick = function (e) { e.preventDefault(); renderAuth(reg ? "login" : "register"); };
+    if (reg) {
+      var templateInput = $("#chosenTemplate");
+      var templateHint = $("#templateChoiceHint");
+      var requestedTemplate = new URLSearchParams(window.location.search).get("modele") || "";
+      function chooseTemplate(id) {
+        if (!SHOP_TEMPLATES.some(function (t) { return t[0] === id; })) return;
+        templateInput.value = id;
+        root.querySelectorAll("[data-template-choice]").forEach(function (card) {
+          var selected = card.getAttribute("data-template-choice") === id;
+          card.classList.toggle("selected", selected);
+          card.setAttribute("aria-pressed", selected ? "true" : "false");
+        });
+        if (templateHint) {
+          templateHint.className = "alert good";
+          templateHint.textContent = "Modèle choisi : " + SHOP_TEMPLATES.filter(function (t) { return t[0] === id; })[0][1] + ". Vous pourrez tout personnaliser ensuite.";
+        }
+      }
+      root.querySelectorAll("[data-template-choice]").forEach(function (card) {
+        card.onclick = function () { chooseTemplate(card.getAttribute("data-template-choice")); };
+      });
+      chooseTemplate(requestedTemplate);
+    }
     $("#authf").onsubmit = function (e) {
       e.preventDefault();
       var btn = $("#authf button[type=submit]");
       btn.disabled = true; btn.textContent = "Un instant…";
       var err = $("#aerr");
       err.style.display = "none";
+      if (reg && !$("#chosenTemplate").value) {
+        err.textContent = "Choisissez d’abord un modèle pour votre boutique.";
+        err.style.display = "block";
+        btn.disabled = false; btn.textContent = "Créer ma boutique";
+        var picker = root.querySelector(".bk-template-choice");
+        if (picker) picker.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       api(reg ? "/api/register" : "/api/login", "POST", formData(e.target))
         .then(function () { S.loaded = {}; return boot(reg); })
         .catch(function (ex) {
