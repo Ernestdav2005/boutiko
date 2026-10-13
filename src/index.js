@@ -191,7 +191,7 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT UNIQUE NOT NULL, pass TEXT NOT NULL, is_admin INTEGER DEFAULT 0, created_at INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS shops(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, business_name TEXT DEFAULT '', brand_name TEXT DEFAULT '', slogan TEXT DEFAULT '', description TEXT DEFAULT '', whatsapp TEXT NOT NULL, color TEXT DEFAULT '#0f766e', address TEXT DEFAULT '', maps_url TEXT DEFAULT '', hours TEXT DEFAULT '', momo TEXT DEFAULT '', logo_id INTEGER, banner_id INTEGER, gallery TEXT DEFAULT '[]', theme TEXT DEFAULT 'editorial', layout TEXT DEFAULT 'grid', plan TEXT DEFAULT 'essentiel', status TEXT DEFAULT 'active', paid_until INTEGER, quick_replies TEXT DEFAULT '', created_at INTEGER NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', price INTEGER NOT NULL, promo_price INTEGER, stock INTEGER, active INTEGER DEFAULT 1, photos TEXT DEFAULT '[]', created_at INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT DEFAULT '', price INTEGER NOT NULL, promo_price INTEGER, stock INTEGER, active INTEGER DEFAULT 1, photos TEXT DEFAULT '[]', demo_image_url TEXT DEFAULT '', created_at INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_products_shop ON products(shop_id)",
   "CREATE TABLE IF NOT EXISTS orders(id INTEGER PRIMARY KEY AUTOINCREMENT, shop_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, qty INTEGER NOT NULL, unit_price INTEGER NOT NULL, status TEXT DEFAULT 'pending', source TEXT DEFAULT 'web', ip TEXT, created_at INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_orders_shop ON orders(shop_id, status, created_at)",
@@ -210,6 +210,9 @@ function ensureSchema(env) {
       // Migrations compatibles avec la base existante : aucune donnée n'est supprimée.
       const info = await env.DB.prepare("PRAGMA table_info(shops)").all();
       const columns = new Set(info.results.map((c) => c.name));
+      const productInfo = await env.DB.prepare("PRAGMA table_info(products)").all();
+      const productColumns = new Set(productInfo.results.map((c) => c.name));
+      if (!productColumns.has("demo_image_url")) await env.DB.prepare("ALTER TABLE products ADD COLUMN demo_image_url TEXT DEFAULT ''").run();
       if (!columns.has("gallery")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN gallery TEXT DEFAULT '[]'").run();
       if (!columns.has("theme")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN theme TEXT DEFAULT 'editorial'").run();
       if (!columns.has("business_name")) await env.DB.prepare("ALTER TABLE shops ADD COLUMN business_name TEXT DEFAULT ''").run();
@@ -679,8 +682,8 @@ function productCard(p, shop) {
     : `<b>${fcfa(p.price)} FCFA</b>`;
   const imgs = photos.length
     ? `<div class="photos"><img src="/img/${photos[0]}" loading="lazy" alt="${esc(p.name)}"></div>`
-    : p.demoImage
-      ? `<div class="photos"><img src="${esc(p.demoImage)}" loading="lazy" alt="${esc(p.name)}"></div>`
+    : (p.demo_image_url || p.demoImage)
+      ? `<div class="photos"><img src="${esc(p.demo_image_url || p.demoImage)}" loading="lazy" alt="${esc(p.name)}"></div>`
       : `<div class="photos nophoto"><span>Pas de photo</span></div>`;
   const extra = photos.length > 1 ? `<span class="tag more">${photos.length} photos</span>` : "";
   return `<article class="prod${soldOut ? " out" : ""}" id="p${p.id}" data-id="${p.id}" data-max="${max}" data-photos="${photos.join(",")}" data-sold="${soldOut ? 1 : 0}">
@@ -923,7 +926,25 @@ async function shopPage(request, env, ctx, slug) {
   }), 200, extraHeaders);
 }
 
-async const DEMO_PHOTOS = {
+async const DEMO_SEED_PRODUCTS = {
+ simple:[["Sac en toile naturel",8500],["Chemise en lin",12000],["Bougie parfumée",4500]],
+ quartier:[["Panier de légumes",3000],["Fruits de saison",2500],["Épices du marché",1000]],
+ express:[["Pain artisanal",500],["Croissants pur beurre",700],["Brioche maison",1200]],
+ vitrine:[["Sérum éclat",8500],["Palette beauté",12000],["Crème hydratante",6500]],
+ catalogue:[["Casque sans fil",18000],["Smartphone",65000],["Montre connectée",22000]],
+ mode:[["Tenue signature",18000],["Sac tendance",15000],["Chaussures urbaines",22000]],
+ premium:[["Boucles dorées",15000],["Collier signature",25000],["Bracelet raffiné",12000]],
+ maison:[["Vase naturel",12000],["Lampe design",18000],["Coussin décoratif",6500]],
+ flagship:[["Soin premium",9500],["Sac élégant",18000],["Montre moderne",22000]],
+ boulangerie:[["Baguette artisanale",500],["Croissant pur beurre",700],["Pain au chocolat",800]],
+ beaute:[["Huile naturelle",4500],["Soin visage",6500],["Savon doux",2500]],
+ marche:[["Panier de légumes",3000],["Fruits de saison",2500],["Panier d’épices",1500]],
+ chaleureux:[["Sac du quotidien",9500],["Bougie parfumée",3500],["Cadeau artisanal",6000]],
+ lifestyle:[["Sac tendance",9500],["Sneakers",18000],["Lunettes de soleil",7500]],
+ boutique:[["Chemise classique",9500],["Casque audio",12500],["Soin quotidien",6500]],
+ collection:[["Collier signature",25000],["Boucles dorées",15000],["Bracelet précieux",18000]]
+};
+const DEMO_PHOTOS = {
  simple:["https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80"],
  quartier:["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80"],
  express:["https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1608198093002-ad4e0054843e?auto=format&fit=crop&w=800&q=80"],
@@ -1120,12 +1141,20 @@ async function apiRegister(request, env) {
   const config = await platformConfig(env);
   // La création et la publication restent gratuites : aucun délai d’essai ni expiration pour les nouveaux comptes.
   const paidUntil = isAdmin ? now() + 3650 * 86400 : null;
-  await env.DB.prepare(
+  const shopInsert = await env.DB.prepare(
     "INSERT INTO shops(user_id, slug, name, description, whatsapp, plan, template, paid_until, created_at) VALUES(?,?,?,?,?,?,?,?,?)"
   )
     .bind(userId, slug, name, str(b.description, 300), phone, plan, template, paidUntil, now())
     .run();
-  return startSession(request, env, userId);
+  const shopId = shopInsert.meta.last_row_id;
+  // Préremplir la boutique avec trois produits exemples et des photos correspondant au modèle.
+  const examples = DEMO_SEED_PRODUCTS[template] || DEMO_SEED_PRODUCTS.simple;
+  const photos = DEMO_PHOTOS[template] || DEMO_PHOTOS.simple;
+  for (let i = 0; i < examples.length; i++) {
+    await env.DB.prepare("INSERT INTO products(shop_id,name,description,price,promo_price,stock,active,photos,demo_image_url,created_at) VALUES(?,?,?, ?,NULL,NULL,1,'[]',?,?)")
+      .bind(shopId, examples[i][0], "Produit exemple : remplacez ce nom, ce prix et cette photo.", examples[i][1], photos[i] || photos[0], now()).run();
+  }
+    return startSession(request, env, userId);
 }
 async function startSession(request, env, userId) {
   const token = randomHex(24);
@@ -1313,7 +1342,7 @@ async function apiPassword(request, env, auth) {
 function productOut(p) {
   return {
     id: p.id, name: p.name, description: p.description, price: p.price, promo_price: p.promo_price,
-    stock: p.stock, active: !!p.active, photos: parseIds(p.photos),
+    stock: p.stock, active: !!p.active, photos: parseIds(p.photos), demo_image_url: p.demo_image_url || "",
   };
 }
 async function validateProduct(env, shop, b, existing) {
@@ -1347,6 +1376,7 @@ async function validateProduct(env, shop, b, existing) {
       if (!m) return { error: "Photo introuvable, réessayez de l'envoyer." };
     }
     f.photos = JSON.stringify(ids);
+    if (ids.length) f.demo_image_url = "";
   }
   return { f };
 }
