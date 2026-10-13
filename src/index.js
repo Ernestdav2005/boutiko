@@ -695,7 +695,7 @@ ${soldOut ? "" : `<button class="btn block buy" type="button" data-open>${icon("
 
 function renderTemplateHero(opts) {
   const {
-    templateId, family, tplClass, cover, avatar = "", openBadge = "",
+    templateId, tplClass, cover, avatar = "", openBadge = "",
     brandLabel = "", name, slogan = "", desc = "", address = "",
     waLink, preview = false, tagline = "",
   } = opts;
