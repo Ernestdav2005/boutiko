@@ -222,8 +222,9 @@
   function boot(firstTime) {
     return api("/api/me").then(function (me) {
       if (me.guest) {
-        var selectedModel = new URLSearchParams(window.location.search).get("modele");
-        renderAuth(selectedModel ? "register" : "login");
+        var params = new URLSearchParams(window.location.search);
+        var selectedModel = params.get("modele");
+        renderAuth(selectedModel || params.get("inscription") === "1" ? "register" : "login");
         return;
       }
       S.me = me;
