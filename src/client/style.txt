@@ -2153,3 +2153,10 @@ body.demo-modal-open{overflow:hidden}
 .sf-cover.no-img{position:relative;cursor:pointer}
 .sf-cover-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:inherit;font:700 1rem/1.4 system-ui;background:linear-gradient(135deg,rgba(255,255,255,.30),rgba(255,255,255,.04));border:2px dashed currentColor;border-radius:inherit;opacity:.82}
 .sf-cover.has-img{cursor:pointer}
+
+
+/* Photos réelles des modèles de démonstration et produits préremplis */
+.sf-cover.demo-cover-photo{background-size:cover;background-position:center;min-height:220px}
+.sf-products .photos img{width:100%;height:100%;object-fit:cover;display:block}
+.sample-thumb{position:relative;opacity:.95}
+.sample-thumb span{position:absolute;left:5px;bottom:5px;padding:3px 6px;border-radius:5px;background:rgba(20,20,20,.8);color:#fff;font-size:11px}
