@@ -39,6 +39,7 @@ const TEMPLATES = {
   collection:{id:"collection",plan:"essentiel",label:"Collection raffinée",tagline:"Une sélection qui vous ressemble",desc:"Pour collections choisies, cadeaux et produits premium.",tags:["collection","sélection"]},
 };
 const TEMPLATE_FAMILY = {
+  atelier: "editorial", "maison-standard": "home", eclat: "beauty",
   simple: "classic", quartier: "market", express: "food", vitrine: "beauty",
   catalogue: "tech", mode: "editorial", premium: "luxury", maison: "home",
   flagship: "showcase", boulangerie: "food", beaute: "beauty", marche: "market",
@@ -47,6 +48,9 @@ const TEMPLATE_FAMILY = {
 // Chaque modèle possède son propre ordre de sections. L’aperçu et la boutique publiée
 // utilisent exactement cette même définition structurelle.
 const TEMPLATE_SECTION_ORDER = {
+  atelier: ["hero", "collections", "products", "about", "gallery", "infobar"],
+  "maison-standard": ["hero", "about", "collections", "gallery", "products", "infobar"],
+  eclat: ["hero", "collections", "about", "products", "gallery", "infobar"],
   simple: ["hero", "infobar", "about", "gallery", "products"],
   quartier: ["hero", "infobar", "products", "about", "gallery"],
   express: ["hero", "products", "infobar", "gallery", "about"],
@@ -96,6 +100,9 @@ const TEMPLATE_IMAGES = {
   collection:"/collection.webp",
 };
 const TEMPLATE_ART = {
+  atelier:{bg:"#f3eee5",accent:"#6f2438",ink:"#171615",title:"ATELIER",subtitle:"La nouvelle collection",shape:"fashion"},
+  "maison-standard":{bg:"#eee6d9",accent:"#a76f4d",ink:"#302920",title:"MAISON",subtitle:"L’art de vivre chez soi",shape:"home"},
+  eclat:{bg:"#f8e9e9",accent:"#b56e7d",ink:"#432d35",title:"ÉCLAT",subtitle:"Le rituel qui vous ressemble",shape:"beauty"},
   simple:{bg:"#f4eee5",accent:"#bc7654",ink:"#29251f",title:"BOUTIQUE CHALEUREUSE",subtitle:"La simplicité qui vend",shape:"fashion"},
   quartier:{bg:"#e8f3e9",accent:"#24704c",ink:"#163d2d",title:"MON COMMERCE",subtitle:"Tout près de vous",shape:"market"},
   express:{bg:"#fff0d8",accent:"#c85b32",ink:"#512b20",title:"FRAIS DU JOUR",subtitle:"Préparé avec soin",shape:"food"},
@@ -116,6 +123,9 @@ const TEMPLATE_ART = {
 function templateArtwork(id, variant = "cover", item = 0) {
   const a = TEMPLATE_ART[id] || TEMPLATE_ART.simple;
   const productTitles = {
+    atelier:["Veste Sable","Sac Naya","Sneakers Ligne"],
+    "maison-standard":["Vase Terre","Lampe Alba","Coussin Noma"],
+    eclat:["Sérum Lumière","Crème Velours","Huile Éclat"],
     simple:["Chemise essentielle","Sac du quotidien","Look de saison"],
     quartier:["Sélection locale","Produit populaire","Nouveauté du jour"],
     express:["Pain artisanal","Pâtisserie maison","Panier gourmand"],
