@@ -825,9 +825,9 @@ async function shopPage(request, env, ctx, slug) {
   const productCount = prods.results.length;
 
   // ---- Cover / logo (all tiers) ----
-  const cover = (shop.banner_id && plan.custom)
-    ? `<div class="sf-cover has-img" style="background-image:url(/img/${shop.banner_id})"></div>`
-    : `<div class="sf-cover no-img" aria-label="Emplacement de la photo de couverture" style="--c:${color}"></div>`;
+  const cover = shop.banner_id
+    ? `<div class="sf-cover has-img" style="background-image:url(/img/${shop.banner_id})" aria-label="Photo de couverture de la boutique"></div>`
+    : `<div class="sf-cover no-img" aria-label="Emplacement de la photo de couverture — touchez pour ajouter votre image" style="--c:${color}"><span class="sf-cover-placeholder">+ Ajouter une photo de couverture</span></div>`;
   const avatar = shop.logo_id
     ? `<div class="sf-avatar"><img src="/img/${shop.logo_id}" alt="Logo ${name}"></div>`
     : `<div class="sf-avatar" aria-hidden="true">${esc((Array.from(shop.name.trim())[0] || "B").toUpperCase())}</div>`;
@@ -1254,7 +1254,7 @@ async function apiShopUpdate(request, env, auth) {
     if (b[key] === null) {
       f[key] = null;
     } else {
-      if (key === "banner_id" && !plan.custom) return fail("La bannière est disponible à partir de la formule Standard.");
+      // La personnalisation de la boutique (dont la couverture) reste disponible pour tous les commerçants.
       const id = parseInt(b[key], 10);
       const m = await env.DB.prepare("SELECT * FROM media WHERE id=? AND shop_id=? AND kind=?").bind(id, shop.id, kind).first();
       if (!m) return fail("Image introuvable.");
