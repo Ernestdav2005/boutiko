@@ -1999,3 +1999,22 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .visual-editor-toolbar small{font-size:.82rem;color:#d9defd}
 #visualShopEditor{display:block;width:100%;height:min(76vh,900px);min-height:560px;border:0;background:#fff}
 @media(max-width:600px){#visualShopEditor{height:74vh;min-height:520px}.visual-editor-toolbar{padding:12px}}
+
+
+/* Sélecteur de modèles pendant l'inscription */
+.bk-template-choice{margin:0 0 22px;padding:16px;border:1px solid #dce5ef;border-radius:18px;background:linear-gradient(180deg,#f8fbff,#fff)}
+.bk-template-choice h2{font-size:1.12rem;line-height:1.35;margin:0 0 8px;color:#102a43}
+.bk-template-choice>.muted{margin:0 0 14px;line-height:1.55}
+.bk-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bk-template-option{position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;padding:8px;text-align:left;color:#243447;background:#fff;border:2px solid #dce5ef;border-radius:13px;cursor:pointer;transition:border-color .16s,box-shadow .16s,transform .16s}
+.bk-template-option:hover{border-color:#8ba8c7;transform:translateY(-1px)}
+.bk-template-option:focus-visible{outline:3px solid #f5a623;outline-offset:2px}
+.bk-template-option.selected{border-color:#0f766e;box-shadow:0 0 0 2px #0f766e22;background:#f1fbf8}
+.bk-template-option img{display:block;width:100%;aspect-ratio:1.43;object-fit:cover;border-radius:8px;background:#eef2f6}
+.bk-template-option-name{font-weight:750;font-size:.88rem;line-height:1.25}
+.bk-template-option small{font-size:.76rem;color:#64748b}
+.bk-template-selected{display:none;color:#087f68;font-weight:750;font-size:.76rem}
+.bk-template-option.selected .bk-template-selected{display:block}
+.bk-template-choice .alert{margin:14px 0 0;font-size:.86rem}
+@media(min-width:620px){.bk-template-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bk-template-choice{padding:20px}.bk-template-option{padding:10px}}
+@media(min-width:900px){.bk-template-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
