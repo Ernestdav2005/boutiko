@@ -977,6 +977,8 @@ async function modelDemoPage(request, env, tid) {
     '<div class="sf-sec"><span>' + (family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" || family === "luxury" ? "LA COLLECTION" : "À DÉCOUVRIR") + '</span>' +
     '<h2>' + (family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" || family === "luxury" ? "Les pièces du moment" : "Nos produits") + ' <small>(exemple)</small></h2></div>' +
     '<div class="pgrid pgrid-' + esc(tid) + '">' + prods + '</div></div></section>';
+  // Présentation de la boutique dans l’aperçu (la variable était absente, ce qui provoquait une erreur 500).
+  const about = `<section class="sf-about wrap"><div class="sf-sec"><span>NOTRE UNIVERS</span><h2>À propos de ${name}</h2></div><p class="sf-desc">${esc(t.desc)} Remplacez cette présentation par les informations de votre commerce.</p></section>`;
   // La page d’aperçu applique le même ordre structurel que la boutique publiée.
   const previewBody = composeTemplateSections(tid, {
     hero, infobar: infoBar, about, gallery: "", products: productsSection,
