@@ -1689,3 +1689,253 @@ body.home-models{background:#f1f4fb;color:#18223b}
 @keyframes bk-orbit{from{transform:rotate(0deg) scaleY(.68)}to{transform:rotate(360deg) scaleY(.68)}}
 @media(max-width:680px){.bk-control-center{grid-template-columns:minmax(0,1fr);gap:0;padding:22px 18px;border-radius:22px}.bk-control-copy h2{font-size:2.05rem!important;margin-top:12px!important}.bk-control-copy>p{font-size:.88rem}.bk-control-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:17px}.bk-control-actions .btn{width:100%;min-height:45px}.bk-orbit-art{position:absolute;right:-18px;top:6px;min-height:125px;width:145px;opacity:.17;pointer-events:none;transform:scale(.68);transform-origin:top right}.bk-orbit-core{width:100px;height:100px}.bk-command-stats{grid-template-columns:1fr;gap:8px;margin-top:20px}.bk-command-stat{padding:11px 12px}.bk-command-stat b{font-size:1.05rem}.bk-command-stat small{font-size:.75rem}}
 @media(prefers-reduced-motion:reduce){.bk-control-center,.bk-eyebrow i,.bk-orbit-ring,.bk-orbit-float{animation:none!important}.bk-control-actions .btn,.bk-command-stat{transition:none!important}}
+
+
+/* BOUTIKO 16 — véritables compositions de boutique, pas seulement des thèmes colorés */
+.sf-page{--sf-ink:#172d37;--sf-paper:#fffdfa;--sf-accent:#19775f;color:var(--sf-ink);background:var(--sf-paper)}
+.sf-page .sf-hero{position:relative;isolation:isolate;overflow:hidden}
+.sf-page .sf-name{overflow-wrap:anywhere}
+.sf-page .sf-kicker{display:inline-block;font-size:.67rem;font-weight:900;letter-spacing:.17em;line-height:1.5}
+.sf-page .sf-brand{font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.sf-page .sf-slogan{line-height:1.6}
+.sf-page .sf-cover{background-position:center;background-size:cover}
+.sf-page .sf-products{padding-top:clamp(30px,5vw,64px);padding-bottom:clamp(34px,5vw,66px)}
+.sf-page .sf-products .sf-sec{margin-bottom:22px}
+.sf-page .sf-products .sf-sec>span{font-size:.66rem;letter-spacing:.16em;font-weight:900;text-transform:uppercase}
+.sf-page .sf-products .sf-sec h2{font-size:clamp(1.5rem,3.3vw,2.5rem);letter-spacing:-.045em}
+.sf-page .sf-products .pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.sf-page .sf-products .prod{min-width:0;overflow:hidden;border-radius:16px;border:1px solid #e7e4dd;background:#fff;box-shadow:0 7px 24px #172d370a}
+.sf-page .sf-products .photos{aspect-ratio:4/4.5;overflow:hidden}
+.sf-page .sf-products .photos img{width:100%;height:100%;object-fit:cover;transition:transform .45s}
+.sf-page .sf-products .prod:hover .photos img{transform:scale(1.035)}
+.sf-page .sf-products .pbody{padding:15px}
+.sf-page .sf-products .pn{font-size:1rem;line-height:1.35}
+.sf-page .sf-products .buy{border-radius:9px}
+.sf-page .sf-hero .sf-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sf-page .sf-hero .btn{border-radius:9px}
+
+/* 01 — Boutique chaleureuse : vitrine classique, identité centrée */
+.sf-model-simple{--sf-paper:#faf6ef;--sf-ink:#33281f;--sf-accent:#bc7654}
+.sf-model-simple .sf-hero-classic .sf-cover{height:clamp(180px,28vw,330px);opacity:.96}
+.sf-model-simple .sf-identity{margin-top:-44px;position:relative;z-index:2}
+.sf-model-simple .sf-products .prod{border-radius:8px}
+.sf-model-simple .sf-products .buy{background:#bc7654}
+
+/* 02 — Quartier : ruban d'adresse, avantages et grille commerciale */
+.sf-model-quartier{--sf-paper:#f3f8f1;--sf-ink:#183d2d;--sf-accent:#24704c}
+.sf-hero-market{padding:0 clamp(15px,4vw,56px);background:#e8f3e9}
+.sf-market-ribbon{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #24704c2b;font-size:.7rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.sf-market-main{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(20px,5vw,70px);align-items:center;max-width:1240px;margin:auto;padding:clamp(30px,5vw,62px) 0}
+.sf-market-copy .sf-name{font-size:clamp(2.2rem,5vw,4.8rem);line-height:.98;letter-spacing:-.06em;margin:12px 0}
+.sf-market-cover .sf-cover{height:clamp(220px,32vw,400px);border-radius:45% 45% 12px 12px}
+.sf-market-benefits{display:flex;justify-content:space-around;gap:12px;flex-wrap:wrap;padding:17px 0;border-top:1px solid #24704c2b;font-size:.82rem;font-weight:800}
+.sf-model-quartier .sf-products .prod{border-radius:12px;border-color:#dce9da}
+.sf-model-quartier .sf-products .buy{background:#24704c}
+
+/* 03 — Express : spécialités d'abord, format menu gourmand */
+.sf-model-express{--sf-paper:#fff7e9;--sf-ink:#512b20;--sf-accent:#c85b32}
+.sf-hero-food{display:grid;grid-template-columns:1fr 1fr;min-height:350px;background:#fff0d8}
+.sf-food-art{grid-column:2;grid-row:1;min-height:350px}
+.sf-food-art .sf-cover{height:100%;min-height:350px;border-radius:48% 0 0 48%}
+.sf-food-copy{grid-column:1;grid-row:1;align-self:center;padding:42px 0}
+.sf-food-copy .sf-name{font-family:Georgia,serif;font-size:clamp(2.2rem,4.5vw,4.4rem);line-height:1.02}
+.sf-food-proof{display:flex;gap:15px;flex-wrap:wrap;margin-top:22px;font-size:.76rem;font-weight:850}
+.sf-model-express .sf-products .pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.sf-model-express .sf-products .prod{border-radius:18px 18px 8px 8px;border:0;box-shadow:0 8px 24px #8d522018}
+.sf-model-express .sf-products .photos{aspect-ratio:1/1}
+.sf-model-express .sf-products .buy{background:#c85b32}
+
+/* 04 — Vitrine beauté : éditorial délicat et lien de découverte */
+.sf-model-vitrine{--sf-paper:#fff8f8;--sf-ink:#4c2933;--sf-accent:#b96e7b}
+.sf-hero-beauty{display:grid;grid-template-columns:1fr 1fr;min-height:440px;background:#f8e9eb}
+.sf-beauty-copy{align-self:center;padding:clamp(24px,6vw,80px);order:1}
+.sf-beauty-copy .sf-name{font-family:Georgia,serif;font-weight:500;font-size:clamp(2.3rem,4.5vw,4.5rem);line-height:1.03}
+.sf-beauty-link{display:inline-flex;gap:24px;align-items:center;margin-top:24px;padding-bottom:8px;border-bottom:1px solid #b96e7b;color:inherit;text-decoration:none;font-weight:800}
+.sf-beauty-link span{font-size:1.3rem}
+.sf-beauty-visual{position:relative;min-height:390px;order:2;padding:30px}
+.sf-beauty-visual .sf-cover{height:100%;min-height:390px;border-radius:48% 48% 6px 6px}
+.sf-beauty-seal{position:absolute;right:12px;bottom:45px;width:92px;height:92px;display:grid;place-content:center;text-align:center;border-radius:50%;background:#fff8f0;color:#8b4c5a;font-size:.62rem;font-weight:900;letter-spacing:.08em;transform:rotate(9deg)}
+.sf-model-vitrine .sf-products .pgrid,.sf-model-beaute .sf-products .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.sf-model-vitrine .sf-products .prod,.sf-model-beaute .sf-products .prod{display:grid;grid-template-columns:1fr 1fr;border:0;border-radius:0;background:transparent;box-shadow:none;align-items:center}
+.sf-model-vitrine .sf-products .photos,.sf-model-beaute .sf-products .photos{aspect-ratio:4/5;border-radius:48% 48% 8px 8px}
+.sf-model-vitrine .sf-products .pbody,.sf-model-beaute .sf-products .pbody{padding:20px}
+.sf-model-vitrine .sf-products .buy,.sf-model-beaute .sf-products .buy{background:#b96e7b}
+
+/* 05 — Catalogue tech : interface technique, barre d'état et panneaux */
+.sf-model-catalogue{--sf-paper:#f2f5fb;--sf-ink:#16264c;--sf-accent:#3158a5}
+.sf-hero-tech{padding:20px clamp(15px,4vw,55px) 45px;background:#e7edf8}
+.sf-tech-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0 17px;border-bottom:1px solid #3158a533;font-size:.65rem;font-weight:900;letter-spacing:.1em}
+.sf-tech-live{color:#246e4b}
+.sf-tech-grid{max-width:1220px;margin:auto;display:grid;grid-template-columns:1fr .9fr;gap:28px;align-items:center;padding-top:30px}
+.sf-tech-copy .sf-name{font-size:clamp(2.4rem,5vw,5rem);line-height:.95;letter-spacing:-.07em}
+.sf-tech-copy .btn{margin-top:20px;background:#16264c}
+.sf-tech-art{position:relative}
+.sf-tech-art .sf-cover{height:clamp(240px,34vw,410px);border-radius:8px}
+.sf-tech-art>span{position:absolute;right:-8px;bottom:20px;background:#16264c;color:#fff;padding:13px 17px;font-size:.7rem;letter-spacing:.14em;font-weight:900}
+.sf-model-catalogue .sf-products .prod{border-radius:7px;border-color:#dce3f1}
+.sf-model-catalogue .sf-products .photos{aspect-ratio:1/1;background:#e7edf8}
+.sf-model-catalogue .sf-products .buy{background:#3158a5}
+.sf-model-catalogue .sf-products .pn:before{content:"ITEM / ";font-size:.62rem;letter-spacing:.1em;color:#7186ae}
+
+/* 06 — Mode : composition magazine, typographie éditoriale */
+.sf-model-mode{--sf-paper:#fbf4ed;--sf-ink:#38241f;--sf-accent:#9a543d}
+.sf-hero-editorial{min-height:470px;background:#f3e8dc}
+.sf-hero-editorial>.sf-cover{position:absolute;inset:0 0 0 42%;height:100%;z-index:-1;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%)}
+.sf-editorial-copy{position:relative;max-width:1240px;padding:clamp(50px,9vw,115px) 0;min-height:470px}
+.sf-editorial-copy .sf-kicker{color:#9a543d}
+.sf-editorial-copy .sf-name{max-width:55%;font-family:Georgia,serif;font-size:clamp(2.7rem,6.5vw,6rem);line-height:.92;font-weight:500;letter-spacing:-.055em;margin:17px 0}
+.sf-editorial-copy .sf-slogan{max-width:38%;font-size:1.03rem}
+.sf-editorial-copy .btn{margin-top:20px;background:#38241f}
+.sf-editorial-stamp{position:absolute;right:7%;bottom:12%;border:1px solid #38241f7a;border-radius:50%;width:100px;height:100px;display:grid;place-content:center;text-align:center;font-size:.64rem;letter-spacing:.12em;font-weight:900;transform:rotate(-13deg);white-space:pre-line}
+.sf-model-mode .sf-products .pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.sf-model-mode .sf-products .prod{border:0;border-radius:0;background:transparent;box-shadow:none}
+.sf-model-mode .sf-products .photos{aspect-ratio:3/4}
+.sf-model-mode .sf-products .pbody{padding:14px 0}
+.sf-model-mode .sf-products .buy{background:#9a543d}
+
+/* 07 — Premium : vitrine noire, dorures et cartes de collection */
+.sf-model-premium,.sf-model-collection{--sf-paper:#171717;--sf-ink:#f7ecd5;--sf-accent:#d7b46a;background:#171717;color:#f7ecd5}
+.sf-model-premium .sf-products,.sf-model-collection .sf-products,.sf-model-premium .sf-about,.sf-model-collection .sf-about{background:#171717;color:#f7ecd5}
+.sf-model-premium .sf-products .sf-sec h2,.sf-model-collection .sf-products .sf-sec h2{color:#f7ecd5}
+.sf-model-premium .sf-hero-showcase,.sf-model-collection .sf-hero-showcase{background:#171717;color:#f7ecd5}
+.sf-model-premium .sf-products .prod,.sf-model-collection .sf-products .prod{background:#222;border:1px solid #51452d;border-radius:3px;box-shadow:none}
+.sf-model-premium .sf-products .buy,.sf-model-collection .sf-products .buy{background:#d7b46a;color:#171717}
+.sf-model-premium .sf-products .photos,.sf-model-collection .sf-products .photos{aspect-ratio:4/5}
+.sf-model-premium .sf-foot,.sf-model-collection .sf-foot{background:#171717;color:#d7b46a;border-color:#51452d}
+
+/* 08 — Maison : photographie au premier plan, texte et catalogue décalés */
+.sf-model-maison,.sf-model-chaleureux{--sf-paper:#f4eee4;--sf-ink:#3f382f;--sf-accent:#8b7355}
+.sf-hero-home{display:grid;grid-template-columns:1.1fr .9fr;min-height:460px;background:#eee7da}
+.sf-home-image{min-height:460px}
+.sf-home-image .sf-cover{height:100%;min-height:460px;clip-path:polygon(0 0,100% 0,88% 100%,0 100%)}
+.sf-home-copy{align-self:center;padding:clamp(22px,5vw,65px)}
+.sf-home-copy .sf-name{font-family:Georgia,serif;font-weight:500;font-size:clamp(2.3rem,4.5vw,4.7rem);line-height:1}
+.sf-home-desc{max-width:34rem;line-height:1.7;color:#766a59}
+.sf-home-copy .btn{margin-top:14px;background:#66533e}
+.sf-model-maison .sf-products .pgrid,.sf-model-chaleureux .sf-products .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+.sf-model-maison .sf-products .prod,.sf-model-chaleureux .sf-products .prod{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;border:0;background:#e9e0d3;border-radius:0;box-shadow:none}
+.sf-model-maison .sf-products .photos,.sf-model-chaleureux .sf-products .photos{aspect-ratio:1/1}
+.sf-model-maison .sf-products .buy,.sf-model-chaleureux .sf-products .buy{background:#8b7355}
+
+/* 09 — Grande vitrine : affiche audacieuse, sélection numérotée */
+.sf-model-flagship,.sf-model-boutique{--sf-paper:#f5f8f8;--sf-ink:#18313b;--sf-accent:#ef684e}
+.sf-hero-showcase{padding:clamp(26px,5vw,64px);background:#e8eef0}
+.sf-showcase-heading{max-width:1050px;margin:auto}
+.sf-showcase-heading .sf-name{font-size:clamp(2.6rem,7vw,6.8rem);line-height:.9;letter-spacing:-.075em;text-transform:uppercase;margin:16px 0}
+.sf-showcase-art{position:relative;max-width:1160px;margin:25px auto 0}
+.sf-showcase-art .sf-cover{height:clamp(210px,36vw,440px);border-radius:2px}
+.sf-showcase-number{position:absolute;left:0;bottom:0;background:#18313b;color:#fff;padding:13px 17px;font-size:.65rem;font-weight:900;letter-spacing:.13em}
+.sf-showcase-footer{max-width:1160px;margin:16px auto 0;display:flex;justify-content:space-between;gap:14px;font-size:.7rem;font-weight:900;letter-spacing:.1em}
+.sf-showcase-footer a{color:inherit}
+.sf-model-flagship .sf-products .pgrid,.sf-model-boutique .sf-products .pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sf-model-flagship .sf-products .prod,.sf-model-boutique .sf-products .prod{border:0;border-radius:0;box-shadow:none;background:#edf1f1}
+.sf-model-flagship .sf-products .photos,.sf-model-boutique .sf-products .photos{aspect-ratio:1/1}
+.sf-model-flagship .sf-products .buy,.sf-model-boutique .sf-products .buy{background:#ef684e}
+
+/* 10 — Boulangerie : menu de comptoir et cartes carrées */
+.sf-model-boulangerie{--sf-paper:#fff7e9;--sf-ink:#512b20;--sf-accent:#c85b32}
+.sf-model-boulangerie .sf-hero-food{background:#512b20;color:#fff7e9}
+.sf-model-boulangerie .sf-food-art .sf-cover{border-radius:0 0 0 55%}
+.sf-model-boulangerie .sf-food-copy .sf-kicker{color:#f3bf77}
+.sf-model-boulangerie .sf-products .sf-sec{border-bottom:2px solid #c85b32;padding-bottom:14px}
+.sf-model-boulangerie .sf-products .prod{border-radius:4px;border-color:#ecd9c0}
+.sf-model-boulangerie .sf-products .buy{background:#512b20}
+
+/* 11 — Beauté éclatante : cartes en diptyque */
+.sf-model-beaute{--sf-paper:#fff8f8;--sf-ink:#4c2933;--sf-accent:#b96e7b}
+.sf-model-beaute .sf-hero-beauty{background:#f8e9eb}
+.sf-model-beaute .sf-beauty-visual .sf-cover{border-radius:4px 48% 4px 4px}
+.sf-model-beaute .sf-products .photos{border-radius:8px 48% 8px 8px}
+.sf-model-beaute .sf-products .buy{background:#9e5968}
+
+/* 12 — Marché : grille dense, prix lisibles et navigation pratique */
+.sf-model-marche{--sf-paper:#f3f8f1;--sf-ink:#183d2d;--sf-accent:#24704c}
+.sf-model-marche .sf-market-main{grid-template-columns:1.1fr .9fr}
+.sf-model-marche .sf-market-cover .sf-cover{border-radius:12px;height:clamp(220px,30vw,360px)}
+.sf-model-marche .sf-products .pgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sf-model-marche .sf-products .prod{border-radius:9px;border-color:#d9e7d6}
+.sf-model-marche .sf-products .photos{aspect-ratio:1/1}
+.sf-model-marche .sf-products .pbody{padding:11px}
+.sf-model-marche .sf-products .buy{background:#24704c;font-size:.8rem}
+
+/* 13 — Tons chaleureux : artisanat, grille asymétrique et matières douces */
+.sf-model-chaleureux .sf-hero-home{background:#f3e8dc}
+.sf-model-chaleureux .sf-home-image .sf-cover{clip-path:none;border-radius:48% 48% 0 0}
+.sf-model-chaleureux .sf-home-copy .sf-kicker{color:#9a543d}
+.sf-model-chaleureux .sf-products .prod:nth-child(odd){transform:translateY(14px)}
+
+/* 14 — Lifestyle : lookbook aéré et produits sans cadres */
+.sf-model-lifestyle{--sf-paper:#fbf4ed;--sf-ink:#38241f;--sf-accent:#9a543d}
+.sf-model-lifestyle .sf-hero-editorial>.sf-cover{inset:0 0 0 48%;clip-path:polygon(0 0,100% 0,100% 100%,20% 100%)}
+.sf-model-lifestyle .sf-editorial-copy .sf-name{font-family:Arial,sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(2.4rem,5.5vw,5.3rem)}
+.sf-model-lifestyle .sf-editorial-stamp{border-radius:0;transform:rotate(0);width:auto;height:auto;padding:14px}
+.sf-model-lifestyle .sf-products .pgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.sf-model-lifestyle .sf-products .prod{border:0;border-radius:0;background:transparent;box-shadow:none}
+.sf-model-lifestyle .sf-products .photos{aspect-ratio:3/4}
+.sf-model-lifestyle .sf-products .pbody{padding:10px 0}
+.sf-model-lifestyle .sf-products .buy{background:#38241f}
+
+/* 15 — Boutique prête à vendre : barre d'action et sélection compacte */
+.sf-model-boutique .sf-hero-showcase{background:#e7edf8}
+.sf-model-boutique .sf-showcase-heading .sf-name{font-size:clamp(2.4rem,5.6vw,5.4rem);text-transform:none}
+.sf-model-boutique .sf-showcase-art .sf-cover{height:clamp(180px,27vw,320px)}
+.sf-model-boutique .sf-showcase-number{background:#3158a5}
+.sf-model-boutique .sf-products .sf-sec{display:flex;align-items:end;justify-content:space-between;gap:12px;border-bottom:1px solid #d3deeb;padding-bottom:12px}
+
+/* 16 — Collection raffinée : grille galerie et titres de collection */
+.sf-model-collection .sf-hero-showcase{background:#171717}
+.sf-model-collection .sf-showcase-heading .sf-name{font-family:Georgia,serif;font-weight:500;text-transform:none;letter-spacing:-.045em}
+.sf-model-collection .sf-showcase-art .sf-cover{height:clamp(240px,40vw,470px);filter:saturate(.8)}
+.sf-model-collection .sf-showcase-number{background:#d7b46a;color:#171717}
+.sf-model-collection .sf-products .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.sf-model-collection .sf-products .prod{display:grid;grid-template-columns:1fr 1fr;align-items:center}
+.sf-model-collection .sf-products .photos{aspect-ratio:4/5}
+.sf-model-collection .sf-products .buy{background:#d7b46a;color:#171717}
+
+/* Responsivité partagée, sans effacer les compositions propres à chaque modèle */
+@media(max-width:760px){
+ .sf-page .sf-products .pgrid,.sf-model-marche .sf-products .pgrid,.sf-model-lifestyle .sf-products .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .sf-market-main,.sf-tech-grid{grid-template-columns:1fr;gap:22px}
+ .sf-market-copy .sf-name,.sf-tech-copy .sf-name{font-size:clamp(2.3rem,10vw,3.6rem)}
+ .sf-market-cover .sf-cover,.sf-tech-art .sf-cover{height:245px}
+ .sf-market-benefits{justify-content:flex-start;font-size:.72rem}
+ .sf-hero-food{grid-template-columns:1fr;min-height:0}
+ .sf-food-art{grid-column:1;grid-row:1;min-height:190px}
+ .sf-food-art .sf-cover{height:200px;min-height:200px;border-radius:0 0 0 70px}
+ .sf-food-copy{grid-column:1;grid-row:2;padding:24px 18px 30px}
+ .sf-hero-beauty{min-height:0;grid-template-columns:1fr 1fr}
+ .sf-beauty-copy{padding:24px 15px}
+ .sf-beauty-copy .sf-name{font-size:clamp(1.7rem,6vw,2.6rem)}
+ .sf-beauty-visual,.sf-beauty-visual .sf-cover{min-height:280px}
+ .sf-beauty-visual{padding:12px 10px 12px 0}
+ .sf-beauty-seal{width:65px;height:65px;font-size:.48rem;bottom:24px}
+ .sf-hero-home{grid-template-columns:1fr;min-height:0}
+ .sf-home-image,.sf-home-image .sf-cover{min-height:230px;height:230px}
+ .sf-home-image .sf-cover{clip-path:none}
+ .sf-home-copy{padding:25px 20px 30px}
+ .sf-home-copy .sf-name{font-size:2.5rem}
+ .sf-hero-editorial{min-height:380px}
+ .sf-editorial-copy{min-height:380px;padding:52px 18px}
+ .sf-editorial-copy .sf-name{max-width:75%;font-size:clamp(2.5rem,10vw,4rem)}
+ .sf-editorial-copy .sf-slogan{max-width:65%}
+ .sf-editorial-stamp{width:70px;height:70px;right:5%;bottom:8%;font-size:.5rem}
+ .sf-hero-showcase{padding:25px 17px}
+ .sf-showcase-heading .sf-name{font-size:clamp(2.5rem,11vw,4rem)}
+ .sf-showcase-art .sf-cover{height:230px}
+ .sf-model-vitrine .sf-products .pgrid,.sf-model-beaute .sf-products .pgrid,.sf-model-maison .sf-products .pgrid,.sf-model-chaleureux .sf-products .pgrid,.sf-model-collection .sf-products .pgrid{grid-template-columns:1fr;gap:14px}
+ .sf-model-vitrine .sf-products .prod,.sf-model-beaute .sf-products .prod,.sf-model-maison .sf-products .prod,.sf-model-chaleureux .sf-products .prod,.sf-model-collection .sf-products .prod{grid-template-columns:1fr 1fr}
+ .sf-model-vitrine .sf-products .photos,.sf-model-beaute .sf-products .photos{aspect-ratio:3/4}
+ .sf-model-marche .sf-products .pbody{padding:9px}
+ .sf-market-ribbon{font-size:.58rem}
+}
+@media(max-width:390px){
+ .sf-page .sf-products .pgrid{gap:8px}
+ .sf-page .sf-products .pbody{padding:10px}
+ .sf-page .sf-products .pn{font-size:.88rem}
+ .sf-page .sf-products .buy{font-size:.75rem;padding:9px 7px}
+ .sf-tech-top{font-size:.55rem}
+ .sf-beauty-copy{padding:18px 10px}
+ .sf-beauty-copy .sf-name{font-size:1.55rem}
+ .sf-beauty-link{gap:8px;font-size:.75rem}
+ .sf-model-vitrine .sf-products .prod,.sf-model-beaute .sf-products .prod,.sf-model-maison .sf-products .prod,.sf-model-chaleureux .sf-products .prod,.sf-model-collection .sf-products .prod{grid-template-columns:1fr}
+}
