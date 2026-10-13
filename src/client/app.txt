@@ -340,7 +340,7 @@
       h += '<div class="empty"><b>Votre vitrine est vide</b>Ajoutez un produit : une photo, un nom, un prix. Cela prend une minute.<div style="margin-top:12px"><button class="btn" id="addp2">' + ic("plus") + " Ajouter mon premier produit</button></div></div>";
     }
     h += S.products.map(function (p) {
-      var photo = p.photos.length ? '<img src="/img/' + p.photos[0] + '" alt="">' : '<div class="ph"></div>';
+      var photo = p.photos.length ? '<img src="/img/' + p.photos[0] + '" alt="">' : (p.demo_image_url ? '<img src="' + esc(p.demo_image_url) + '" alt="Photo exemple">' : '<div class="ph"></div>');
       var price = p.promo_price !== null ? "<s>" + fcfa(p.price) + "</s> " + fcfa(p.promo_price) : fcfa(p.price);
       return '<div class="lrow">' + photo + '<div class="t"><b>' + esc(p.name) + "</b><div>" + price + " FCFA</div>" + stockChip(p) +
         '</div><div><button class="btn ghost small" data-edit="' + p.id + '">Modifier</button></div></div>';
@@ -360,6 +360,7 @@
   function productForm(p) {
     var lim = S.me.limits;
     var photos = p ? p.photos.slice() : [];
+    var samplePhoto = p && !p.photos.length ? (p.demo_image_url || "") : "";
     var ov = document.createElement("div");
     ov.className = "overlay";
     ov.innerHTML = '<div class="sheet"><h2>' + (p ? "Modifier le produit" : "Nouveau produit") + "</h2>" +
@@ -383,7 +384,7 @@
     function drawThumbs() {
       $("#thumbs", ov).innerHTML = photos.map(function (id, i) {
         return '<div class="thumb"><img src="/img/' + id + '" alt=""><button type="button" data-rm="' + i + '">×</button></div>';
-      }).join("");
+      }).join("") + (samplePhoto && !photos.length ? '<div class="thumb sample-thumb"><img src="' + esc(samplePhoto) + '" alt="Photo exemple"><span>Exemple</span></div>' : "");
       ov.querySelectorAll("[data-rm]").forEach(function (b) {
         b.onclick = function () { photos.splice(parseInt(b.getAttribute("data-rm"), 10), 1); drawThumbs(); };
       });
