@@ -841,7 +841,7 @@ async function shopPage(request, env, ctx, slug) {
 
   // Le modèle choisi commande l’architecture réelle de la boutique.
   // Les sections sont réutilisées sans perdre leurs données ni leurs actions.
-  const body = composeTemplateSections(templateId, {
+  let body = composeTemplateSections(templateId, {
     hero, infobar: infoBar, about, gallery, products: productsHtml,
   }) + foot + fab;
 
