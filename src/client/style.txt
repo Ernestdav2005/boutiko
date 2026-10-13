@@ -1989,3 +1989,13 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .sf-editorial-stamp:empty,.sf-kicker:empty,.sf-brand:empty,.sf-slogan:empty,.sf-home-desc:empty,.sf-tech-live:empty,.sf-beauty-seal:empty,.sf-tech-art span:empty,.sf-showcase-number:empty{display:none!important}
 .sf-page .sf-kicker:empty,.sf-page .sf-editorial-stamp:empty{display:none!important}
 .sf-page .sf-brand:empty,.sf-page .sf-slogan:empty{display:none!important}
+
+
+/* Éditeur visuel : aperçu réel du modèle publié */
+.visual-editor-shell{margin:16px 0 22px;border:1px solid #d9dce7;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 8px 24px rgba(18,24,38,.08)}
+.visual-editor-toolbar{display:flex;flex-direction:column;gap:5px;padding:14px 16px;background:#20284f;color:#fff}
+.visual-editor-toolbar b{font-size:1.02rem}
+.visual-editor-toolbar span{font-size:.92rem;color:#f4f5ff}
+.visual-editor-toolbar small{font-size:.82rem;color:#d9defd}
+#visualShopEditor{display:block;width:100%;height:min(76vh,900px);min-height:560px;border:0;background:#fff}
+@media(max-width:600px){#visualShopEditor{height:74vh;min-height:520px}.visual-editor-toolbar{padding:12px}}
