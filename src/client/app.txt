@@ -716,6 +716,81 @@
       el.addEventListener("change", refreshProfilePreview);
     });
     refreshProfilePreview();
+    // Éditeur visuel : toucher une zone de l'aperçu ouvre directement son champ.
+    (function enableVisualEditing() {
+      var style = document.createElement("style");
+      style.textContent = [
+        "#profilePreview [data-edit-target]{cursor:pointer;outline:2px dashed transparent;outline-offset:4px;border-radius:4px;transition:outline-color .15s,background .15s}",
+        "#profilePreview [data-edit-target]:hover,#profilePreview [data-edit-target]:focus{outline-color:var(--preview-color);background:color-mix(in srgb,var(--preview-color) 7%,transparent)}",
+        "#profilePreviewCover,#profilePreviewAvatar,#profilePreviewProducts{cursor:pointer}",
+        "#profilePreviewCover:hover,#profilePreviewAvatar:hover,#profilePreviewProducts:hover{outline:2px dashed var(--preview-color);outline-offset:-4px}",
+        ".profile-preview-help{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:#eef7f5;color:#245b54;font-size:13px;line-height:1.5}"
+      ].join("");
+      document.head.appendChild(style);
+      var help = document.createElement("p");
+      help.className = "profile-preview-help";
+      help.textContent = "✦ Touchez directement le nom, le slogan ou la description pour les modifier. Touchez la couverture ou le logo pour choisir une photo. Touchez les produits pour les gérer. Puis appuyez sur « Enregistrer ma boutique » pour publier.";
+      var preview = $("#profilePreview");
+      if (preview && preview.parentNode) preview.parentNode.insertBefore(help, preview);
+      function focusField(name) {
+        var field = $('#sf [name="' + name + '"]');
+        if (!field) return;
+        var details = field.closest("details");
+        if (details) details.open = true;
+        field.scrollIntoView({ behavior: "smooth", block: "center" });
+        field.focus({ preventScroll: true });
+        if (field.select && field.tagName !== "TEXTAREA") field.select();
+      }
+      function makeEditable(id, field, label) {
+        var el = $("#" + id);
+        if (!el) return;
+        el.setAttribute("data-edit-target", field);
+        el.setAttribute("role", "button");
+        el.setAttribute("tabindex", "0");
+        el.setAttribute("title", "Toucher pour modifier : " + label);
+        el.setAttribute("aria-label", "Modifier " + label);
+        var go = function () { focusField(field); };
+        el.addEventListener("click", go);
+        el.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+        });
+      }
+      makeEditable("profilePreviewBrand", "brand_name", "la marque");
+      makeEditable("profilePreviewName", "name", "le nom de la boutique");
+      makeEditable("profilePreviewSlogan", "slogan", "le slogan");
+      makeEditable("profilePreviewDescription", "description", "la description");
+      var cover = $("#profilePreviewCover");
+      if (cover) {
+        cover.setAttribute("title", "Toucher pour remplacer la photo de couverture");
+        cover.setAttribute("role", "button");
+        cover.setAttribute("tabindex", "0");
+        var changeCover = function () {
+          if (!lim.custom) { toast("L’ajout d’une couverture personnalisée dépend de votre formule."); return; }
+          var picker = $("#bannerf");
+          if (picker) picker.click();
+        };
+        cover.addEventListener("click", changeCover);
+        cover.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); changeCover(); } });
+      }
+      var avatar = $("#profilePreviewAvatar");
+      if (avatar) {
+        avatar.setAttribute("title", "Toucher pour remplacer le logo");
+        avatar.setAttribute("role", "button");
+        avatar.setAttribute("tabindex", "0");
+        var changeLogo = function () { var picker = $("#logof"); if (picker) picker.click(); };
+        avatar.addEventListener("click", changeLogo);
+        avatar.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); changeLogo(); } });
+      }
+      var productArea = $("#profilePreviewProducts");
+      if (productArea) {
+        productArea.setAttribute("title", "Toucher pour gérer les produits");
+        productArea.setAttribute("role", "button");
+        productArea.setAttribute("tabindex", "0");
+        var editProducts = function () { S.tab = "products"; render(); };
+        productArea.addEventListener("click", editProducts);
+        productArea.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); editProducts(); } });
+      }
+    })();
     $("#sf").onsubmit = function (e) {
       e.preventDefault();
       var f = formData(e.target), btn = $("#sf button[type=submit]");
