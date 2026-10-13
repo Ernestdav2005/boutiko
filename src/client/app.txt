@@ -536,307 +536,106 @@
 
   // ---------- Ma boutique ----------
   function viewShop(v) {
-    var s = S.me.shop, lim = S.me.limits;
-    var h = {};
-    try { h = JSON.parse(s.hours || "{}") || {}; } catch (e) { h = {}; }
-    var days = h.days || [1, 2, 3, 4, 5, 6];
+    var s = S.me.shop;
     var link = location.origin + "/" + s.slug;
-    v.innerHTML = '<div class="profile-heading"><span class="profile-eyebrow">VOTRE ESPACE DE MARQUE</span><h2>Votre boutique, simplement</h2><p>Choisissez une ambiance, ajoutez vos informations et vos produits, puis enregistrez. Boutiko s’occupe du reste.</p></div>' +
-      '<section class="visual-editor-shell"><div class="visual-editor-toolbar"><b>Éditeur visuel de votre boutique</b><span>Les 16 modèles gardent leur design. Touchez un texte pour le modifier ou une image pour la remplacer.</span><small>Les changements de texte sont enregistrés automatiquement. Pour les images, enregistrez après l’envoi.</small></div><iframe id="visualShopEditor" title="Éditeur visuel de ma boutique" loading="eager" src="/' + esc(s.slug) + '?boutiko_editor=1" referrerpolicy="same-origin"></iframe></section>' +
-      '<div class="profile-section-heading"><span>01</span><div><h3>Les informations essentielles</h3><p>Commencez par le nom de votre boutique et le numéro WhatsApp pour recevoir les commandes.</p></div></div>' +
-      '<div class="card profile-link-card"><b>Le lien de votre boutique</b><p style="word-break:break-all"><a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + "</a></p>" +
-      '<div class="row"><button class="btn small" id="copyl">Copier le lien</button><a class="btn ghost small" id="openShopPreview" target="_blank" rel="noopener" href="/' + esc(s.slug) + '">' + ic("eye") + ' Ouvrir l’aperçu complet</a><a class="btn ghost small" id="sharewa" target="_blank" rel="noopener" href="' + esc(waLink("", "Découvrez ma boutique : " + link)) + '">Partager sur WhatsApp</a></div>' +
-      '<div class="qrbox"><img src="/qr/' + esc(s.slug) + '" alt="QR code" width="180" height="180"></div><p class="muted small">Imprimez ce QR code (capture d\'écran) et collez-le à votre comptoir.</p></div>' +
-      '<form id="sf" class="card" style="margin-top:12px">' +
-      '<label class="field"><span>Nom de la boutique</span><input name="name" maxlength="60" required value="' + esc(s.name) + '"><small>Le titre principal de votre vitrine.</small></label>' +
-      '<details class="bk-optional"><summary>Ajouter une marque, un slogan ou une description (facultatif)</summary><div class="profile-fields"><label class="field"><span>Nom de l’entreprise</span><input name="business_name" maxlength="80" value="' + esc(s.business_name || "") + '" placeholder="Ex. : Les créations d’Ama"></label>' +
-      '<label class="field"><span>Nom de marque</span><input name="brand_name" maxlength="80" value="' + esc(s.brand_name || "") + '" placeholder="Ex. : AMA Studio"></label>' +
-      '<label class="field"><span>Slogan</span><input name="slogan" maxlength="140" value="' + esc(s.slogan || "") + '" placeholder="Ex. : Le style qui vous ressemble"></label></div>' +
-      '<label class="field"><span>Description</span><textarea name="description" maxlength="300">' + esc(s.description) + "</textarea></label></div></details>" +
-      '<label class="field"><span>Numéro WhatsApp qui reçoit les commandes</span><input name="whatsapp" inputmode="tel" required value="' + esc(s.whatsapp) + '"></label>' +
-      '<div class="profile-section-heading"><span>02</span><div><h3>Ambiance visuelle</h3><p>Choisissez une couleur et un style cohérents avec vos produits.</p></div></div>' +
-      '<div class="field bk-style-presets"><span>Choisissez une ambiance prête à l’emploi</span><p class="muted small">Touchez simplement le style qui vous plaît. Boutiko harmonise automatiquement la couleur, les textes et la présentation.</p><div class="bk-preset-grid">' +
-      [
-        {id:"warm",name:"Chaleureux",desc:"Accueillant et naturel",color:"#0f766e",theme:"editorial",font:"rounded",text:"normal",layout:"grid"},
-        {id:"chic",name:"Élégant",desc:"Raffiné et soigné",color:"#7c3aed",theme:"elegant",font:"elegant",text:"refined",layout:"large"},
-        {id:"clean",name:"Moderne",desc:"Simple et épuré",color:"#2563eb",theme:"minimal",font:"modern",text:"normal",layout:"grid"},
-        {id:"vivid",name:"Audacieux",desc:"Visible et dynamique",color:"#e11d48",theme:"bold",font:"rounded",text:"bold",layout:"large"}
-      ].map(function(p) {
-        var active = (s.color || "#0f766e") === p.color && (s.theme || "editorial") === p.theme && (s.font_family || "modern") === p.font && (s.text_style || "normal") === p.text && (s.layout || "grid") === p.layout;
-        return '<button type="button" class="bk-style-preset' + (active ? ' is-selected' : '') + '" data-preset="' + p.id + '"><span class="bk-preset-art preset-' + p.id + '" style="--preset-color:' + p.color + '"><i></i><i></i><i></i></span><b>' + p.name + '</b><small>' + p.desc + '</small><em>Choisir ce style</em></button>';
-      }).join("") + '</div></div>' +
-      '<details class="bk-optional"><summary>Personnaliser les couleurs et le design (facultatif)</summary><div class="bk-optional-content"><div class="field"><span>Couleur principale</span><div class="swatches" id="sw">' + COLORS.map(function (c) {
-        return '<button type="button" class="sw ' + (c === s.color ? "on" : "") + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur ' + c + '"></button>';
-      }).join("") + '</div><label class="color-picker"><span>Ou choisissez votre propre couleur</span><input type="color" id="customColor" value="' + esc(s.color || "#0f766e") + '"></label></div>' +
-      '<div class="field"><span>Style visuel</span><p class="muted small">Choisissez une ambiance qui correspond à votre activité.</p><div class="theme-options">' +
-      [["editorial","Marché chic","Un style chaleureux et vivant"],["minimal","Minimal","Sobre et très épuré"],["elegant","Élégant","Raffiné, avec des formes douces"],["bold","Audacieux","Des couleurs et des contrastes forts"]].map(function (t) {
-        return '<label class="theme-option theme-' + t[0] + '"><input type="radio" name="theme" value="' + t[0] + '" ' + ((s.theme || "editorial") === t[0] ? "checked" : "") + '><span class="theme-preview"></span><b>' + t[1] + '</b><small>' + t[2] + '</small></label>';
-      }).join("") + '</div></div>' +
-      '<label class="field"><span>Présentation des produits</span><select name="layout"><option value="grid" ' + ((s.layout || "grid") === "grid" ? "selected" : "") + '>Grille classique</option><option value="list" ' + (s.layout === "list" ? "selected" : "") + '>Liste avec grandes photos</option><option value="large" ' + (s.layout === "large" ? "selected" : "") + '>Grandes cartes visuelles</option></select></label>' +
-      '<div class="profile-section-heading"><span>03</span><div><h3>Caractère des textes</h3><p>Choisissez la police et le ton de vos titres et textes. Le changement est visible dans l’aperçu.</p></div></div>' +
-      '<div class="profile-fields">' +
-      '<label class="field"><span>Police d’écriture</span><select name="font_family"><option value="modern" ' + ((s.font_family || "modern") === "modern" ? "selected" : "") + '>Moderne et lisible</option><option value="classic" ' + (s.font_family === "classic" ? "selected" : "") + '>Classique</option><option value="elegant" ' + (s.font_family === "elegant" ? "selected" : "") + '>Élégante avec empattements</option><option value="rounded" ' + (s.font_family === "rounded" ? "selected" : "") + '>Arrondie et conviviale</option></select></label>' +
-      '<label class="field"><span>Caractère des textes</span><select name="text_style"><option value="normal" ' + ((s.text_style || "normal") === "normal" ? "selected" : "") + '>Naturel</option><option value="refined" ' + (s.text_style === "refined" ? "selected" : "") + '>Raffiné</option><option value="bold" ' + (s.text_style === "bold" ? "selected" : "") + '>Fort et affirmé</option></select></label></div></div></details>' +
-      '<details class="bk-optional"><summary>Ajouter un logo et des photos de présentation (facultatif)</summary><div class="bk-optional-content"><div class="profile-section-heading"><span>04</span><div><h3>Photos et présentation</h3><p>De belles images donnent du relief à votre vitrine et aident les clients à vous reconnaître.</p></div></div>' +
-      '<div class="field"><span>Logo ou photo du commerçant</span><p class="muted small">Votre visage ou votre logo aide les clients à reconnaître votre boutique.</p><div id="logo"></div></div>' +
-      '<div class="field"><span>Bannière</span><div id="banner"></div></div>' +
-      '<div class="field"><span>Photos pour présenter votre boutique (5 maximum)</span><p class="muted small">Montrez votre local, votre équipe, votre atelier ou l’ambiance de votre commerce. Ce sont des photos différentes de celles des produits.</p><div id="gallery"></div></div>' +
-      '<div class="profile-section-heading"><span>05</span><div><h3>Informations pratiques</h3><p>Facilitez le contact, la visite et la commande.</p></div></div>' +
-      '<label class="field"><span>Adresse</span><input name="address" maxlength="200" value="' + esc(s.address) + '" placeholder="Ex : Marché Dantokpa, allée B"></label>' +
-      '<div class="field"><span>Position sur la carte</span><input name="maps_url" maxlength="500" value="' + esc(s.maps_url) + '" placeholder="Lien Google Maps (facultatif)">' +
-      '<button type="button" class="btn ghost small" id="geo" style="margin-top:6px">Utiliser ma position actuelle</button><small>Vos clients verront un bouton « Itinéraire ».</small></div>' +
-      '<div class="field"><span>Horaires d\'ouverture</span><div class="row"><input type="time" name="open" value="' + esc(h.open || "") + '" style="width:auto"> à <input type="time" name="close" value="' + esc(h.close || "") + '" style="width:auto"></div>' +
-      '<div class="days">' + DAYS.map(function (d, i) { return '<label><input type="checkbox" name="d' + i + '" ' + (days.indexOf(i) >= 0 ? "checked" : "") + "> " + d + "</label>"; }).join("") + "</div><small>Laissez vide pour ne pas afficher d'horaires.</small></div>" +
-      '<label class="field"><span>Paiement Mobile Money (affiché sur la boutique)</span><input name="momo" maxlength="120" value="' + esc(s.momo) + '" placeholder="Ex : MTN MoMo 01 97 00 00 00"></label>' +
-      '</div></details><div id="serr" class="alert bad" style="display:none"></div><button class="btn block" type="submit">Enregistrer ma boutique</button></form>';
-    var visualFrame = $("#visualShopEditor");
+    v.innerHTML =
+      '<section class="visual-editor-shell bk-full-editor">' +
+        '<div class="visual-editor-toolbar">' +
+          '<b>Modifiez votre boutique directement sur son vrai modèle</b>' +
+          '<span>Le design et la structure choisis sont affichés ici, comme sur votre boutique publique.</span>' +
+          '<small>Touchez un texte pour le réécrire. Touchez la couverture ou le logo pour choisir une image. Les modifications sont enregistrées automatiquement.</small>' +
+        '</div>' +
+        '<iframe id="visualShopEditor" title="Votre vraie boutique en mode édition" loading="eager" src="/' + esc(s.slug) + '?boutiko_editor=1" referrerpolicy="same-origin"></iframe>' +
+      '</section>' +
+      '<div class="card bk-editor-footer">' +
+        '<b>Votre boutique en ligne</b>' +
+        '<p style="word-break:break-all"><a href="/' + esc(s.slug) + '" target="_blank" rel="noopener">' + esc(link) + '</a></p>' +
+        '<div class="row"><button class="btn small" id="copyl" type="button">Copier le lien</button><a class="btn ghost small" href="/' + esc(s.slug) + '" target="_blank" rel="noopener">' + ic("eye") + ' Voir comme un client</a><a class="btn ghost small" id="sharewa" target="_blank" rel="noopener">Partager sur WhatsApp</a></div>' +
+        '<div class="qrbox"><img src="/qr/' + esc(s.slug) + '" alt="QR code de ma boutique" width="150" height="150"></div>' +
+      '</div>' +
+      '<input type="file" id="bkDirectBanner" accept="image/*" hidden>' +
+      '<input type="file" id="bkDirectLogo" accept="image/*" hidden>';
+    var frame = $("#visualShopEditor");
+    var busy = false;
+    function refreshEditor() {
+      if (frame) frame.src = "/" + encodeURIComponent(S.me.shop.slug) + "?boutiko_editor=1&refresh=" + Date.now();
+    }
+    function saveShopField(field, value) {
+      var limits = {name:60, brand_name:80, slogan:140, description:300, address:200};
+      if (!Object.prototype.hasOwnProperty.call(limits, field)) return;
+      value = String(value || "").trim().slice(0, limits[field]);
+      if (field === "name" && value.length < 2) return toast("Le nom doit contenir au moins 2 caractères.");
+      var payload = {}; payload[field] = value;
+      api("/api/shop", "PUT", payload).then(function (d) {
+        S.me.shop = d.shop || S.me.shop;
+        toast("Texte enregistré.");
+        refreshEditor();
+      }).catch(function (ex) { toast("Enregistrement impossible : " + ex.message); refreshEditor(); });
+    }
+    function uploadShopImage(kind, file) {
+      if (!file || busy) return;
+      if (kind === "banner" && !S.me.limits.custom) {
+        toast("La couverture personnalisée est disponible avec une formule supérieure.");
+        return;
+      }
+      busy = true;
+      toast("Préparation de l’image…");
+      compress(file, kind === "logo" ? 400 : 1200, (kind === "logo" ? 120 : 350) * 1024)
+        .then(function (blob) { return upload(blob, kind); })
+        .then(function (d) {
+          var payload = {}; payload[kind === "logo" ? "logo_id" : "banner_id"] = d.id;
+          return api("/api/shop", "PUT", payload);
+        })
+        .then(function (d) {
+          S.me.shop = d.shop || S.me.shop;
+          toast("Image enregistrée.");
+          refreshEditor();
+        })
+        .catch(function (ex) { toast("Image non enregistrée : " + ex.message); })
+        .then(function () { busy = false; });
+    }
+    $("#bkDirectBanner").onchange = function (e) { uploadShopImage("banner", e.target.files && e.target.files[0]); e.target.value = ""; };
+    $("#bkDirectLogo").onchange = function (e) { uploadShopImage("logo", e.target.files && e.target.files[0]); e.target.value = ""; };
     window.addEventListener("message", function (event) {
       if (event.origin !== location.origin || !event.data || event.data.source !== "boutiko-editor") return;
       var msg = event.data;
       if (msg.type === "text") {
-        var allowed = {name:60, brand_name:80, slogan:140, description:300, address:200};
-        if (!Object.prototype.hasOwnProperty.call(allowed, msg.field)) return;
-        var input = $("#sf [name=" + msg.field + "]");
-        if (!input) return toast("Ce texte ne peut pas être modifié ici.");
-        var value = String(msg.value || "").slice(0, allowed[msg.field]);
-        if (msg.field === "name" && value.trim().length < 2) return toast("Le nom doit contenir au moins 2 caractères.");
-        input.value = value;
-        var payload = {}; payload[msg.field] = value;
-        api("/api/shop", "PUT", payload)
-          .then(function(d){S.me.shop=d.shop;toast("Texte enregistré.");if(visualFrame)visualFrame.src="/"+encodeURIComponent(S.me.shop.slug)+"?boutiko_editor=1&refresh="+Date.now();})
-          .catch(function(ex){toast("Enregistrement impossible : "+ex.message);});
+        saveShopField(msg.field, msg.value);
       } else if (msg.type === "image") {
-        var section = $("#"+(msg.kind==="logo"?"logo":"banner"));
-        if (section) { var details = section.closest("details"); if(details) details.open=true; }
-        var file = $("#"+(msg.kind==="logo"?"logof":"bannerf"));
-        if (file) file.click(); else toast("Ouvrez la section Photos pour modifier cette image.");
+        var picker = $("#bkDirect" + (msg.kind === "logo" ? "Logo" : "Banner"));
+        if (picker) picker.click();
       } else if (msg.type === "product-text") {
-        var productId = String(msg.id || ""), productFields = {name:80,description:500,price:10,promo_price:10};
-        if (!/^\d+$/.test(productId) || !Object.prototype.hasOwnProperty.call(productFields,msg.field)) return;
-        var productValue = String(msg.value || "").slice(0,productFields[msg.field]);
-        if (msg.field === "name" && productValue.trim().length < 2) return toast("Le nom doit contenir au moins 2 caractères.");
-        if ((msg.field === "price" || msg.field === "promo_price") && (!productValue || Number(productValue) < 0)) return toast("Saisissez un prix valide.");
-        var productPayload = {}; productPayload[msg.field] = (msg.field === "price" || msg.field === "promo_price") ? Number(productValue) : productValue;
-        api("/api/products/" + productId, "PUT", productPayload).then(function(){toast("Modification enregistrée.");if(visualFrame)visualFrame.src="/"+encodeURIComponent(S.me.shop.slug)+"?boutiko_editor=1&refresh="+Date.now();}).catch(function(ex){toast("Enregistrement impossible : "+ex.message);});
+        var id = String(msg.id || "");
+        var fields = {name:80, description:500, price:10, promo_price:10};
+        if (!/^\d+$/.test(id) || !Object.prototype.hasOwnProperty.call(fields, msg.field)) return;
+        var value = String(msg.value || "").trim().slice(0, fields[msg.field]);
+        if (msg.field === "name" && value.length < 2) return toast("Le nom du produit doit contenir au moins 2 caractères.");
+        if (msg.field === "price" || msg.field === "promo_price") {
+          value = value.replace(/[^0-9]/g, "");
+          if (!value || Number(value) < 0) return toast("Saisissez un prix valide.");
+        }
+        var body = {}; body[msg.field] = (msg.field === "price" || msg.field === "promo_price") ? Number(value) : value;
+        api("/api/products/" + id, "PUT", body).then(function () {
+          toast("Produit enregistré.");
+          refreshEditor();
+        }).catch(function (ex) { toast("Modification impossible : " + ex.message); refreshEditor(); });
       } else if (msg.type === "product-image" || msg.type === "products") {
         S.tab = "products";
-        loadProducts().then(function(){var found=S.products.filter(function(p){return String(p.id)===String(msg.id);})[0];render();if(found)productForm(found);else toast("Choisissez un produit pour le modifier.");}).catch(function(ex){toast(ex.message);});
+        loadProducts().then(function () {
+          var found = S.products.filter(function (p) { return String(p.id) === String(msg.id); })[0];
+          render();
+          if (found) productForm(found);
+          else toast("Choisissez un produit pour le modifier.");
+        }).catch(function (ex) { toast(ex.message); });
       }
     });
+    $("#copyl").onclick = function () {
+      localStorage_set("shared", "1");
+      if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { toast("Lien copié."); }).catch(function () { toast(link); });
+      else toast(link);
+    };
+    $("#sharewa").href = waLink("", "Découvrez ma boutique : " + link);
     $("#sharewa").onclick = function () { localStorage_set("shared", "1"); };
-    $("#copyl").onclick = function () { localStorage_set("shared", "1"); if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { toast("Lien copié."); }); };
-    var color = s.color;
-    var customColor = $("#customColor");
-    v.querySelectorAll("[data-c]").forEach(function (b) {
-      b.onclick = function () { color = b.getAttribute("data-c"); if (customColor) customColor.value = color; v.querySelectorAll(".sw").forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); };
-    });
-    if (customColor) customColor.oninput = function () {
-      color = customColor.value;
-      v.querySelectorAll(".sw").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-c") === color); });
-      refreshProfilePreview();
-    };
-    var presets = {
-      warm: {color:"#0f766e",theme:"editorial",font:"rounded",text:"normal",layout:"grid"},
-      chic: {color:"#7c3aed",theme:"elegant",font:"elegant",text:"refined",layout:"large"},
-      clean: {color:"#2563eb",theme:"minimal",font:"modern",text:"normal",layout:"grid"},
-      vivid: {color:"#e11d48",theme:"bold",font:"rounded",text:"bold",layout:"large"}
-    };
-    v.querySelectorAll("[data-preset]").forEach(function (b) {
-      b.onclick = function () {
-        var p = presets[b.getAttribute("data-preset")];
-        if (!p) return;
-        color = p.color;
-        if (customColor) customColor.value = p.color;
-        ["theme","font_family","text_style","layout"].forEach(function (key, i) {
-          var el = $("#sf [name=" + key + "]");
-          if (el) el.value = [p.theme,p.font,p.text,p.layout][i];
-        });
-        v.querySelectorAll(".sw").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-c") === color); });
-        v.querySelectorAll("[name=theme]").forEach(function (x) { x.checked = x.value === p.theme; });
-        v.querySelectorAll("[data-preset]").forEach(function (x) { x.classList.toggle("is-selected", x === b); });
-        refreshProfilePreview();
-        toast("Style choisi. Appuyez sur « Enregistrer » pour le publier.");
-      };
-    });
-    v.querySelectorAll('[name="theme"], [name="layout"], [name="font_family"], [name="text_style"]').forEach(function (el) {
-      el.addEventListener("change", function () { v.querySelectorAll("[data-preset]").forEach(function (x) { x.classList.remove("is-selected"); }); refreshProfilePreview(); });
-    });
-    $("#geo").onclick = function () {
-      if (!navigator.geolocation) return toast("Position indisponible sur cet appareil.");
-      toast("Recherche de votre position…");
-      navigator.geolocation.getCurrentPosition(function (p) {
-        $("#sf [name=maps_url]").value = "https://www.google.com/maps?q=" + p.coords.latitude.toFixed(6) + "," + p.coords.longitude.toFixed(6);
-        toast("Position ajoutée. Enregistrez.");
-      }, function () { toast("Autorisez la position dans votre téléphone."); }, { enableHighAccuracy: true, timeout: 15000 });
-    };
-    function mediaField(id, kind, current, maxSide, maxBytes) {
-      var box = $("#" + id);
-      if (!lim.custom && kind === "banner") { box.innerHTML = '<p class="muted small">Disponible à partir de la formule Standard.</p>'; return; }
-      function draw() {
-        box.innerHTML = (current ? '<div class="thumb" style="width:' + (kind === "logo" ? 80 : 160) + 'px"><img src="/img/' + current + '" style="width:100%;height:80px" alt=""><button type="button" id="' + id + 'x">×</button></div>' : "") +
-          '<input type="file" accept="image/*" id="' + id + 'f" style="margin-top:6px"><small id="' + id + 'm"></small>';
-        var x = $("#" + id + "x");
-        if (x) x.onclick = function () { current = null; pending[kind] = null; draw(); };
-        $("#" + id + "f").onchange = function (e) {
-          var f = e.target.files[0]; if (!f) return;
-          $("#" + id + "m").textContent = "Envoi…";
-          compress(f, maxSide, maxBytes).then(function (b) { return upload(b, kind); })
-            .then(function (d) { current = d.id; pending[kind] = d.id; draw(); refreshProfilePreview(); })
-            .catch(function (ex) { $("#" + id + "m").textContent = ex.message; });
-        };
-      }
-      draw();
-    }
-    var pending = {};
-    mediaField("logo", "logo", s.logo_id, 400, 120 * 1024);
-    mediaField("banner", "banner", s.banner_id, 1200, 350 * 1024);
-    var galleryIds = Array.isArray(s.gallery) ? s.gallery.slice(0, 5) : [];
-    function drawGallery() {
-      var box = $("#gallery");
-      box.innerHTML = '<div class="gallery-manager">' + galleryIds.map(function (id) {
-        return '<div class="gallery-thumb"><img src="/img/' + id + '" alt="Photo de présentation"><button type="button" data-remove-gallery="' + id + '" aria-label="Retirer cette photo">×</button></div>';
-      }).join("") + '</div>' + (galleryIds.length < 5 ? '<label class="upload-more"><span>＋ Ajouter une photo (' + galleryIds.length + '/5)</span><input type="file" id="galleryFiles" accept="image/*" multiple></label>' : '<small>Limite de 5 photos atteinte. Retirez-en une pour la remplacer.</small>') + '<small id="galleryMsg"></small>';
-      box.querySelectorAll("[data-remove-gallery]").forEach(function (b) {
-        b.onclick = function () { galleryIds = galleryIds.filter(function (id) { return id !== Number(b.getAttribute("data-remove-gallery")); }); drawGallery(); };
-      });
-      var picker = $("#galleryFiles");
-      if (picker) picker.onchange = function () {
-        var files = Array.prototype.slice.call(picker.files || []).slice(0, 5 - galleryIds.length);
-        if (!files.length) return;
-        var msg = $("#galleryMsg"); msg.textContent = "Préparation des photos…";
-        var chain = Promise.resolve();
-        files.forEach(function (file) {
-          chain = chain.then(function () {
-            if (galleryIds.length >= 5) return;
-            return compress(file, 1200, 350 * 1024).then(function (blob) { return upload(blob, "gallery"); })
-              .then(function (d) { galleryIds.push(d.id); drawGallery(); })
-              .catch(function (ex) { var m = $("#galleryMsg"); if (m) m.textContent = ex.message; });
-          });
-        });
-        chain.then(function () { var m = $("#galleryMsg"); if (m) m.textContent = "Photos prêtes. Appuyez sur « Enregistrer » pour les publier."; refreshProfilePreview(); });
-      };
-    }
-    drawGallery();
-    function refreshProfilePreview() {
-      var preview = $("#profilePreview");
-      if (!preview) return;
-      var val = function (name) { var el = $("#sf [name=" + name + "]"); return el ? el.value.trim() : ""; };
-      var brand = val("brand_name") || val("business_name") || "VOTRE MARQUE";
-      var name = val("name") || "Nom de votre boutique";
-      $("#profilePreviewBrand").textContent = brand;
-      $("#profilePreviewName").textContent = name;
-      $("#profilePreviewSlogan").textContent = val("slogan") || "Votre slogan apparaîtra ici.";
-      $("#profilePreviewDescription").textContent = val("description") || "Présentez votre univers et vos produits.";
-      preview.style.setProperty("--preview-color", color || "#0f766e");
-      preview.setAttribute("data-theme", val("theme") || "editorial");
-      preview.setAttribute("data-font-family", val("font_family") || "modern");
-      preview.setAttribute("data-text-style", val("text_style") || "normal");
-      var bannerId = pending.banner !== undefined ? pending.banner : s.banner_id;
-      var cover = $("#profilePreviewCover");
-      if (cover) cover.style.backgroundImage = bannerId && lim.custom ? 'url("/img/' + bannerId + '")' : "";
-      var logoId = pending.logo !== undefined ? pending.logo : s.logo_id;
-      var avatar = $("#profilePreviewAvatar");
-      if (avatar) avatar.innerHTML = logoId ? '<img src="/img/' + logoId + '" alt="">' : esc((val("brand_name") || val("business_name") || name || "B").charAt(0).toUpperCase());
-      var products = $("#profilePreviewProducts");
-      if (products) {
-        products.innerHTML = S.products.slice(0, 2).map(function (p) {
-          var photo = p.photos && p.photos.length ? '<img src="/img/' + p.photos[0] + '" alt="">' : '<span class="profile-preview-product-art">✦</span>';
-          return '<div class="profile-preview-product">' + photo + '<span>' + esc(p.name) + '</span><b>' + fcfa(p.promo_price || p.price) + ' FCFA</b></div>';
-        }).join("") || '<div class="profile-preview-product profile-preview-placeholder"><span class="profile-preview-product-art">✦</span><span>Vos produits</span><b>apparaîtront ici</b></div><div class="profile-preview-product profile-preview-placeholder"><span class="profile-preview-product-art">✧</span><span>Vos belles photos</span><b>font la différence</b></div>';
-      }
-    }
-    v.querySelectorAll('#sf [name="name"], #sf [name="business_name"], #sf [name="brand_name"], #sf [name="slogan"], #sf [name="description"], #sf [name="theme"], #sf [name="font_family"], #sf [name="text_style"]').forEach(function (el) {
-      el.addEventListener("input", refreshProfilePreview);
-      el.addEventListener("change", refreshProfilePreview);
-    });
-    refreshProfilePreview();
-    // Éditeur visuel : toucher une zone de l'aperçu ouvre directement son champ.
-    (function enableVisualEditing() {
-      var style = document.createElement("style");
-      style.textContent = [
-        "#profilePreview [data-edit-target]{cursor:pointer;outline:2px dashed transparent;outline-offset:4px;border-radius:4px;transition:outline-color .15s,background .15s}",
-        "#profilePreview [data-edit-target]:hover,#profilePreview [data-edit-target]:focus{outline-color:var(--preview-color);background:color-mix(in srgb,var(--preview-color) 7%,transparent)}",
-        "#profilePreviewCover,#profilePreviewAvatar,#profilePreviewProducts{cursor:pointer}",
-        "#profilePreviewCover:hover,#profilePreviewAvatar:hover,#profilePreviewProducts:hover{outline:2px dashed var(--preview-color);outline-offset:-4px}",
-        ".profile-preview-help{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:#eef7f5;color:#245b54;font-size:13px;line-height:1.5}"
-      ].join("");
-      document.head.appendChild(style);
-      var help = document.createElement("p");
-      help.className = "profile-preview-help";
-      help.textContent = "✦ Touchez directement le nom, le slogan ou la description pour les modifier. Touchez la couverture ou le logo pour choisir une photo. Touchez les produits pour les gérer. Puis appuyez sur « Enregistrer ma boutique » pour publier.";
-      var preview = $("#profilePreview");
-      if (preview && preview.parentNode) preview.parentNode.insertBefore(help, preview);
-      function focusField(name) {
-        var field = $('#sf [name="' + name + '"]');
-        if (!field) return;
-        var details = field.closest("details");
-        if (details) details.open = true;
-        field.scrollIntoView({ behavior: "smooth", block: "center" });
-        field.focus({ preventScroll: true });
-        if (field.select && field.tagName !== "TEXTAREA") field.select();
-      }
-      function makeEditable(id, field, label) {
-        var el = $("#" + id);
-        if (!el) return;
-        el.setAttribute("data-edit-target", field);
-        el.setAttribute("role", "button");
-        el.setAttribute("tabindex", "0");
-        el.setAttribute("title", "Toucher pour modifier : " + label);
-        el.setAttribute("aria-label", "Modifier " + label);
-        var go = function () { focusField(field); };
-        el.addEventListener("click", go);
-        el.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
-        });
-      }
-      makeEditable("profilePreviewBrand", "brand_name", "la marque");
-      makeEditable("profilePreviewName", "name", "le nom de la boutique");
-      makeEditable("profilePreviewSlogan", "slogan", "le slogan");
-      makeEditable("profilePreviewDescription", "description", "la description");
-      var cover = $("#profilePreviewCover");
-      if (cover) {
-        cover.setAttribute("title", "Toucher pour remplacer la photo de couverture");
-        cover.setAttribute("role", "button");
-        cover.setAttribute("tabindex", "0");
-        var changeCover = function () {
-          if (!lim.custom) { toast("L’ajout d’une couverture personnalisée dépend de votre formule."); return; }
-          var picker = $("#bannerf");
-          if (picker) picker.click();
-        };
-        cover.addEventListener("click", changeCover);
-        cover.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); changeCover(); } });
-      }
-      var avatar = $("#profilePreviewAvatar");
-      if (avatar) {
-        avatar.setAttribute("title", "Toucher pour remplacer le logo");
-        avatar.setAttribute("role", "button");
-        avatar.setAttribute("tabindex", "0");
-        var changeLogo = function () { var picker = $("#logof"); if (picker) picker.click(); };
-        avatar.addEventListener("click", changeLogo);
-        avatar.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); changeLogo(); } });
-      }
-      var productArea = $("#profilePreviewProducts");
-      if (productArea) {
-        productArea.setAttribute("title", "Toucher pour gérer les produits");
-        productArea.setAttribute("role", "button");
-        productArea.setAttribute("tabindex", "0");
-        var editProducts = function () { S.tab = "products"; render(); };
-        productArea.addEventListener("click", editProducts);
-        productArea.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); editProducts(); } });
-      }
-    })();
-    $("#sf").onsubmit = function (e) {
-      e.preventDefault();
-      var f = formData(e.target), btn = $("#sf button[type=submit]");
-      var chosen = []; for (var i = 0; i < 7; i++) if (f["d" + i]) chosen.push(i);
-      var body = { name: f.name, business_name: f.business_name, brand_name: f.brand_name, slogan: f.slogan, description: f.description, whatsapp: f.whatsapp, color: color, theme: f.theme || "editorial", layout: f.layout || "grid", font_family: f.font_family || "modern", text_style: f.text_style || "normal", gallery: galleryIds, address: f.address, maps_url: f.maps_url, momo: f.momo,
-        hours: f.open && f.close ? { open: f.open, close: f.close, days: chosen } : "" };
-      if (pending.logo !== undefined) body.logo_id = pending.logo;
-      if (lim.custom && pending.banner !== undefined) body.banner_id = pending.banner;
-      btn.disabled = true;
-      api("/api/shop", "PUT", body).then(function (d) { S.me.shop = d.shop; toast("Boutique enregistrée."); render(); })
-        .catch(function (ex) { var er = $("#serr"); er.textContent = ex.message; er.style.display = "block"; btn.disabled = false; if (er.scrollIntoView) er.scrollIntoView({ behavior: "smooth", block: "center" }); });
-    };
   }
 
   // ---------- Plus : statistiques, messages rapides, abonnement ----------
