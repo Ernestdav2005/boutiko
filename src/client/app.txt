@@ -158,7 +158,7 @@
     root.innerHTML =
       '<div class="authwrap"><div class="center" style="margin:28px 0 14px"><div class="brandline"><span class="mark">' + esc(name.charAt(0).toUpperCase()) + "</span>" + name + "</div>" +
       "<h1 style=\"margin-top:18px\">" + (reg ? "Créez votre boutique" : "Bon retour") + "</h1>" +
-      '<p class="muted">' + (reg ? "Prête en 2 minutes. 7 jours d'essai, sans engagement." : "Entrez votre numéro WhatsApp et votre mot de passe.") + "</p></div>" +
+      '<p class="muted">' + (reg ? "Prête en 2 minutes. Inscription et création gratuites." : "Entrez votre numéro WhatsApp et votre mot de passe.") + "</p></div>" +
       '<form id="authf" class="card">' +
       (reg ? '<input type="hidden" id="chosenTemplate" name="template" value="">' +
         '<section class="bk-template-choice"><h2>1. Choisissez le modèle de votre boutique</h2><p class="muted small">Touchez un modèle pour voir le design qui servira de base à votre boutique. Vous pourrez ensuite remplacer les images, les produits, les prix et les textes.</p>' +
