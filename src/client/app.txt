@@ -542,7 +542,7 @@
     var days = h.days || [1, 2, 3, 4, 5, 6];
     var link = location.origin + "/" + s.slug;
     v.innerHTML = '<div class="profile-heading"><span class="profile-eyebrow">VOTRE ESPACE DE MARQUE</span><h2>Votre boutique, simplement</h2><p>Choisissez une ambiance, ajoutez vos informations et vos produits, puis enregistrez. Boutiko s’occupe du reste.</p></div>' +
-      '<section class="profile-preview" id="profilePreview" data-theme="' + esc(s.theme || "editorial") + '" style="--preview-color:' + esc(s.color || "#0f766e") + '"><div class="profile-preview-cover" id="profilePreviewCover"' + (s.banner_id && lim.custom ? ' style="background-image:url(/img/' + s.banner_id + ')"' : '') + '><span>APERÇU EN DIRECT</span></div><div class="profile-preview-body"><div class="profile-preview-avatar" id="profilePreviewAvatar">' + (s.logo_id ? '<img src="/img/' + s.logo_id + '" alt="">' : esc((s.brand_name || s.business_name || s.name || "B").trim().charAt(0).toUpperCase())) + '</div><div class="profile-preview-copy"><span class="profile-preview-brand" id="profilePreviewBrand">' + esc(s.brand_name || s.business_name || "VOTRE MARQUE") + '</span><h3 id="profilePreviewName">' + esc(s.name || "Nom de votre boutique") + '</h3><p id="profilePreviewSlogan">' + esc(s.slogan || "Votre slogan apparaîtra ici.") + '</p><small id="profilePreviewDescription">' + esc(s.description || "Présentez votre univers et vos produits.") + '</small></div></div><div class="profile-preview-products" id="profilePreviewProducts"></div></section>' +
+      '<section class="visual-editor-shell"><div class="visual-editor-toolbar"><b>Éditeur visuel de votre boutique</b><span>Les 16 modèles gardent leur design. Touchez un texte pour le modifier ou une image pour la remplacer.</span><small>Les changements de texte sont enregistrés automatiquement. Pour les images, enregistrez après l’envoi.</small></div><iframe id="visualShopEditor" title="Éditeur visuel de ma boutique" loading="eager" src="/' + esc(s.slug) + '?boutiko_editor=1" referrerpolicy="same-origin"></iframe></section>' +
       '<div class="profile-section-heading"><span>01</span><div><h3>Les informations essentielles</h3><p>Commencez par le nom de votre boutique et le numéro WhatsApp pour recevoir les commandes.</p></div></div>' +
       '<div class="card profile-link-card"><b>Le lien de votre boutique</b><p style="word-break:break-all"><a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(link) + "</a></p>" +
       '<div class="row"><button class="btn small" id="copyl">Copier le lien</button><a class="btn ghost small" id="openShopPreview" target="_blank" rel="noopener" href="/' + esc(s.slug) + '">' + ic("eye") + ' Ouvrir l’aperçu complet</a><a class="btn ghost small" id="sharewa" target="_blank" rel="noopener" href="' + esc(waLink("", "Découvrez ma boutique : " + link)) + '">Partager sur WhatsApp</a></div>' +
@@ -589,6 +589,31 @@
       '<div class="days">' + DAYS.map(function (d, i) { return '<label><input type="checkbox" name="d' + i + '" ' + (days.indexOf(i) >= 0 ? "checked" : "") + "> " + d + "</label>"; }).join("") + "</div><small>Laissez vide pour ne pas afficher d'horaires.</small></div>" +
       '<label class="field"><span>Paiement Mobile Money (affiché sur la boutique)</span><input name="momo" maxlength="120" value="' + esc(s.momo) + '" placeholder="Ex : MTN MoMo 01 97 00 00 00"></label>' +
       '</div></details><div id="serr" class="alert bad" style="display:none"></div><button class="btn block" type="submit">Enregistrer ma boutique</button></form>';
+    var visualFrame = $("#visualShopEditor");
+    window.addEventListener("message", function (event) {
+      if (event.origin !== location.origin || !event.data || event.data.source !== "boutiko-editor") return;
+      var msg = event.data;
+      if (msg.type === "text") {
+        var allowed = {name:60, brand_name:80, slogan:140, description:300, address:200};
+        if (!Object.prototype.hasOwnProperty.call(allowed, msg.field)) return;
+        var input = $("#sf [name=" + msg.field + "]");
+        if (!input) return toast("Ce texte ne peut pas être modifié ici.");
+        var value = String(msg.value || "").slice(0, allowed[msg.field]);
+        if (msg.field === "name" && value.trim().length < 2) return toast("Le nom doit contenir au moins 2 caractères.");
+        input.value = value;
+        var payload = {}; payload[msg.field] = value;
+        api("/api/shop", "PUT", payload)
+          .then(function(d){S.me.shop=d.shop;toast("Texte enregistré.");if(visualFrame)visualFrame.src="/"+encodeURIComponent(S.me.shop.slug)+"?boutiko_editor=1&refresh="+Date.now();})
+          .catch(function(ex){toast("Enregistrement impossible : "+ex.message);});
+      } else if (msg.type === "image") {
+        var section = $("#"+(msg.kind==="logo"?"logo":"banner"));
+        if (section) { var details = section.closest("details"); if(details) details.open=true; }
+        var file = $("#"+(msg.kind==="logo"?"logof":"bannerf"));
+        if (file) file.click(); else toast("Ouvrez la section Photos pour modifier cette image.");
+      } else if (msg.type === "products") {
+        S.tab = "products"; render(); toast("Gérez ce produit dans la liste des produits.");
+      }
+    });
     $("#sharewa").onclick = function () { localStorage_set("shared", "1"); };
     $("#copyl").onclick = function () { localStorage_set("shared", "1"); if (navigator.clipboard) navigator.clipboard.writeText(link).then(function () { toast("Lien copié."); }); };
     var color = s.color;
