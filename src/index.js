@@ -865,18 +865,50 @@ async function modelDemoPage(request, env, tid) {
     photos: "[]", demoImage: `/template-product-img/${tid}/${i}`, stock: i === 2 ? null : 5 - i, active: 1,
   }));
   const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
-  const avatar = `<div class="sf-avatar" aria-hidden="true">B</div>`;
+  const family = ({
+    simple:"classic", quartier:"market", express:"food", vitrine:"beauty",
+    catalogue:"tech", mode:"editorial", premium:"luxury", maison:"home",
+    flagship:"showcase", boulangerie:"food", beaute:"beauty",
+    marche:"market", chaleureux:"home", lifestyle:"editorial",
+    boutique:"showcase", collection:"luxury"
+  })[tid] || "classic";
+  const tplClass = "sf-layout-" + family + " sf-model-" + tid;
   let hero;
-  if (["premium", "maison", "flagship"].includes(tid)) {
-    hero = `<section class="sf-hero sf-pro-hero">${cover}<div class="sf-pro-overlay wrap">
-      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${esc(t.tagline)}</p>
-      <div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}">Choisir ce modèle</a>
-      <a class="btn ghost" href="/#modeles">Autres modèles</a></div></div></section>`;
+  if (family === "editorial") {
+    hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}<div class="sf-editorial-copy wrap">
+      <span class="sf-kicker">L'UNIVERS DE LA BOUTIQUE</span><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${esc(t.tagline)}</p><div class="sf-actions"><a class="btn" href="/app?modele=${esc(tid)}">Découvrir la collection</a></div></div>
+      <div class="sf-editorial-stamp">${tid === "mode" ? "STYLE\\n& ALLURE" : "CHOISI\\nAVEC SOIN"}</div></section>`;
+  } else if (family === "food") {
+    hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div><div class="sf-food-copy wrap">
+      <span class="sf-kicker">FRAÎCHEMENT PRÉPARÉ</span><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
+      <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
+  } else if (family === "beauty") {
+    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker">VOTRE RITUEL, VOTRE ÉCLAT</span>
+      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
+      <a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
+      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal">BEAUTÉ<br/>NATURELLE</span></div></section>`;
+  } else if (family === "tech") {
+    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">TECH STORE / BÉNIN</span><span class="sf-tech-live">● DISPONIBLE SUR WHATSAPP</span></div>
+      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
+      <a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
+  } else if (family === "home") {
+    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy">
+      <span class="sf-kicker">UN ART DE VIVRE</span><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p>
+      <p class="sf-home-desc">${esc(t.desc)}</p><a class="btn" href="#catalogue">Découvrir la sélection</a></div></section>`;
+  } else if (family === "market") {
+    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span>BIENVENUE CHEZ VOUS</span><span>COTONOU, BÉNIN</span></div>
+      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">PROCHE DE VOUS, CHAQUE JOUR</span><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${esc(t.tagline)}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
+      <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
+  } else if (family === "showcase" || family === "luxury") {
+    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span>
+      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p></div>
+      <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div>
+      <div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
   } else {
-    hero = `<section class="sf-hero">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
-      <p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1>
-      <p class="sf-slogan">${esc(t.tagline)}</p></div></div></section>`;
+    hero = `<section class="sf-hero sf-hero-classic ${tplClass}">${cover}<div class="sf-identity wrap"><div class="sf-avatar" aria-hidden="true">B</div>
+      <div class="sf-id-text"><p class="sf-brand">Exemple Boutiko</p><h1 class="sf-name">${name}</h1><p class="sf-slogan">${esc(t.tagline)}</p></div></div></section>`;
   }
   const about = `<section class="sf-about wrap"><div class="sf-sec"><span>L'entreprise</span><h2>Qui sommes-nous</h2></div>
     <p class="sf-desc">${esc(t.desc)} Ceci est un aperçu : vos textes et photos remplaceront cet exemple.</p></section>`;
@@ -886,16 +918,19 @@ async function modelDemoPage(request, env, tid) {
       <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Choisir ce modèle</a>
       <a class="btn ghost" href="/#modeles">Voir tous les modèles</a>
     </div></div></section>
-    ${about}
-    <section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits <small>(exemple)</small></h2></div>
-    <div class="pgrid">${prods}</div></div></section>
+    ${family === "editorial" || family === "luxury" ? about : ""}
+    <section id="catalogue" class="sf-products sf-products-${tid} ${tplClass}"><div class="wrap">
+      <div class="sf-sec"><span>${family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : "À DÉCOUVRIR"}</span>
+      <h2>${family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" ? "Les pièces du moment" : "Nos produits"} <small>(exemple)</small></h2></div>
+      <div class="pgrid pgrid-${tid}">${prods}</div></div></section>
+    ${family !== "editorial" && family !== "luxury" ? about : ""}
     <footer class="sf-foot"><div class="wrap">Aperçu du modèle <b>${esc(t.label)}</b> · <a href="/app?modele=${esc(tid)}">Créer ma boutique avec ce modèle</a></div></footer>`;
   return html(layout({
     title: `Modèle ${t.label} · ${env.PLATFORM_NAME || "Boutiko"}`,
     desc: t.desc,
     color,
     body,
-    bodyAttrs: `class="sf-page sf-tpl-${tid}" data-template="${tid}"`,
+    bodyAttrs: `class="sf-page sf-essentiel sf-tpl-${tid} ${tplClass}" data-template="${tid}"`,
   }));
 }
 
