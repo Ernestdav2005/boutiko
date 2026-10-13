@@ -1000,7 +1000,9 @@ async function modelDemoPage(request, env, tid) {
     id: i + 1, name: p[0], price: p[1], promo_price: i === 1 ? Math.round(p[1] * 0.85) : null,
     photos: "[]", demoImage: ((DEMO_PHOTOS[tid] || DEMO_PHOTOS.simple)[i] || DEMO_PHOTOS.simple[0]), stock: i === 2 ? null : 5 - i, active: 1,
   }));
-  const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
+  const coverImage = (DEMO_PHOTOS[tid] || DEMO_PHOTOS.simple)[0];
+  const cover = `<div class="sf-cover has-img demo-cover-photo" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.20),rgba(16,42,67,.02)),url(${esc(coverImage)})"></div>`;
+
   const family = TEMPLATE_FAMILY[tid] || "classic";
   const tplClass = "sf-layout-" + family + " sf-model-" + tid;
   const avatar = '<div class="sf-avatar" aria-hidden="true">B</div>';
