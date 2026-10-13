@@ -35,6 +35,12 @@ const TEMPLATES = {
   boutique:{id:"boutique",plan:"essentiel",label:"Boutique prête à vendre",tagline:"Présentez, partagez, vendez",desc:"Un modèle polyvalent pour lancer rapidement votre boutique.",tags:["vente","démarrage"]},
   collection:{id:"collection",plan:"essentiel",label:"Collection raffinée",tagline:"Une sélection qui vous ressemble",desc:"Pour collections choisies, cadeaux et produits premium.",tags:["collection","sélection"]},
 };
+const TEMPLATE_FAMILY = {
+  simple: "classic", quartier: "market", express: "food", vitrine: "beauty",
+  catalogue: "tech", mode: "editorial", premium: "luxury", maison: "home",
+  flagship: "showcase", boulangerie: "food", beaute: "beauty", marche: "market",
+  chaleureux: "home", lifestyle: "editorial", boutique: "showcase", collection: "luxury",
+};
 const TEMPLATES_BY_PLAN = {
   essentiel: Object.keys(TEMPLATES),
   standard: Object.keys(TEMPLATES),
@@ -718,13 +724,7 @@ async function shopPage(request, env, ctx, slug) {
 
   // ---- Structure visuelle distincte par modèle (sans modifier les données du commerçant) ----
   const templateId = TEMPLATES[shop.template] ? shop.template : "simple";
-  const family = ({
-    simple:"classic", quartier:"market", express:"food", vitrine:"beauty",
-    catalogue:"tech", mode:"editorial", premium:"luxury", maison:"home",
-    flagship:"showcase", boulangerie:"bakery", beaute:"beauty",
-    marche:"market", chaleureux:"home", lifestyle:"editorial",
-    boutique:"showcase", collection:"luxury"
-  })[templateId] || "classic";
+  const family = TEMPLATE_FAMILY[templateId] || "classic";
   const tplClass = "sf-layout-" + family + " sf-model-" + templateId;
   let hero = "";
   if (family === "editorial") {
@@ -886,13 +886,7 @@ async function modelDemoPage(request, env, tid) {
     photos: "[]", demoImage: `/template-product-img/${tid}/${i}`, stock: i === 2 ? null : 5 - i, active: 1,
   }));
   const cover = `<div class="sf-cover has-img" style="--c:${color};background-image:linear-gradient(90deg,rgba(16,42,67,.08),rgba(16,42,67,.02)),url(/template-img/${esc(tid)})"></div>`;
-  const family = ({
-    simple:"classic", quartier:"market", express:"food", vitrine:"beauty",
-    catalogue:"tech", mode:"editorial", premium:"luxury", maison:"home",
-    flagship:"showcase", boulangerie:"food", beaute:"beauty",
-    marche:"market", chaleureux:"home", lifestyle:"editorial",
-    boutique:"showcase", collection:"luxury"
-  })[tid] || "classic";
+  const family = TEMPLATE_FAMILY[tid] || "classic";
   const tplClass = "sf-layout-" + family + " sf-model-" + tid;
   let hero;
   if (family === "editorial") {
