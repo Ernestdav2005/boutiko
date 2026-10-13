@@ -2160,3 +2160,110 @@ body.demo-modal-open{overflow:hidden}
 .sf-products .photos img{width:100%;height:100%;object-fit:cover;display:block}
 .sample-thumb{position:relative;opacity:.95}
 .sample-thumb span{position:absolute;left:5px;bottom:5px;padding:3px 6px;border-radius:5px;background:rgba(20,20,20,.8);color:#fff;font-size:11px}
+
+/* ===== Boutiko Standard : ossatures distinctes, images finales à raccorder ===== */
+.sf-hero-standard{position:relative;overflow:hidden;padding:clamp(18px,3vw,38px) 0 clamp(28px,5vw,60px)}
+.sf-hero-standard .sf-name{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.055em;line-height:.98;font-size:clamp(2.8rem,6.4vw,6rem);margin:12px 0 16px}
+.sf-hero-standard .sf-brand{font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
+.sf-hero-standard .sf-slogan{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.15rem,2vw,1.8rem);line-height:1.3;margin:0 0 18px}
+.sf-hero-standard .sf-kicker{display:block;font-size:.68rem;font-weight:850;letter-spacing:.17em;text-transform:uppercase;margin-bottom:16px}
+.std-hero-description{max-width:38ch;line-height:1.75;font-size:.98rem;margin:0 0 24px}
+.std-image-caption{position:absolute;left:14px;bottom:14px;z-index:2;padding:7px 10px;background:rgba(255,255,255,.88);color:#51483f;font-size:.58rem;font-weight:850;letter-spacing:.11em}
+.sf-hero-standard .sf-cover{height:100%;min-height:340px;border-radius:0;background-size:cover;background-position:center;box-shadow:none}
+.std-atelier-top,.std-maison-label,.std-eclat-top{display:flex;justify-content:space-between;gap:12px;padding:0 clamp(16px,4vw,54px) 18px;font-size:.62rem;font-weight:850;letter-spacing:.13em}
+.sf-hero-atelier{background:#f3eee5;color:#171615}
+.std-atelier-layout{display:grid;grid-template-columns:minmax(260px,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(24px,5vw,76px);padding:clamp(16px,4vw,48px) clamp(16px,4vw,54px) 28px}
+.std-atelier-copy{padding:10px 0 24px}
+.std-atelier-copy .btn,.std-maison-copy .btn,.std-eclat-copy .btn{background:#171615;color:#fff;border-radius:0;box-shadow:none;min-height:48px;padding:13px 20px}
+.std-atelier-visual{position:relative;min-height:400px;background:#d7c8b8;overflow:hidden}
+.std-atelier-visual .sf-cover{min-height:400px}
+.std-visual-mark{position:absolute;right:18px;top:10px;color:#fff;font:italic 4rem Georgia,serif;text-shadow:0 2px 16px #0003}
+.std-hero-index{display:block;margin-top:34px;font-size:.62rem;font-weight:850;letter-spacing:.14em}
+.std-atelier-foot{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #d6cbbd;margin:0 clamp(16px,4vw,54px);padding-top:14px;font-size:.6rem;font-weight:850;letter-spacing:.12em}
+.std-atelier-foot span:last-child{color:#756b61}
+.sf-hero-maison-standard{background:#eee6d9;color:#302920;padding-bottom:clamp(24px,5vw,56px)}
+.std-maison-layout{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:clamp(20px,4vw,62px);align-items:center;padding:clamp(14px,3vw,36px) clamp(16px,5vw,68px)}
+.std-maison-copy{padding:clamp(6px,2vw,26px) 0}
+.std-maison-copy .sf-name{max-width:7ch}
+.std-maison-visual{position:relative;min-height:390px;background:#d8c8b3;overflow:hidden}
+.std-maison-visual .sf-cover{min-height:390px}
+.std-maison-circle{position:absolute;right:18px;top:18px;width:94px;height:94px;border-radius:50%;display:grid;place-content:center;text-align:center;background:#f4efe5;color:#7b604a;font:italic 1.15rem/1.05 Georgia,serif;transform:rotate(8deg)}
+.std-maison-note{display:flex;align-items:center;gap:14px;margin-top:34px;padding-top:14px;border-top:1px solid #cfc2b1;font-size:.58rem;letter-spacing:.12em;font-weight:850}
+.std-maison-note span:first-child{font:italic 1.5rem Georgia,serif;color:#a76f4d}
+.sf-hero-eclat{background:#f8e9e9;color:#432d35;padding-bottom:clamp(26px,5vw,58px)}
+.std-eclat-layout{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(260px,.94fr);gap:clamp(24px,5vw,74px);align-items:center;padding:clamp(14px,3vw,36px) clamp(16px,5vw,68px)}
+.std-eclat-visual{position:relative;min-height:420px;background:#e8c9cc;overflow:hidden}
+.std-eclat-visual .sf-cover{min-height:420px}
+.std-eclat-seal{position:absolute;right:18px;top:18px;width:106px;height:106px;border:1px solid #fff9;border-radius:50%;display:grid;place-content:center;text-align:center;color:#fff;background:#a96779bd;font-size:.62rem;line-height:1.5;font-weight:850;letter-spacing:.1em}
+.std-eclat-copy .sf-name{color:#432d35}
+.std-eclat-copy .btn{background:#7e4858}
+.std-eclat-promise{display:flex;gap:10px;align-items:flex-start;margin-top:26px;max-width:32ch;font-size:.82rem;line-height:1.6;color:#765660}
+.std-eclat-promise span:first-child{font-size:1.2rem;color:#b56e7d}
+.std-collections{padding:clamp(38px,6vw,78px) 0;background:#fffdf9;color:#1f2427}
+.std-collections .wrap{max-width:1320px}
+.std-section-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:24px}
+.std-section-heading>div>span{font-size:.65rem;font-weight:850;letter-spacing:.16em;color:#82786e}
+.std-section-heading h2{font:500 clamp(1.8rem,3.6vw,3.2rem)/1.08 Georgia,"Times New Roman",serif;letter-spacing:-.04em;margin:8px 0 0}
+.std-section-heading>a{font-size:.8rem;font-weight:750;text-decoration:none;color:inherit;border-bottom:1px solid currentColor;padding-bottom:6px;white-space:nowrap}
+.std-collection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,2vw,24px)}
+.std-collection-card{display:flex;flex-direction:column;min-width:0;color:inherit;text-decoration:none;border-bottom:1px solid #e6e0d8}
+.std-collection-art{height:clamp(170px,24vw,330px);position:relative;display:block;overflow:hidden;background:#e9e1d6}
+.std-collection-art:before,.std-collection-art:after,.std-collection-art i{content:"";position:absolute;display:block}
+.std-collection-art:before{width:56%;height:70%;left:22%;bottom:-8%;border-radius:48% 48% 5% 5%;background:rgba(255,255,255,.45);transform:rotate(-8deg)}
+.std-collection-art:after{width:36%;height:42%;left:32%;top:16%;border-radius:50%;background:rgba(150,110,85,.2);filter:blur(1px)}
+.std-collection-art b{position:absolute;left:14px;top:12px;font:italic 1.2rem Georgia,serif;color:rgba(39,34,30,.65);z-index:1}
+.std-collection-meta{display:flex;flex-direction:column;align-items:flex-start;padding:16px 2px 18px}
+.std-collection-meta>span{font-size:.6rem;letter-spacing:.14em;color:#898078;font-weight:800}
+.std-collection-meta strong{font-size:.92rem;letter-spacing:.04em;margin-top:7px}
+.std-collection-meta small{font-size:.8rem;color:#746e68;line-height:1.5;margin-top:4px}
+.std-collection-meta em{font-style:normal;font-size:.75rem;font-weight:800;margin-top:14px}
+.std-collections-atelier .std-collection-art{background:#ded0c1}
+.std-collections-atelier .std-collection-card-2 .std-collection-art{background:#c7b8aa}
+.std-collections-atelier .std-collection-card-3 .std-collection-art{background:#e8e0d6}
+.std-collections-atelier .std-collection-art:before{border-radius:6px 6px 28% 28%;background:#2b2826}
+.std-collections-atelier .std-collection-card-2 .std-collection-art:before{width:43%;left:28%;height:58%;border-radius:22% 22% 8% 8%;background:#f5eee5;transform:rotate(8deg)}
+.std-collections-maison-standard .std-collection-art{background:#e3d5c2}
+.std-collections-maison-standard .std-collection-card-2 .std-collection-art{background:#d0c0ac}
+.std-collections-maison-standard .std-collection-card-3 .std-collection-art{background:#eae2d6}
+.std-collections-maison-standard .std-collection-art:before{width:54%;height:48%;left:23%;bottom:14%;border-radius:4px;background:#b9a38a;box-shadow:0 16px 24px #6d58401c}
+.std-collections-maison-standard .std-collection-card-2 .std-collection-art:before{width:24%;height:60%;left:38%;bottom:10%;border-radius:50% 50% 5% 5%;background:#8b7660}
+.std-collections-eclat .std-collection-art{background:#f1dadd}
+.std-collections-eclat .std-collection-card-2 .std-collection-art{background:#ebc9cf}
+.std-collections-eclat .std-collection-card-3 .std-collection-art{background:#f5e5e5}
+.std-collections-eclat .std-collection-art:before{width:34%;height:58%;left:33%;bottom:12%;border-radius:8px 8px 14px 14px;background:#fff4f0;box-shadow:0 10px 25px #8d4c5c20}
+.std-collections-eclat .std-collection-card-2 .std-collection-art:before{width:42%;height:48%;left:29%;border-radius:40% 40% 12px 12px;background:#c68d9a}
+.std-collections-eclat .std-collection-art:after{width:15%;height:13%;left:42%;top:21%;border-radius:4px;background:#c9a48b}
+.std-products-note{max-width:70ch}
+.sf-products-atelier .sf-sec h2,.sf-products-maison-standard .sf-sec h2,.sf-products-eclat .sf-sec h2{font:500 clamp(1.8rem,3.2vw,2.8rem)/1.1 Georgia,"Times New Roman",serif}
+.sf-products-atelier .prod,.sf-products-maison-standard .prod,.sf-products-eclat .prod{border-radius:0;box-shadow:none;border:0;border-bottom:1px solid #e5dfd7;background:transparent}
+.sf-products-atelier .prod .pbody,.sf-products-maison-standard .prod .pbody,.sf-products-eclat .prod .pbody{padding:14px 2px 18px}
+.sf-products-atelier .prod .photos,.sf-products-maison-standard .prod .photos,.sf-products-eclat .prod .photos{border-radius:0}
+.sf-products-atelier .prod .buy,.sf-products-maison-standard .prod .buy,.sf-products-eclat .prod .buy{border-radius:0}
+@media(max-width:760px){
+  .std-atelier-top,.std-maison-label,.std-eclat-top{font-size:.53rem;padding-bottom:8px}
+  .std-atelier-layout,.std-maison-layout,.std-eclat-layout{grid-template-columns:1fr;gap:18px;padding-top:14px}
+  .std-atelier-copy{order:1;padding-bottom:0}
+  .std-atelier-visual{order:0;min-height:300px}
+  .std-atelier-visual .sf-cover{min-height:300px}
+  .std-maison-copy{order:0}
+  .std-maison-visual{order:1;min-height:300px}
+  .std-maison-visual .sf-cover{min-height:300px}
+  .std-eclat-visual{min-height:300px}
+  .std-eclat-visual .sf-cover{min-height:300px}
+  .std-atelier-foot{font-size:.48rem}
+  .std-collection-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .std-collection-card-3{display:none}
+  .std-collection-art{height:190px}
+  .std-section-heading{align-items:flex-start}
+  .std-section-heading>a{font-size:.68rem}
+}
+@media(max-width:420px){
+  .std-atelier-top span:last-child,.std-maison-label span:last-child,.std-eclat-top span:last-child{display:none}
+  .std-atelier-visual,.std-maison-visual,.std-eclat-visual{min-height:250px}
+  .std-atelier-visual .sf-cover,.std-maison-visual .sf-cover,.std-eclat-visual .sf-cover{min-height:250px}
+  .std-collection-grid{grid-template-columns:1fr 1fr}
+  .std-collection-art{height:150px}
+  .std-collection-meta strong{font-size:.76rem}
+  .std-collection-meta small{font-size:.72rem}
+  .std-atelier-foot{flex-direction:column;gap:4px}
+}
