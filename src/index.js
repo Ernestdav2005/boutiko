@@ -715,33 +715,58 @@ async function shopPage(request, env, ctx, slug) {
     ? `<span class="sf-badge ${st.open ? "open" : "closed"}">${st.open ? "Ouvert maintenant" : "Fermé"} · ${esc(st.text)}</span>`
     : "";
 
-  // ---- Hero by tier ----
+  // ---- Structure visuelle distincte par modèle (sans modifier les données du commerçant) ----
+  const templateId = TEMPLATES[shop.template] ? shop.template : "simple";
+  const family = ({
+    simple:"classic", quartier:"market", express:"food", vitrine:"beauty",
+    catalogue:"tech", mode:"editorial", premium:"luxury", maison:"home",
+    flagship:"showcase", boulangerie:"bakery", beaute:"beauty",
+    marche:"market", chaleureux:"home", lifestyle:"editorial",
+    boutique:"showcase", collection:"luxury"
+  })[templateId] || "classic";
+  const tplClass = "sf-layout-" + family + " sf-model-" + templateId;
   let hero = "";
-  if (planKey === "pro") {
-    hero = `<section class="sf-hero sf-pro-hero">${cover}
-      <div class="sf-pro-overlay wrap">
-        ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}
-        <h1 class="sf-name">${name}</h1>
-        ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
-        ${openBadge}
-        <div class="sf-actions">
-          <a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Commander sur WhatsApp</a>
-          <button class="btn ghost" type="button" id="share">${icon("share")} Partager</button>
-        </div>
-      </div>
-    </section>`;
+  if (family === "editorial") {
+    hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}
+      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${templateId === "mode" ? "NOUVELLE SAISON" : "L'UNIVERS DE LA BOUTIQUE"}</span>
+      <p class="sf-brand">${brandLabel || "Sélection du moment"}</p><h1 class="sf-name">${name}</h1>
+      ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
+      <div class="sf-actions"><a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Découvrir la collection</a></div></div>
+      <div class="sf-editorial-stamp">${templateId === "mode" ? "STYLE\n& ALLURE" : "CHOISI\nAVEC SOIN"}</div></section>`;
+  } else if (family === "food") {
+    hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div>
+      <div class="sf-food-copy wrap"><span class="sf-kicker">${templateId === "express" ? "FRAÎCHEMENT PRÉPARÉ" : "LE SAVOIR-FAIRE ARTISANAL"}</span>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Des produits préparés avec soin, chaque jour."}</p>
+      <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
+  } else if (family === "beauty") {
+    hero = `<section class="sf-hero sf-hero-beauty ${tplClass}"><div class="sf-beauty-copy"><span class="sf-kicker">VOTRE RITUEL, VOTRE ÉCLAT</span>
+      <p class="sf-brand">${brandLabel || "Beauté & bien-être"}</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan || "Prenez un moment pour vous."}</p><a class="sf-beauty-link" href="#catalogue">Explorer les soins <span>↘</span></a></div>
+      <div class="sf-beauty-visual">${cover}<span class="sf-beauty-seal">BEAUTÉ<br/>NATURELLE</span></div></section>`;
+  } else if (family === "tech") {
+    hero = `<section class="sf-hero sf-hero-tech ${tplClass}"><div class="sf-tech-top"><span class="sf-tech-label">TECH STORE / ${esc(shop.address || "BÉNIN")}</span><span class="sf-tech-live">● DISPONIBLE SUR WHATSAPP</span></div>
+      <div class="sf-tech-grid"><div class="sf-tech-copy"><p class="sf-brand">${brandLabel || "TECHNOLOGIE & ACCESSOIRES"}</p><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan || "Les équipements utiles, au même endroit."}</p><a class="btn" href="#catalogue">Voir le catalogue ↓</a></div><div class="sf-tech-art">${cover}<span>TECH<br/>ESSENTIALS</span></div></div></section>`;
+  } else if (family === "home") {
+    hero = `<section class="sf-hero sf-hero-home ${tplClass}"><div class="sf-home-image">${cover}</div><div class="sf-home-copy"><span class="sf-kicker">UN ART DE VIVRE</span>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Des objets choisis pour votre quotidien."}</p>
+      <p class="sf-home-desc">${desc || "Découvrez une sélection pensée pour apporter du caractère à votre intérieur."}</p>
+      <a class="btn" href="#catalogue">Découvrir la sélection</a></div></section>`;
+  } else if (family === "market") {
+    hero = `<section class="sf-hero sf-hero-market ${tplClass}"><div class="sf-market-ribbon"><span>BIENVENUE CHEZ VOUS</span><span>${esc(shop.address || "Votre commerce de proximité")}</span></div>
+      <div class="sf-market-main"><div class="sf-market-copy"><span class="sf-kicker">PROCHE DE VOUS, CHAQUE JOUR</span><h1 class="sf-name">${name}</h1>
+      <p class="sf-slogan">${slogan || "Vos essentiels, simplement."}</p><div class="sf-actions"><a class="btn" href="#catalogue">Voir les produits</a></div></div><div class="sf-market-cover">${cover}</div></div>
+      <div class="sf-market-benefits"><span>✓ Sélection locale</span><span>✓ Contact direct</span><span>✓ Commande simple</span></div></section>`;
+  } else if (family === "showcase") {
+    hero = `<section class="sf-hero sf-hero-showcase ${tplClass}"><div class="sf-showcase-heading"><span class="sf-kicker">LA SÉLECTION BOUTIKO</span><p class="sf-brand">${brandLabel || "Boutique indépendante"}</p>
+      <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan || "Découvrez les incontournables du moment."}</p></div>
+      <div class="sf-showcase-art">${cover}<span class="sf-showcase-number">01 — SÉLECTION</span></div><div class="sf-showcase-footer"><span>DES PRODUITS CHOISIS POUR VOUS</span><a href="#catalogue">Explorer ↓</a></div></section>`;
   } else {
-    // essentiel + standard : identité type page découverte validée
-    hero = `<section class="sf-hero">${cover}
-      <div class="sf-identity wrap">${avatar}<div class="sf-id-text">
-        ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}
-        <h1 class="sf-name">${name}</h1>
-        ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
-        ${openBadge}
-      </div></div>
-    </section>`;
+    hero = `<section class="sf-hero sf-hero-classic ${tplClass}">${cover}<div class="sf-identity wrap">${avatar}<div class="sf-id-text">
+      ${brandLabel ? `<p class="sf-brand">${brandLabel}</p>` : ""}<h1 class="sf-name">${name}</h1>
+      ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}${openBadge}</div></div></section>`;
   }
-
+  if (planKey === "pro") hero = hero.replace('class="sf-hero ', 'class="sf-hero sf-pro-tier ');
   // ---- Infobar (actions + infos pratiques) ----
   const infoItems = [];
   if (shop.address) infoItems.push(`<span class="sf-info">${icon("pin")}<span>${esc(shop.address)}</span></span>`);
@@ -773,14 +798,15 @@ async function shopPage(request, env, ctx, slug) {
 
   // ---- Produits ----
   const productsHtml = productCount
-    ? `<section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits${productCount > 1 ? ` <small>(${productCount})</small>` : ""}</h2></div>
+    ? `<section id="catalogue" class="sf-products sf-products-${templateId} ${tplClass}"><div class="wrap">
+      <div class="sf-sec"><span>${family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" ? "LA COLLECTION" : "À DÉCOUVRIR"}</span><h2>${family === "tech" ? "Catalogue produits" : family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "home" ? "Pour votre intérieur" : family === "editorial" ? "Les pièces du moment" : "Nos produits"}${productCount > 1 ? ` <small>(${productCount})</small>` : ""}</h2></div>
       ${many ? '<div class="search"><input id="q" type="search" placeholder="Chercher un produit..." aria-label="Chercher un produit" autocomplete="off"></div>' : ""}
-      <div class="pgrid">${prods.results.map((p) => productCard(p, shop)).join("")}</div>
+      <div class="pgrid pgrid-${templateId}">${prods.results.map((p) => productCard(p, shop)).join("")}</div>
       <p class="hint" id="none" hidden>Aucun produit ne correspond.</p>
-      <p class="hint">Touchez un produit pour le voir en grand, puis commandez sur WhatsApp.</p>
+      <p class="hint sf-products-note">${family === "tech" ? "Besoin d'un conseil ? Contactez directement la boutique." : family === "food" ? "Pour connaître la disponibilité, contactez-nous directement." : "Touchez un produit pour le voir en grand, puis commandez directement."}</p>
     </div></section>`
-    : `<section class="sf-products"><div class="wrap"><div class="sf-sec"><span>Catalogue</span><h2>Nos produits</h2></div>
-      <div class="empty"><b>Les produits arrivent bientôt</b><p>Revenez bientôt ou écrivez-nous sur WhatsApp.</p>
+    : `<section id="catalogue" class="sf-products sf-products-${templateId} ${tplClass}"><div class="wrap"><div class="sf-sec"><span>À VENIR</span><h2>${family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos soins" : family === "tech" ? "Le catalogue" : "Nos produits"}</h2></div>
+      <div class="empty"><b>${family === "food" ? "La prochaine fournée arrive bientôt" : "Les produits arrivent bientôt"}</b><p>Revenez bientôt ou écrivez-nous sur WhatsApp.</p>
       <a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Nous écrire</a></div></div></section>`;
 
   const foot = shop.plan === "pro"
@@ -788,7 +814,13 @@ async function shopPage(request, env, ctx, slug) {
     : `<footer class="sf-foot"><div class="wrap">Boutique créée avec <a href="/">${platformName(env)}</a></div></footer>`;
   const fab = `<a class="fab" target="_blank" rel="noopener" href="${waLink}" aria-label="Écrire sur WhatsApp">${icon("wa")}</a>`;
 
-  const body = hero + infoBar + about + gallery + productsHtml + foot + fab;
+  let body;
+  if (family === "food") body = hero + productsHtml + infoBar + about + gallery + foot + fab;
+  else if (family === "editorial" || family === "luxury") body = hero + about + productsHtml + gallery + infoBar + foot + fab;
+  else if (family === "tech") body = hero + infoBar + productsHtml + about + gallery + foot + fab;
+  else if (family === "home") body = hero + gallery + about + productsHtml + infoBar + foot + fab;
+  else if (family === "market") body = hero + infoBar + productsHtml + about + gallery + foot + fab;
+  else body = hero + infoBar + about + gallery + productsHtml + foot + fab;
 
   return html(layout({
     title: `${shop.name}${shop.address ? " · " + shop.address : ""}`,
@@ -798,7 +830,7 @@ async function shopPage(request, env, ctx, slug) {
     color,
     body,
     script: `/shop.js?v=${V.shop}`,
-    bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${esc(shop.template || "simple")}" data-plan="${planKey}" data-template="${esc(shop.template || "simple")}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
+    bodyAttrs: `class="sf-page sf-${planKey} sf-tpl-${esc(templateId)} ${tplClass}" data-plan="${planKey}" data-template="${esc(templateId)}" data-slug="${esc(shop.slug)}" data-name="${name}" data-theme="${theme}" data-layout="${productLayout}"`,
   }), 200, extraHeaders);
 }
 
