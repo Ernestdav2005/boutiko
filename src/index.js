@@ -1011,6 +1011,9 @@ const DEMO_SEED_PRODUCTS = {
  collection:[["Collier signature",25000],["Boucles dorées",15000],["Bracelet précieux",18000]]
 };
 const DEMO_PHOTOS = {
+ atelier:["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"],
+ "maison-standard":["https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"],
+ eclat:["https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80"],
  simple:["https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80"],
  quartier:["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80"],
  express:["https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1608198093002-ad4e0054843e?auto=format&fit=crop&w=800&q=80"],
@@ -1039,12 +1042,15 @@ async function modelDemoPage(request, env, tid) {
     business_name: "", slogan: t.tagline, description: t.desc + " Remplacez ces textes par les vôtres après inscription.",
     whatsapp: "22900000000", color, address: "Cotonou, Bénin", maps_url: "", hours: JSON.stringify({ open: "08:00", close: "19:00", days: [1,2,3,4,5,6] }),
     momo: "", logo_id: null, banner_id: null, gallery: "[]", theme: "editorial", layout: "grid",
-    plan: "essentiel", template: tid, status: "active",
+    plan: t.plan || "essentiel", template: tid, status: "active",
   };
   // Réutilise shopPage logic via query injection: build minimal HTML demo
   const name = esc(fakeShop.name);
   const waLink = "https://wa.me/22900000000";
   const DEMO_PRODUCTS = {
+    atelier:[["Veste Sable",18000],["Sac Naya",12500],["Sneakers Ligne",22000],["Robe Élise",15000]],
+    "maison-standard":[["Vase Terre",8500],["Lampe Alba",18000],["Coussin Noma",6500],["Plateau Sable",9500]],
+    eclat:[["Sérum Lumière",8500],["Crème Velours",12000],["Huile Éclat",5500],["Nettoyant Doux",6500]],
     simple: [["Chemise essentielle",6500],["Sac du quotidien",12000],["Look de saison",9000]],
     quartier: [["Sélection locale",3500],["Produit populaire",6000],["Nouveauté du jour",4500]],
     express: [["Pain artisanal",1500],["Pâtisserie maison",2500],["Panier gourmand",5000]],
@@ -1089,7 +1095,7 @@ async function modelDemoPage(request, env, tid) {
   const about = `<section class="sf-about wrap"><div class="sf-sec"><span>NOTRE UNIVERS</span><h2>À propos de ${name}</h2></div><p class="sf-desc">${esc(t.desc)} Remplacez cette présentation par les informations de votre commerce.</p></section>`;
   // La page d’aperçu applique le même ordre structurel que la boutique publiée.
   const previewBody = composeTemplateSections(tid, {
-    hero, infobar: infoBar, about, gallery: "", products: productsSection,
+    hero, infobar: infoBar, about, gallery: "", products: productsSection, collections: standardCollectionSection(tid),
   });
   const demoNav = '<div class="demo-browser" role="navigation" aria-label="Boutique de démonstration">' +
     '<div class="demo-browser-top"><span class="demo-live-dot"></span><span>BOUTIQUE DE DÉMONSTRATION</span><span class="demo-browser-name">' + esc(t.label) + '</span><a class="demo-browser-back" href="/#modeles">Tous les modèles</a></div></div>';
