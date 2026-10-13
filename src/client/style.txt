@@ -2018,3 +2018,101 @@ body.home-models{background:#f1f4fb;color:#18223b}
 .bk-template-choice .alert{margin:14px 0 0;font-size:.86rem}
 @media(min-width:620px){.bk-template-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bk-template-choice{padding:20px}.bk-template-option{padding:10px}}
 @media(min-width:900px){.bk-template-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+
+/* ===== BOUTIKO : identités structurelles individuelles des 16 modèles =====
+   Chaque modèle possède une composition et un rythme visuel distincts.
+   Ces règles sont partagées par l’aperçu /modele/:id et la boutique publiée.
+*/
+.sf-page.sf-tpl-simple{--c:#b86b4b;--bg:#f8f0e6;--card:#fffaf4;--bd:#ead8c8}
+.sf-tpl-simple .sf-hero-classic .sf-cover{height:170px;background-position:center 45%}
+.sf-tpl-simple .sf-products{background:#f8f0e6}
+.sf-tpl-simple .pgrid-simple{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+.sf-page.sf-tpl-quartier{--c:#21724b;--bg:#f0f7ef;--card:#fff;--bd:#d5e7d5}
+.sf-tpl-quartier .sf-hero-market{background:#e7f4e6}
+.sf-tpl-quartier .sf-market-ribbon{background:#174c35;color:#fff;padding:10px 16px;font-size:.75rem;font-weight:800;letter-spacing:.08em}
+.sf-tpl-quartier .sf-products{background:#f0f7ef}
+.sf-tpl-quartier .pgrid-quartier .prod{border-radius:10px;box-shadow:none;border:1px solid #d5e7d5}
+
+.sf-page.sf-tpl-express,.sf-page.sf-tpl-boulangerie{--c:#b94e24;--bg:#fff3df;--card:#fffaf0;--bd:#f0d6b7}
+.sf-tpl-express .sf-hero-food,.sf-tpl-boulangerie .sf-hero-food{background:#fff0d5}
+.sf-tpl-express .sf-food-art .sf-cover,.sf-tpl-boulangerie .sf-food-art .sf-cover{border-radius:0 0 48px 0;height:180px}
+.sf-tpl-express .sf-products,.sf-tpl-boulangerie .sf-products{background:#fff8ec}
+.sf-tpl-express .pgrid-express,.sf-tpl-boulangerie .pgrid-boulangerie{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sf-tpl-express .prod,.sf-tpl-boulangerie .prod{border-radius:8px}
+.sf-tpl-boulangerie .sf-sec h2:before{content:"✦ ";color:#b94e24}
+
+.sf-page.sf-tpl-vitrine,.sf-page.sf-tpl-beaute{--c:#ad6477;--bg:#fff5f6;--card:#fff;--bd:#f0dce1}
+.sf-tpl-vitrine .sf-hero-beauty,.sf-tpl-beaute .sf-hero-beauty{background:#fae9ed}
+.sf-tpl-vitrine .sf-beauty-visual .sf-cover,.sf-tpl-beaute .sf-beauty-visual .sf-cover{height:230px;border-radius:110px 110px 12px 12px}
+.sf-tpl-vitrine .sf-products,.sf-tpl-beaute .sf-products{background:#fff5f6}
+.sf-tpl-vitrine .prod,.sf-tpl-beaute .prod{border-radius:20px 20px 8px 8px;box-shadow:0 12px 32px #ad647710}
+
+.sf-page.sf-tpl-catalogue{--c:#3158a5;--bg:#f1f5fc;--card:#fff;--bd:#d9e3f5}
+.sf-tpl-catalogue .sf-hero-tech{background:#101c35;color:#fff}
+.sf-tpl-catalogue .sf-tech-copy .sf-name,.sf-tpl-catalogue .sf-tech-copy .sf-slogan{color:#fff}
+.sf-tpl-catalogue .sf-products{background:#f1f5fc}
+.sf-tpl-catalogue .pgrid-catalogue{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sf-tpl-catalogue .prod{border-radius:12px;border-color:#d9e3f5}
+
+.sf-page.sf-tpl-mode,.sf-page.sf-tpl-lifestyle{--c:#8b4f3b;--bg:#f6eee7;--card:#fffaf5;--bd:#e8d6ca}
+.sf-tpl-mode .sf-hero-editorial,.sf-tpl-lifestyle .sf-hero-editorial{background:#f1e4d9}
+.sf-tpl-mode .sf-editorial-copy,.sf-tpl-lifestyle .sf-editorial-copy{padding-top:34px;padding-bottom:34px}
+.sf-tpl-mode .sf-editorial-copy .sf-name,.sf-tpl-lifestyle .sf-editorial-copy .sf-name{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:clamp(2rem,7vw,3.6rem)}
+.sf-tpl-mode .sf-editorial-stamp,.sf-tpl-lifestyle .sf-editorial-stamp{border:1px solid var(--c);color:var(--c);letter-spacing:.18em}
+.sf-tpl-mode .pgrid-mode,.sf-tpl-lifestyle .pgrid-lifestyle{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sf-tpl-mode .prod,.sf-tpl-lifestyle .prod{border-radius:0;box-shadow:none;border:0;background:transparent}
+
+.sf-page.sf-tpl-premium,.sf-page.sf-tpl-collection{--c:#c5a45d;--bg:#151515;--card:#202020;--ink:#f7edd9;--mut:#c8c0b1;--bd:#3d3527}
+.sf-tpl-premium .sf-hero-showcase,.sf-tpl-collection .sf-hero-showcase{background:#151515;color:#f7edd9;border-color:#3d3527}
+.sf-tpl-premium .sf-name,.sf-tpl-collection .sf-name,.sf-tpl-premium .sf-slogan,.sf-tpl-collection .sf-slogan{color:#f7edd9}
+.sf-tpl-premium .sf-cover,.sf-tpl-collection .sf-cover{background-color:#24211b}
+.sf-tpl-premium .sf-products,.sf-tpl-collection .sf-products{background:#151515;color:#f7edd9}
+.sf-tpl-premium .sf-sec span,.sf-tpl-collection .sf-sec span{color:#c5a45d}
+.sf-tpl-premium .prod,.sf-tpl-collection .prod{border-radius:0;border:1px solid #3d3527;background:#202020}
+.sf-tpl-premium .pgrid-premium,.sf-tpl-collection .pgrid-collection{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+.sf-page.sf-tpl-maison,.sf-page.sf-tpl-chaleureux{--c:#867054;--bg:#f4eee3;--card:#fffaf1;--bd:#e2d6c3}
+.sf-tpl-maison .sf-hero-home,.sf-tpl-chaleureux .sf-hero-home{background:#e9dfcf}
+.sf-tpl-maison .sf-home-copy,.sf-tpl-chaleureux .sf-home-copy{font-family:Georgia,"Times New Roman",serif;padding:28px 22px}
+.sf-tpl-maison .sf-home-copy .sf-name,.sf-tpl-chaleureux .sf-home-copy .sf-name{font-size:clamp(1.9rem,6vw,3.2rem);font-weight:500}
+.sf-tpl-maison .sf-products,.sf-tpl-chaleureux .sf-products{background:#f4eee3}
+.sf-tpl-maison .prod,.sf-tpl-chaleureux .prod{border-radius:4px;box-shadow:none;border-color:#e2d6c3}
+
+.sf-page.sf-tpl-flagship,.sf-page.sf-tpl-boutique{--c:#e85d43;--bg:#f2f5f6;--card:#fff;--bd:#dfe6e8}
+.sf-tpl-flagship .sf-hero-showcase,.sf-tpl-boutique .sf-hero-showcase{background:#e8eef0}
+.sf-tpl-flagship .sf-showcase-heading,.sf-tpl-boutique .sf-showcase-heading{max-width:900px;margin:auto;padding:28px 18px 16px}
+.sf-tpl-flagship .sf-showcase-art .sf-cover,.sf-tpl-boutique .sf-showcase-art .sf-cover{height:260px}
+.sf-tpl-flagship .sf-showcase-footer,.sf-tpl-boutique .sf-showcase-footer{padding:16px 20px;background:#18313b;color:#fff}
+.sf-tpl-flagship .sf-products,.sf-tpl-boutique .sf-products{background:#f2f5f6}
+.sf-tpl-flagship .pgrid-flagship,.sf-tpl-boutique .pgrid-boutique{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+.sf-page.sf-tpl-marche{--c:#27734f;--bg:#f0f7ef;--card:#fff;--bd:#d8e8d5}
+.sf-tpl-marche .sf-market-ribbon{background:#1f6243;color:#fff}
+.sf-tpl-marche .sf-market-benefits{display:flex;flex-wrap:wrap;justify-content:space-around;gap:8px;padding:14px;background:#dceedd;color:#1f6243;font-weight:700;font-size:.82rem}
+.sf-tpl-marche .sf-products{background:#f0f7ef}
+.sf-tpl-marche .prod{border-radius:10px}
+
+.sf-page.sf-tpl-simple .sf-infobar,.sf-page.sf-tpl-boutique .sf-infobar{position:relative}
+.sf-tpl-simple .sf-sec h2,.sf-tpl-chaleureux .sf-sec h2,.sf-tpl-maison .sf-sec h2{font-family:Georgia,"Times New Roman",serif}
+.sf-tpl-collection .sf-showcase-footer{border-top:1px solid #c5a45d}
+.sf-tpl-lifestyle .sf-editorial-copy{background:linear-gradient(120deg,#f6eee7,#ead7c7)}
+.sf-tpl-beaute .sf-beauty-seal{border:1px solid #ad6477;color:#ad6477;border-radius:50%;padding:14px}
+.sf-tpl-boulangerie .sf-food-proof span{background:#f5dfbd;border-radius:999px;padding:6px 10px}
+.sf-tpl-express .sf-food-proof span{background:#fff;border-radius:8px;padding:6px 10px}
+.sf-tpl-quartier .sf-market-benefits span{border-bottom:2px solid #21724b;padding-bottom:4px}
+.sf-tpl-vitrine .sf-beauty-link,.sf-tpl-beaute .sf-beauty-link{color:#ad6477}
+.sf-tpl-premium .sf-infobar,.sf-tpl-collection .sf-infobar{background:#202020;color:#f7edd9;border-color:#3d3527}
+.sf-tpl-premium .sf-about,.sf-tpl-collection .sf-about{background:#151515;color:#f7edd9}
+.sf-tpl-premium .sf-about .sf-sec span,.sf-tpl-collection .sf-about .sf-sec span{color:#c5a45d}
+.sf-tpl-maison .sf-gallery,.sf-tpl-chaleureux .sf-gallery{background:#eee4d5}
+.sf-tpl-mode .sf-gallery,.sf-tpl-lifestyle .sf-gallery{background:#f6eee7}
+.sf-tpl-catalogue .sf-infobar{background:#e8eef8}
+.sf-tpl-boutique .sf-infobar{background:#fff}
+.sf-tpl-flagship .sf-sec h2,.sf-tpl-boutique .sf-sec h2{letter-spacing:-.04em}
+@media(max-width:480px){
+  .sf-tpl-premium .pgrid-premium,.sf-tpl-collection .pgrid-collection,
+  .sf-tpl-catalogue .pgrid-catalogue{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sf-tpl-mode .sf-editorial-copy,.sf-tpl-lifestyle .sf-editorial-copy{padding:24px 16px}
+}
