@@ -18,6 +18,9 @@ const PLANS = {
 
 // Catalogue de modèles — extensible : ajouter une entrée ici + style CSS + aperçu /modele/:id
 const TEMPLATES = {
+  atelier:{id:"atelier",plan:"standard",label:"ATELIER — Mode & accessoires",tagline:"La nouvelle collection",desc:"Une boutique éditoriale pour vêtements, chaussures, sacs et accessoires.",tags:["mode","collection","standard"]},
+  "maison-standard":{id:"maison-standard",plan:"standard",label:"MAISON — Décoration",tagline:"L’art de vivre chez soi",desc:"Une boutique chaleureuse pour la décoration, les meubles et les objets du quotidien.",tags:["maison","décoration","standard"]},
+  eclat:{id:"eclat",plan:"standard",label:"ÉCLAT — Beauté & soins",tagline:"Le rituel qui vous ressemble",desc:"Une boutique lumineuse pour les soins, cosmétiques et essentiels beauté.",tags:["beauté","soins","standard"]},
   simple:{id:"simple",plan:"essentiel",label:"Boutique chaleureuse",tagline:"Une vitrine accueillante",desc:"Design doux et polyvalent pour présenter vos produits.",tags:["polyvalent","simple"]},
   quartier:{id:"quartier",plan:"essentiel",label:"Marché de proximité",tagline:"Le commerce près de chez vous",desc:"Une vitrine claire pour les commerces locaux et produits du quotidien.",tags:["local","marché"]},
   express:{id:"express",plan:"essentiel",label:"Boulangerie & frais",tagline:"Le goût du frais",desc:"Une présentation appétissante pour pains, pâtisseries et produits frais.",tags:["boulangerie","alimentaire"]},
