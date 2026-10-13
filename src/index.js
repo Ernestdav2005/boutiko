@@ -5,6 +5,8 @@
 // ============================================================
 import qrcode from "qrcode-generator";
 import STYLE_CSS from "./client/style.txt";
+import PREMIUM_TEMPLATE_CSS from "./client/template-premium.txt";
+const FULL_STYLE_CSS = STYLE_CSS + "\n" + PREMIUM_TEMPLATE_CSS;
 import APP_JS from "./client/app.txt";
 import ADMIN_JS from "./client/admin.txt";
 import SHOP_JS from "./client/shop.txt";
@@ -183,7 +185,7 @@ function hashStr(s) {
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
-const V = { css: hashStr(STYLE_CSS), app: hashStr(APP_JS), admin: hashStr(ADMIN_JS), shop: hashStr(SHOP_JS) };
+const V = { css: hashStr(FULL_STYLE_CSS), app: hashStr(APP_JS), admin: hashStr(ADMIN_JS), shop: hashStr(SHOP_JS) };
 const PWA_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#27338f"/><path d="M64 178h384v42H64z" fill="#f5a623"/><path d="M64 220h384v30H64z" fill="#fff"/><path d="M64 250h384v42H64z" fill="#f5a623"/><path d="M98 292h316v112H98z" fill="#fff"/><path d="M128 320h50v56h-50zm103 0h50v56h-50zm103 0h50v56h-50z" fill="#27338f"/><path d="M64 178 100 118h312l36 60z" fill="#fff"/><text x="256" y="455" font-size="42" font-family="Arial,sans-serif" font-weight="800" text-anchor="middle" fill="#fff">BOUTIKO</text></svg>`;
 const PWA_SW = `const CACHE="boutiko-shell-v3";
 const SHELL=["/style.css","/app.js","/icon.svg","/manifest.webmanifest"];
@@ -468,7 +470,7 @@ function layout(o) {
 ${o.pwa ? '<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml">' : ""}
 ${o.image ? `<meta property="og:image" content="${esc(o.image)}">` : ""}${o.url ? `<meta property="og:url" content="${esc(o.url)}">` : ""}
 ${o.noindex ? '<meta name="robots" content="noindex">' : ""}<meta name="theme-color" content="${color}">
-<style id="boutiko-design-system">${STYLE_CSS}</style><style>:root{--c:${color}}</style></head>
+<style id="boutiko-design-system">${FULL_STYLE_CSS}</style><style>:root{--c:${color}}</style></head>
 <body${o.bodyAttrs ? " " + o.bodyAttrs : ""}>${o.body}${o.pwa ? '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}var ib=document.getElementById("installPwa");if(ib){var dp=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;});ib.addEventListener("click",function(){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;});}else{alert("Sur Android, ouvrez le menu ⋮ de Chrome puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».");}});}</script>' : ""}${o.script ? `<script src="${o.script}"></script>` : ""}</body></html>`;
 }
 
@@ -736,7 +738,7 @@ function renderTemplateHero(opts) {
         '<div class="std-atelier-layout"><div class="std-atelier-copy"><span class="sf-kicker">LA NOUVELLE COLLECTION</span>' +
         brand + heading + subline + '<p class="std-hero-description">Des pièces choisies pour affirmer votre allure, au quotidien.</p>' +
         '<a class="btn" href="#catalogue">Découvrir la collection <span aria-hidden="true">↗</span></a><span class="std-hero-index">01 — SÉLECTION SIGNATURE</span></div>' +
-        '<div class="std-atelier-visual">' + cover + '<span class="std-image-caption">IMAGE DE CAMPAGNE À PERSONNALISER</span><span class="std-visual-mark">A.</span></div></div>' +
+        '<div class="std-atelier-visual">' + cover + '' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">IMAGE DE CAMPAGNE À AJOUTER</span>') + '<span class="std-visual-mark">A.</span></div></div>' +
         '<div class="std-atelier-foot"><span>UNE ALLURE QUI VOUS RESSEMBLE</span><span>MODE · ACCESSOIRES · ESSENTIELS</span></div></section>';
     case "maison-standard":
       return '<section class="sf-hero sf-hero-standard sf-hero-maison-standard ' + tplClass + '">' +
@@ -744,11 +746,11 @@ function renderTemplateHero(opts) {
         '<div class="std-maison-layout"><div class="std-maison-copy"><span class="sf-kicker">UN INTÉRIEUR QUI VOUS RESSEMBLE</span>' +
         brand + heading + subline + '<p class="std-hero-description">' + (desc || "Des objets utiles et beaux pour composer un intérieur à votre image.") + '</p>' +
         '<a class="btn" href="#catalogue">Explorer la maison <span aria-hidden="true">↗</span></a><div class="std-maison-note"><span>01</span><span>MATIÈRES NATURELLES · LIGNES CALMES</span></div></div>' +
-        '<div class="std-maison-visual">' + cover + '<span class="std-image-caption">PHOTO D’INTÉRIEUR À PERSONNALISER</span><span class="std-maison-circle">Vivre<br>mieux.</span></div></div></section>';
+        '<div class="std-maison-visual">' + cover + '' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">AJOUTER UNE PHOTO D’INTÉRIEUR</span>') + '<span class="std-maison-circle">Vivre<br>mieux.</span></div></div></section>';
     case "eclat":
       return '<section class="sf-hero sf-hero-standard sf-hero-eclat ' + tplClass + '">' +
         '<div class="std-eclat-top"><span>ÉCLAT — BEAUTÉ & SOINS</span><span>VOTRE MOMENT À VOUS</span></div>' +
-        '<div class="std-eclat-layout"><div class="std-eclat-visual">' + cover + '<span class="std-eclat-seal">LE RITUEL<br>DE BEAUTÉ</span><span class="std-image-caption">PHOTO BEAUTÉ À PERSONNALISER</span></div>' +
+        '<div class="std-eclat-layout"><div class="std-eclat-visual">' + cover + '<span class="std-eclat-seal">LE RITUEL<br>DE BEAUTÉ</span>' + (cover.includes("has-img") ? "" : '<span class="std-image-caption">AJOUTER UNE PHOTO BEAUTÉ</span>') + '</div>' +
         '<div class="std-eclat-copy"><span class="sf-kicker">PRENDRE SOIN DE SOI</span>' + brand + heading + subline +
         '<p class="std-hero-description">Des essentiels beauté sélectionnés pour accompagner votre routine.</p><a class="btn" href="#catalogue">Découvrir les soins <span aria-hidden="true">↗</span></a>' +
         '<div class="std-eclat-promise"><span>✦</span><span>Une routine simple, des essentiels choisis avec attention.</span></div></div></div></section>';
@@ -1831,7 +1833,7 @@ async function route(request, env, ctx) {
     }), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=3600" } });
     if (path === "/icon.svg") return new Response(PWA_ICON, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=86400" } });
     if (path === "/sw.js") return new Response(PWA_SW, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
-    if (path === "/style.css") return new Response(STYLE_CSS, { headers: { "content-type": "text/css; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
+    if (path === "/style.css") return new Response(FULL_STYLE_CSS, { headers: { "content-type": "text/css; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
     const js = { "/app.js": APP_JS, "/admin.js": ADMIN_JS, "/shop.js": SHOP_JS }[path];
     if (js) return new Response(js, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
     if (path === "/robots.txt") return new Response("User-agent: *\nDisallow: /app\nDisallow: /admin\nDisallow: /api/\n", { headers: { "content-type": "text/plain" } });
