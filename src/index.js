@@ -821,6 +821,36 @@ function renderTemplateHero(opts) {
   }
 }
 
+function standardCollectionSection(templateId) {
+  const sets = {
+    atelier: [
+      ["VÊTEMENTS", "Les pièces qui signent votre style", "01"],
+      ["SACS & ACCESSOIRES", "Les détails qui font la différence", "02"],
+      ["CHAUSSURES", "L’allure jusqu’au bout", "03"],
+    ],
+    "maison-standard": [
+      ["DÉCORATION", "Donner du caractère à vos espaces", "01"],
+      ["LUMINAIRES", "Créer la bonne atmosphère", "02"],
+      ["ART DE LA TABLE", "Les détails du quotidien", "03"],
+    ],
+    eclat: [
+      ["SOINS DU VISAGE", "Votre routine essentielle", "01"],
+      ["CORPS & BIEN-ÊTRE", "Un moment rien qu’à vous", "02"],
+      ["MAQUILLAGE", "Révéler votre éclat", "03"],
+    ],
+  };
+  const cards = sets[templateId];
+  if (!cards) return "";
+  const title = templateId === "atelier" ? "Composer son allure" : templateId === "maison-standard" ? "Les univers de la maison" : "Votre routine, à votre rythme";
+  const kicker = templateId === "atelier" ? "LES UNIVERS" : templateId === "maison-standard" ? "PIÈCES & AMBIANCES" : "LES ESSENTIELS";
+  return '<section class="std-collections std-collections-' + templateId + '"><div class="wrap">' +
+    '<div class="std-section-heading"><div><span>' + kicker + '</span><h2>' + title + '</h2></div><a href="#catalogue">Tout découvrir ↗</a></div>' +
+    '<div class="std-collection-grid">' + cards.map(function (card, i) {
+      return '<a class="std-collection-card std-collection-card-' + (i + 1) + '" href="#catalogue"><span class="std-collection-art" aria-hidden="true"><i></i><b>' + card[2] + '</b></span>' +
+        '<span class="std-collection-meta"><span>' + card[2] + ' / ' + (i + 1) + '</span><strong>' + card[0] + '</strong><small>' + card[1] + '</small><em>Explorer ↗</em></span></a>';
+    }).join("") + '</div></div></section>';
+}
+
 async function shopPage(request, env, ctx, slug) {
   const shop = await env.DB.prepare("SELECT * FROM shops WHERE slug=?").bind(slug).first();
   if (!shop) return notFound(env);
@@ -934,7 +964,7 @@ async function shopPage(request, env, ctx, slug) {
   // Le modèle choisi commande l’architecture réelle de la boutique.
   // Les sections sont réutilisées sans perdre leurs données ni leurs actions.
   let body = composeTemplateSections(templateId, {
-    hero, infobar: infoBar, about, gallery, products: productsHtml,
+    hero, infobar: infoBar, about, gallery, products: productsHtml, collections: standardCollectionSection(templateId),
   }) + foot + fab;
 
 
