@@ -753,14 +753,14 @@ async function shopPage(request, env, ctx, slug) {
   let hero = "";
   if (family === "editorial") {
     hero = `<section class="sf-hero sf-hero-editorial ${tplClass}">${cover}
-      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${esc(t.tagline || t.label)}</span>
+      <div class="sf-editorial-copy wrap"><span class="sf-kicker">${esc(TEMPLATES[templateId].tagline || TEMPLATES[templateId].label)}</span>
       <p class="sf-brand">${brandLabel}</p><h1 class="sf-name">${name}</h1>
       ${slogan ? `<p class="sf-slogan">${slogan}</p>` : ""}
       <div class="sf-actions"><a class="btn" target="_blank" rel="noopener" href="${waLink}">${icon("wa")} Découvrir la collection</a></div></div>
       <div class="sf-editorial-stamp">""</div></section>`;
   } else if (family === "food") {
     hero = `<section class="sf-hero sf-hero-food ${tplClass}"><div class="sf-food-art">${cover}</div>
-      <div class="sf-food-copy wrap"><span class="sf-kicker">${esc(t.tagline || t.label)}</span>
+      <div class="sf-food-copy wrap"><span class="sf-kicker">${esc(TEMPLATES[templateId].tagline || TEMPLATES[templateId].label)}</span>
       <h1 class="sf-name">${name}</h1><p class="sf-slogan">${slogan}</p>
       <div class="sf-food-proof"><span>✦ Qualité</span><span>✦ Fraîcheur</span><span>✦ Proximité</span></div></div></section>`;
   } else if (family === "beauty") {
