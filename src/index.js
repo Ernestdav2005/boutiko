@@ -873,6 +873,13 @@ async function modelDemoPage(request, env, tid) {
     premium: [["Boucles dorées",15000],["Collier signature",25000],["Bracelet raffiné",12000]],
     maison: [["Objet décoratif",8500],["Vase naturel",12000],["Lampe design",18000]],
     flagship: [["Sélection tendance",6500],["Accessoire premium",12000],["Collection du moment",9000]],
+    boulangerie: [["Baguette artisanale",500],["Croissant pur beurre",700],["Pain au chocolat",800]],
+    beaute: [["Huile naturelle",4500],["Soin visage",6500],["Savon doux",2500]],
+    marche: [["Panier de légumes",3000],["Fruits de saison",2500],["Épices locales",1000]],
+    chaleureux: [["Cadeau artisanal",6000],["Bougie parfumée",3500],["Panier déco",8500]],
+    lifestyle: [["Sac tendance",9500],["Accessoire du jour",4500],["Essentiel lifestyle",7000]],
+    boutique: [["Nouveauté",6500],["Produit favori",8500],["Sélection du mois",11000]],
+    collection: [["Pièce signature",18000],["Coffret raffiné",22000],["Édition limitée",25000]],
   };
   const products = (DEMO_PRODUCTS[tid] || DEMO_PRODUCTS.simple).map((p, i) => ({
     id: i + 1, name: p[0], price: p[1], promo_price: i === 1 ? Math.round(p[1] * 0.85) : null,
@@ -927,18 +934,22 @@ async function modelDemoPage(request, env, tid) {
   const about = `<section class="sf-about wrap"><div class="sf-sec"><span>L'entreprise</span><h2>Qui sommes-nous</h2></div>
     <p class="sf-desc">${esc(t.desc)} Ceci est un aperçu : vos textes et photos remplaceront cet exemple.</p></section>`;
   const prods = products.map((p) => productCard(p, fakeShop)).join("");
-  const body = `${hero}
-    <section class="sf-infobar"><div class="wrap"><div class="sf-actions">
-      <a class="btn" href="/app?modele=${esc(tid)}&formule=${esc(t.plan)}">Choisir ce modèle</a>
-      <a class="btn ghost" href="/#modeles">Voir tous les modèles</a>
-    </div></div></section>
-    ${family === "editorial" || family === "luxury" ? about : ""}
-    <section id="catalogue" class="sf-products sf-products-${tid} ${tplClass}"><div class="wrap">
-      <div class="sf-sec"><span>${family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : "À DÉCOUVRIR"}</span>
-      <h2>${family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" ? "Les pièces du moment" : "Nos produits"} <small>(exemple)</small></h2></div>
-      <div class="pgrid pgrid-${tid}">${prods}</div></div></section>
-    ${family !== "editorial" && family !== "luxury" ? about : ""}
-    <footer class="sf-foot"><div class="wrap">Aperçu du modèle <b>${esc(t.label)}</b> · <a href="/app?modele=${esc(tid)}">Créer ma boutique avec ce modèle</a></div></footer>`;
+  const infoBar = '<section class="sf-infobar"><div class="wrap"><div class="sf-actions">' +
+    '<a class="btn" href="/app?modele=' + esc(tid) + '&formule=' + esc(t.plan) + '">Choisir ce modèle</a>' +
+    '<a class="btn ghost" href="/#modeles">Voir tous les modèles</a></div></div></section>';
+  const productsSection = '<section id="catalogue" class="sf-products sf-products-' + esc(tid) + ' ' + tplClass + '><div class="wrap">' +
+    '<div class="sf-sec"><span>' + (family === "food" ? "FRAÎCHEUR DU JOUR" : family === "beauty" ? "LE RITUEL" : family === "tech" ? "ÉQUIPEMENTS & ACCESSOIRES" : family === "home" ? "OBJETS CHOISIS" : family === "editorial" || family === "luxury" ? "LA COLLECTION" : "À DÉCOUVRIR") + '</span>' +
+    '<h2>' + (family === "food" ? "Nos spécialités" : family === "beauty" ? "Nos essentiels beauté" : family === "tech" ? "Catalogue produits" : family === "home" ? "Pour votre intérieur" : family === "editorial" || family === "luxury" ? "Les pièces du moment" : "Nos produits") + ' <small>(exemple)</small></h2></div>' +
+    '<div class="pgrid pgrid-' + esc(tid) + '">' + prods + '</div></div></section>';
+  // L’aperçu reprend le même ordre de sections que la boutique publiée.
+  let previewBody;
+  if (family === "food") previewBody = hero + productsSection + infoBar + about;
+  else if (family === "editorial" || family === "luxury") previewBody = hero + about + productsSection + infoBar;
+  else if (family === "tech") previewBody = hero + infoBar + productsSection + about;
+  else if (family === "home") previewBody = hero + about + productsSection + infoBar;
+  else if (family === "market") previewBody = hero + infoBar + productsSection + about;
+  else previewBody = hero + infoBar + about + productsSection;
+  const body = previewBody + '<footer class="sf-foot"><div class="wrap">Aperçu du modèle <b>' + esc(t.label) + '</b> · <a href="/app?modele=' + esc(tid) + '">Créer ma boutique avec ce modèle</a></div></footer>';
   return html(layout({
     title: `Modèle ${t.label} · ${env.PLATFORM_NAME || "Boutiko"}`,
     desc: t.desc,
