@@ -2116,3 +2116,8 @@ body.home-models{background:#f1f4fb;color:#18223b}
   .sf-tpl-catalogue .pgrid-catalogue{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sf-tpl-mode .sf-editorial-copy,.sf-tpl-lifestyle .sf-editorial-copy{padding:24px 16px}
 }
+
+.sf-template-note{font-size:.88rem;line-height:1.5;opacity:.82;margin:10px 0;max-width:42ch}
+.sf-hero-food .sf-template-note,.sf-hero-home .sf-template-note{margin:12px 0 16px}
+.sf-hero-editorial .sf-template-note{font-size:.92rem;letter-spacing:.01em}
+.sf-bakery-art .sf-cover{border-radius:0 0 56px 0}
