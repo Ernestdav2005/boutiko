@@ -776,8 +776,6 @@ function renderTemplateHero(opts) {
       return '<section class="sf-hero sf-hero-showcase ' + tplClass + '"><div class="sf-showcase-heading"><span class="sf-kicker">COLLECTION PRIVILÉGIÉE</span>' +
         brand + heading + subline + '</div><div class="sf-showcase-art">' + cover + '<span class="sf-showcase-number">ÉDITION / SÉLECTION</span></div>' +
         '<div class="sf-showcase-footer"><span>UNE SÉLECTION QUI VOUS RESSEMBLE</span><a href="#catalogue">Voir la collection ↓</a></div></section>';
-    case "chaleureux":
-      return '<section class="sf-hero sf-hero-home ' + tplClass + '">' + cover + '<div class="sf-home-copy">' + heading + subline + '</div></section>';
     default:
       return '<section class="sf-hero sf-hero-classic ' + tplClass + '">' + cover + '<div class="sf-identity wrap">' + avatar +
         '<div class="sf-id-text">' + brand + heading + subline + openBadge + '</div></div></section>';
