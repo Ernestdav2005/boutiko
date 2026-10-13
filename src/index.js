@@ -489,7 +489,7 @@ async function homePage(request, env) {
     </div>
     <div class="hk-nav-cta">
       <a class="hk-btn hk-btn-ghost" href="/app">Se connecter</a>
-      <a class="hk-btn hk-btn-primary" href="/app?modele=simple">Inscription</a>
+      <a class="hk-btn hk-btn-primary" href="/app?inscription=1">Inscription</a>
       <button class="hk-btn hk-btn-soft" id="installPwa" type="button" aria-label="Installer Boutiko sur mon téléphone">Installer l’application</button>
     </div>
   </div>
@@ -503,7 +503,7 @@ async function homePage(request, env) {
         <h1>${heroTitle}</h1>
         <p class="hk-lead">${heroText}</p>
         <div class="hk-hero-actions">
-          <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Créer ma boutique</a>
+          <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Créer ma boutique</a>
           <a class="hk-btn hk-btn-ghost hk-btn-lg" href="#modeles">Découvrir les modèles ↓</a>
         </div>
         <p class="hk-note">Simple à utiliser sur téléphone · Sans savoir coder · Commandes par WhatsApp</p>
@@ -546,7 +546,7 @@ async function homePage(request, env) {
     <div class="hk-shell">
       <div class="hk-section-head"><span class="hk-eyebrow">16 MODÈLES DISPONIBLES</span><h2>Un style adapté à votre activité.</h2><p class="hk-sub">Mode, beauté, alimentation, électronique, décoration et bien plus. Les 16 modèles sont accessibles dès la formule Essentiel à 2 000 FCFA/mois.</p></div>
       <div class="tpl-marketplace">${allCards}</div>
-      <div class="center" style="margin-top:30px"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Choisir mon modèle</a></div>
+      <div class="center" style="margin-top:30px"><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir mon modèle</a></div>
     </div>
   </section>
 
@@ -554,9 +554,9 @@ async function homePage(request, env) {
     <div class="hk-shell">
       <div class="hk-section-head"><span class="hk-eyebrow">DES FORMULES SIMPLES</span><h2>Choisissez le rythme qui vous convient.</h2><p class="hk-sub">Commencez avec l’essentiel et passez à une formule supérieure lorsque votre activité grandit.</p></div>
       <div class="grid3 hk-prices">
-        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Page de boutique partageable</li><li>Contact et commandes WhatsApp</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Choisir Essentiel</a></article>
-        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Personnalisation avancée</li><li>Plus de capacité de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?modele=simple">Choisir Standard</a></article>
-        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Personnalisation avancée</li><li>Capacité renforcée</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?modele=simple">Choisir Pro</a></article>
+        <article class="hk-price hk-price-feat"><span class="hk-badge">Pour commencer</span><h3>Essentiel</h3><p class="hk-price-num">${Number(planPrice.essentiel).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.essentiel.products} produits</li><li>Page de boutique partageable</li><li>Contact et commandes WhatsApp</li></ul><a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Choisir Essentiel</a></article>
+        <article class="hk-price"><h3>Standard</h3><p class="hk-price-num">${Number(planPrice.standard).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.standard.products} produits</li><li>Personnalisation avancée</li><li>Plus de capacité de stockage</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Standard</a></article>
+        <article class="hk-price"><h3>Pro</h3><p class="hk-price-num">${Number(planPrice.pro).toLocaleString("fr-FR")} FCFA <small>/ mois</small></p><ul><li>Les 16 modèles</li><li>Jusqu’à ${PLANS_PUBLIC.pro.products} produits</li><li>Personnalisation avancée</li><li>Capacité renforcée</li></ul><a class="hk-btn hk-btn-ghost hk-btn-lg" href="/app?inscription=1">Choisir Pro</a></article>
       </div>
       <p class="center muted small" style="margin-top:18px">Les fonctionnalités exactes dépendent de la formule et des paramètres actifs de la plateforme.</p>
     </div>
@@ -567,7 +567,7 @@ async function homePage(request, env) {
       <h2>Prêt à mettre votre commerce en ligne ?</h2>
       <p>Créez votre compte, personnalisez votre page et partagez-la avec vos clients.</p>
       <div class="hk-hero-actions" style="justify-content:center;margin-top:22px">
-        <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?modele=simple">Créer ma boutique</a>
+        <a class="hk-btn hk-btn-primary hk-btn-lg" href="/app?inscription=1">Créer ma boutique</a>
         <button class="hk-btn hk-btn-ghost hk-btn-lg" id="installPwaBottom" type="button" onclick="document.getElementById('installPwa').click()">Installer sur mon téléphone</button>
       </div>
     </div>
@@ -576,7 +576,7 @@ async function homePage(request, env) {
 
 <footer class="hk-foot">
   <div class="hk-shell">
-    <div class="row between"><div><strong>${name}</strong><p class="muted">Une vitrine numérique pour les commerces d’aujourd’hui.</p></div><div class="row"><a href="/app">Se connecter</a><a href="/app?modele=simple">Inscription</a></div></div>
+    <div class="row between"><div><strong>${name}</strong><p class="muted">Une vitrine numérique pour les commerces d’aujourd’hui.</p></div><div class="row"><a href="/app">Se connecter</a><a href="/app?inscription=1">Inscription</a></div></div>
     <p class="small muted">© ${new Date().getFullYear()} ${name}. Tous droits réservés.</p>
   </div>
 </footer>
